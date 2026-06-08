@@ -62,7 +62,6 @@ export default function SuperpositionToggle({ sym, sup }: SuperpositionTogglePro
               background: reversed ? "#A3372B" : "#D97757",
             }}
           >
-            {sym}
           </span>
         </button>
         <span className={`font-serif text-[21px] font-bold tracking-[0.04em] transition-all duration-400 whitespace-nowrap ${reversed ? "text-[#A3372B] opacity-100" : "text-[#8b8173] opacity-60"}`}>
