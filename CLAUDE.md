@@ -14,14 +14,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 部署到 pai-eth0
 
-SSH 主机 `pai-eth0` (10.0.1.5) 上的 `/cards-web` 是静态站点根目录。部署即把构建产物推上去：
+SSH 主机 `pai-eth0` (10.0.1.5) 上的 `/home/yusteven/cards-web/dist/` 是静态站点根目录,由 PM2 (`cards-web`) 通过 `serve` 在端口 5432 提供。部署即构建 + 同步 + 重启：
 
 ```bash
 # 1. 提交并推送
 git add -A && git commit -m "..." && git push origin main
 
-# 2. 构建 + 同步到 pai-eth0
-npm run build && rsync -avz --delete dist/ pai-eth0:/cards-web/
+# 2. 构建 + 同步到 pai-eth0 + 重启 serve
+npm run build && rsync -avz --delete dist/ pai-eth0:/home/yusteven/cards-web/dist/ && ssh pai-eth0 "pm2 restart cards-web"
 ```
 
 SSH 配置: `~/.ssh/config` 中 `Host pai-eth0`,密钥 `~/.ssh/id_ed25519_pai`。

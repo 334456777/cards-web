@@ -38,15 +38,22 @@ const links = [
     <Divider />
 
     <div class="flex flex-wrap justify-center gap-3 font-sans text-[14.5px] font-semibold mt-[40px]">
-      {links.map((l) => (
-        <a
-          href={l.href}
-          class="inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]"
-        >
-          {l.label}
-          <span class="text-gold">→</span>
-        </a>
-      ))}
+      {links.map((l) => {
+        const isHome = l.href === "/";
+        return (
+          <a
+            href={l.href}
+            class={
+              isHome
+                ? "inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-coral border-coral text-white hover:-translate-y-[2px] hover:shadow-[0_14px_26px_-16px_rgba(43,39,34,0.5)]"
+                : "inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]"
+            }
+          >
+            {l.label}
+            <span class={isHome ? "text-white" : "text-gold"}>→</span>
+          </a>
+        )}
+      )}
     </div>
   </main>
 </BaseLayout>
