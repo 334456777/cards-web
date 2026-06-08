@@ -32,7 +32,7 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
           data-suit={s.key}
           data-accent={s.accent}
         >
-          <span class:list={["text-lg leading-none", s.cls === "r" ? "text-suit-red" : "text-ink"]}>{s.sym}</span>
+          <span class:list={["tab-sym text-lg leading-none", s.cls === "r" ? "text-suit-red" : "text-ink"]}>{s.sym}</span>
           {s.cn}
         </button>
       ))}
@@ -42,12 +42,7 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
     {suits.map((s) => (
       <div class="suit-panel hidden" data-suit={s.key} id={`panel-${s.key}`}>
         <!-- Hero -->
-        <section class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-[50px] items-center py-[26px] pb-[24px]">
-          <div class="flex items-center justify-center relative order-first md:order-first">
-            <span class="absolute w-[280px] h-[280px] border-[1.5px] border-gold rounded-full opacity-40 [filter:url(#rough)]"></span>
-            <span class="absolute w-[240px] h-[240px] border-[1.5px] border-gold rounded-full opacity-25"></span>
-            <span class="text-[200px] leading-none transition-all duration-500" style={`color: ${s.accent}; filter: url(#rough) drop-shadow(0 8px 14px rgba(43,39,34,0.2))`}>{s.sym}</span>
-          </div>
+        <section class="py-[26px] pb-[24px]">
           <div>
             <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-[10px]">花色 · {s.group}</div>
             <h1 class="font-serif font-black text-[66px] leading-[1.02] mb-1 flex items-baseline gap-[18px]">
@@ -210,9 +205,13 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   const crumb = document.getElementById('crumbHere');
 
   function go(key) {
-    tabs.forEach(t => t.classList.toggle('bg-coral', t.dataset.suit === key));
-    tabs.forEach(t => t.classList.toggle('border-coral', t.dataset.suit === key));
-    tabs.forEach(t => t.classList.toggle('text-white', t.dataset.suit === key));
+    tabs.forEach(t => {
+      const on = t.dataset.suit === key;
+      t.classList.toggle('on', on);
+      // accent 底色用内联样式（优先级最高，避免被 bg-paper-deep 等基础工具类覆盖）
+      t.style.background = on ? (t.dataset.accent || '#D97757') : '';
+      t.style.borderColor = on ? (t.dataset.accent || '#D97757') : '';
+    });
     panels.forEach(p => p.classList.toggle('hidden', p.dataset.suit !== key));
     const s = SUIT_ORDER.indexOf(key);
     const pv = SUIT_ORDER[(s - 1 + 4) % 4], nx = SUIT_ORDER[(s + 1) % 4];
@@ -256,6 +255,11 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 </script>
 
 <style>
+  /* 选中的花色标签：accent 底由 JS 内联控制，这里只锁定白字（特异性高于工具类，且 hover 后仍保持白字，不回退） */
+  .suit-tab.on,
+  .suit-tab.on:hover { color: #fff; }
+  .suit-tab.on .tab-sym { color: #fff; }
+
   /* toggle 开关 */
   .tl.l { color: #D97757; }
   .tl.r { color: #8b8173; opacity: 0.6; }
@@ -276,11 +280,11 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
   /* aside 旁注 */
   .aside {
-    float: right;
-    clear: right;
-    width: 240px;
-    margin-right: -286px;
-    margin-bottom: 24px;
+    margin: 0 0 24px;
+    background: #fbf2e6;
+    border: 1px solid #d8ccb6;
+    border-radius: 10px;
+    padding: 15px 17px;
     font-family: "Noto Sans SC", sans-serif;
   }
   .aside .pin {

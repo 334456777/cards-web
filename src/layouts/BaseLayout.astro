@@ -43,7 +43,27 @@ const { title, activeNav } = Astro.props;
           <a href="/suits" class:list={["text-ink-soft hover:text-coral", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
           <a href="/combinations" class:list={["text-ink-soft hover:text-coral", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
         </nav>
+        <!-- 移动端汉堡按钮 -->
+        <button
+          id="navToggle"
+          type="button"
+          aria-label="打开导航菜单"
+          aria-expanded="false"
+          aria-controls="mobileNav"
+          class="nav-toggle ml-auto sm:hidden inline-flex flex-col justify-center items-center gap-[5px] w-10 h-10 -mr-2 rounded-lg cursor-pointer"
+        >
+          <span class="bar block w-[22px] h-[2px] bg-ink rounded-full"></span>
+          <span class="bar block w-[22px] h-[2px] bg-ink rounded-full"></span>
+          <span class="bar block w-[22px] h-[2px] bg-ink rounded-full"></span>
+        </button>
       </div>
+      <!-- 移动端下拉菜单 -->
+      <nav id="mobileNav" class="mobile-nav sm:hidden hidden border-t border-line bg-paper font-medium text-[15.5px]">
+        <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "教程" && "text-suit-red"]}>教程</a>
+        <a href="/library" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
+        <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
+        <a href="/combinations" class:list={["block px-7 py-[13px] text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
+      </nav>
     </header>
 
     <slot />
@@ -61,5 +81,28 @@ const { title, activeNav } = Astro.props;
       </div>
     </footer>
   </div>
+
+  <script>
+    const navToggle = document.getElementById("navToggle");
+    const mobileNav = document.getElementById("mobileNav");
+    if (navToggle && mobileNav) {
+      const setOpen = (open: boolean) => {
+        mobileNav.classList.toggle("hidden", !open);
+        navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+        navToggle.classList.toggle("is-open", open);
+      };
+      navToggle.addEventListener("click", () => setOpen(mobileNav.classList.contains("hidden")));
+      mobileNav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") setOpen(false); });
+    }
+  </script>
+
+  <style>
+    /* 汉堡按钮 → X 动画 */
+    .nav-toggle .bar { transition: transform 0.25s ease, opacity 0.2s ease; }
+    .nav-toggle.is-open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.is-open .bar:nth-child(2) { opacity: 0; }
+    .nav-toggle.is-open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  </style>
 </body>
 </html>

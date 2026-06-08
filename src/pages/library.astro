@@ -99,13 +99,13 @@ const JOKERS = [
             return (
               <a
                 href={`/cards/${s.key}_${rk}`}
-                class:list={["ccell flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]", isSpecial && "special-card"]}
+                class:list={["ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]", isSpecial && "special-card"]}
                 data-suit={s.key}
                 data-types={[...types, ...(isSpecial ? ["special"] : [])].join(" ")}
                 data-search={`${name} ${RANK_INFO[rk]} ${s.cn} ${s.yy} ${s.desc}`}
               >
-                <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] transition-all group-hover:border-coral">
-                  <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)]" />
+                <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] transition-all group-hover:border-coral group-hover:shadow-[0_14px_28px_-16px_rgba(43,39,34,0.5)]">
+                  <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)] transition-shadow group-hover:shadow-[0_8px_18px_-6px_rgba(43,39,34,0.5)]" />
                 </div>
                 <div class="pt-[11px] px-1 pb-[2px]">
                   <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
@@ -133,9 +133,9 @@ const JOKERS = [
       </div>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-5">
         {JOKERS.map((j) => (
-          <a href={`/cards/${j.file}`} class="ccell flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special" data-search={`${j.cn} ${j.ess} 大小王 混沌 有序 王`}>
-            <div class="bg-paper-deep border border-line rounded-[11px] p-[11px]">
-              <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)]" />
+          <a href={`/cards/${j.file}`} class="ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special" data-search={`${j.cn} ${j.ess} 大小王 混沌 有序 王`}>
+            <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] transition-all group-hover:border-coral group-hover:shadow-[0_14px_28px_-16px_rgba(43,39,34,0.5)]">
+              <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)] transition-shadow group-hover:shadow-[0_8px_18px_-6px_rgba(43,39,34,0.5)]" />
             </div>
             <div class="pt-[11px] px-1 pb-[2px]">
               <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
