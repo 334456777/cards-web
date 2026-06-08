@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Divider from "../components/Divider.astro";
 
 const links = [
-  { href: "/", label: "回首页", primary: true },
+  { href: "/", label: "回首页" },
   { href: "/tutorial", label: "教程" },
   { href: "/library", label: "牌库" },
   { href: "/suits", label: "四花色" },
@@ -41,15 +41,10 @@ const links = [
       {links.map((l) => (
         <a
           href={l.href}
-          class:list={[
-            "inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline",
-            l.primary
-              ? "bg-coral border-coral text-white hover:-translate-y-[2px] hover:shadow-[0_14px_26px_-16px_rgba(43,39,34,0.5)]"
-              : "bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]",
-          ]}
+          class="inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]"
         >
           {l.label}
-          <span class:list={[l.primary ? "text-white" : "text-gold"]}>→</span>
+          <span class="text-gold">→</span>
         </a>
       ))}
     </div>
