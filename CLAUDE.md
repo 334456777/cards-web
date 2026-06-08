@@ -12,6 +12,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 本仓库**没有测试和 lint**,`npm run build`(含 Astro/TS 类型检查)是唯一的验证关卡——改完务必跑一次。
 
+## 部署到 pai-eth0
+
+SSH 主机 `pai-eth0` (10.0.1.5) 上的 `/cards-web` 是静态站点根目录。部署即把构建产物推上去：
+
+```bash
+# 1. 提交并推送
+git add -A && git commit -m "..." && git push origin main
+
+# 2. 构建 + 同步到 pai-eth0
+npm run build && rsync -avz --delete dist/ pai-eth0:/cards-web/
+```
+
+SSH 配置: `~/.ssh/config` 中 `Host pai-eth0`,密钥 `~/.ssh/id_ed25519_pai`。
+
 ## 改东西在哪改
 
 54 张单卡不各存一份,由 `花色面 × 数字面` 动态合成:
