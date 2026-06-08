@@ -1,0 +1,65 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  activeNav?: "教程" | "牌库" | "四花色" | "组合浏览器";
+}
+
+const { title, activeNav } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} · 落差扑克牌占卜</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <!-- SVG 纹理滤镜（全局共用） -->
+  <svg class="rough-filter" aria-hidden="true">
+    <defs>
+      <filter id="rough">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="7" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="page-wrap">
+    <!-- 导航栏 -->
+    <header class="sticky top-0 z-40 border-b border-line bg-[rgba(250,246,239,0.88)] backdrop-blur-[8px] font-sans">
+      <div class="max-w-[1200px] mx-auto px-7 py-[14px] flex items-center gap-[22px]">
+        <a href="/" class="flex items-center gap-[11px] font-bold tracking-[0.02em] text-ink text-base no-underline">
+          <span class="font-serif text-[21px] text-suit-red leading-none tracking-[-2px]">
+            <span>♥</span><span class="text-ink">♠</span>
+          </span>
+          <span>落差扑克牌占卜</span>
+        </a>
+        <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
+          <a href="/tutorial" class:list={["text-ink-soft hover:text-coral", activeNav === "教程" && "text-suit-red"]}>教程</a>
+          <a href="/library" class:list={["text-ink-soft hover:text-coral", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
+          <a href="/suits" class:list={["text-ink-soft hover:text-coral", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
+          <a href="/combinations" class:list={["text-ink-soft hover:text-coral", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <!-- 页脚 -->
+    <footer class="border-t border-line mt-[70px] font-sans text-[13px] text-ink-faint">
+      <div class="max-w-[1200px] mx-auto px-7 py-[30px] flex justify-between gap-5 flex-wrap">
+        <span>落差扑克牌占卜 · 一套非线性、叠加态的解牌体系</span>
+        <span>
+          <a href="/tutorial">教程</a> ·
+          <a href="/library">牌库索引</a> ·
+          <a href="/suits">四花色</a> ·
+          <a href="/combinations">组合浏览器</a>
+        </span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

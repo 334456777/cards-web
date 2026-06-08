@@ -1,0 +1,209 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+import { buildDeck, SUIT_ORDER, RANK_ORDER, SUIT_SYM, SUIT_CLS } from "../lib/cards";
+import type { CardData } from "../lib/cards";
+
+const deck = await buildDeck();
+
+const SUIT_INFO = [
+  { key: "hearts", cn: "红桃", sym: "♥", cls: "r", yy: "阳 · 心之动", desc: "积极、爱心、勇敢、生命力——心之所向的动。" },
+  { key: "spades", cn: "黑桃", sym: "♠", cls: "k", yy: "阴 · 心之动", desc: "承载、沉淀、厚重、潜能——也可是破坏与抽离。" },
+  { key: "diamonds", cn: "方块", sym: "♦", cls: "r", yy: "阴 · 客观存在", desc: "未显化的概率场、规则与边界,可塑性强。" },
+  { key: "clubs", cn: "梅花", sym: "♣", cls: "k", yy: "阳 · 客观存在", desc: "已坍缩 / 显化,具象成果、有形的行动与产品。" },
+];
+
+const RANK_INFO: Record<string, string> = {
+  A: "起始单点", "2": "互动", "3": "基础人类", "4": "经历思考",
+  "5": "佼佼者", "6": "博学渊博", "7": "通达落差", "8": "变牌 · 规则",
+  "9": "不可描述", "10": "圆满极致", J: "官位 · 意志", Q: "女王 · 阴极", K: "国王 · 阳极",
+};
+
+const RANK_CN: Record<string, string> = {
+  A: "A", "2": "二", "3": "三", "4": "四", "5": "五", "6": "六", "7": "七",
+  "8": "八", "9": "九", "10": "十", J: "J", Q: "Q", K: "K",
+};
+
+function typeOf(r: string): string[] {
+  if (r === "J" || r === "Q" || r === "K") return ["court"];
+  return ["number"];
+}
+
+const JOKERS = [
+  { file: "joker_red", cn: "大王", sym: "★", cls: "r", ess: "混沌 · 有序" },
+  { file: "joker_black", cn: "小王", sym: "★", cls: "k", ess: "初始 · 一体" },
+];
+---
+
+<BaseLayout title="牌库" activeNav="牌库">
+  <nav class="max-w-[1240px] mx-auto px-7 pt-5 font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
+    <a href="/" class="text-ink-faint hover:text-coral">首页</a>
+    <span class="text-line">›</span>
+    <span class="text-suit-red font-medium">牌库</span>
+  </nav>
+
+  <div class="max-w-[1240px] mx-auto px-7 pt-[14px] pb-2">
+    <div class="flex items-end justify-between gap-[30px] flex-wrap">
+      <div>
+        <h1 class="font-serif font-black text-[52px] tracking-[0.01em] flex items-baseline gap-4">
+          牌库 <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
+        </h1>
+        <p class="text-lg text-ink-soft max-w-[34em] mt-[14px] leading-[1.7]">五十四张牌,四花色 × 十三层落差,外加混沌与有序的大小王。每张都能代表自身的反面——点开任意一张,读它的显义与隐义。</p>
+      </div>
+      <div class="font-sans text-[13px] text-ink-faint tracking-[0.04em] text-right shrink-0">
+        <b class="block font-serif text-[40px] font-black text-gold leading-none">54</b>张 · 当前显示
+      </div>
+    </div>
+  </div>
+
+  <Divider />
+
+  <!-- 筛选栏 -->
+  <div class="sticky top-[57px] z-30 bg-[rgba(250,246,239,0.92)] backdrop-blur-[8px] border-b border-line mt-[18px]">
+    <div class="max-w-[1240px] mx-auto px-7 py-[13px] flex items-center gap-[22px] flex-wrap font-sans">
+      <div class="flex items-center gap-[9px]">
+        <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[2px]">花色</span>
+        <button class="chip on" data-suit="all">全部</button>
+        <button class="chip" data-suit="hearts"><span class="text-suit-red">♥</span>红桃</button>
+        <button class="chip" data-suit="spades"><span class="text-ink">♠</span>黑桃</button>
+        <button class="chip" data-suit="diamonds"><span class="text-suit-red">♦</span>方块</button>
+        <button class="chip" data-suit="clubs"><span class="text-ink">♣</span>梅花</button>
+        <button class="chip" data-suit="joker"><span class="text-suit-red">★</span>大小王</button>
+      </div>
+      <div class="flex items-center gap-[9px]">
+        <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[2px]">层级</span>
+        <button class="chip on" data-type="all">全部</button>
+        <button class="chip" data-type="number">数字 A–10</button>
+        <button class="chip" data-type="court">人物 JQK</button>
+        <button class="chip" data-type="special">特殊牌</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-[1240px] mx-auto px-7 pt-[18px] pb-[100px]" id="board">
+    {SUIT_INFO.map((s) => (
+      <section class="suitsec mt-10" data-suit={s.key}>
+        <div class="flex items-center gap-5 mb-[22px] pb-[14px] border-b-[1.5px] border-line relative">
+          <span class:list={["text-[52px] leading-none [filter:url(#rough)]", s.cls === "r" ? "text-suit-red" : "text-ink"]}>{s.sym}</span>
+          <div>
+            <h2 class="font-serif font-black text-[30px] flex items-baseline gap-3">{s.cn}<span class="font-sans text-[13px] font-medium text-ink-faint tracking-[0.08em]">{s.yy}</span></h2>
+            <div class="font-sans text-sm text-ink-soft mt-[2px]">{s.desc}</div>
+          </div>
+          <span class="ml-auto font-sans text-[13px] text-ink-faint">13 张</span>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-5">
+          {RANK_ORDER.map((rk) => {
+            const name = s.cn + RANK_CN[rk];
+            const types = typeOf(rk);
+            const isSpecial = rk === "8" || rk === "10";
+            return (
+              <a
+                href={`/cards/${s.key}_${rk}`}
+                class:list={["ccell flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]", isSpecial && "special-card"]}
+                data-suit={s.key}
+                data-types={[...types, ...(isSpecial ? ["special"] : [])].join(" ")}
+                data-search={`${name} ${RANK_INFO[rk]} ${s.cn} ${s.yy} ${s.desc}`}
+              >
+                <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] transition-all group-hover:border-coral">
+                  <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)]" />
+                </div>
+                <div class="pt-[11px] px-1 pb-[2px]">
+                  <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
+                    {name}
+                    <span class:list={["text-sm", s.cls === "r" ? "text-suit-red" : "text-ink"]}>{s.sym}{rk}</span>
+                  </div>
+                  <div class="font-sans text-[12.5px] text-ink-faint mt-[3px] tracking-[0.02em]">{RANK_INFO[rk]}</div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+
+    <!-- 大小王 -->
+    <section class="suitsec mt-10" data-suit="joker">
+      <div class="flex items-center gap-5 mb-[22px] pb-[14px] border-b-[1.5px] border-line">
+        <span class="text-[52px] leading-none text-suit-red [filter:url(#rough)]">★</span>
+        <div>
+          <h2 class="font-serif font-black text-[30px] flex items-baseline gap-3">大小王<span class="font-sans text-[13px] font-medium text-ink-faint tracking-[0.08em]">混沌 与 有序</span></h2>
+          <div class="font-sans text-sm text-ink-soft mt-[2px]">初始阴阳一体,既是创始起点,又是圆融归零——灵活多变,不分开看。</div>
+        </div>
+        <span class="ml-auto font-sans text-[13px] text-ink-faint">2 张</span>
+      </div>
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-5">
+        {JOKERS.map((j) => (
+          <a href={`/cards/${j.file}`} class="ccell flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special" data-search={`${j.cn} ${j.ess} 大小王 混沌 有序 王`}>
+            <div class="bg-paper-deep border border-line rounded-[11px] p-[11px]">
+              <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)]" />
+            </div>
+            <div class="pt-[11px] px-1 pb-[2px]">
+              <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
+                {j.cn}
+                <span class:list={["text-sm", j.cls === "r" ? "text-suit-red" : "text-ink"]}>★</span>
+              </div>
+              <div class="font-sans text-[12.5px] text-coral mt-[3px] tracking-[0.02em]">{j.ess}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const allCells = document.querySelectorAll('.ccell');
+  const suitsecs = document.querySelectorAll('.suitsec');
+  const chips = document.querySelectorAll('.chip');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const parent = chip.parentElement!;
+      parent.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      apply();
+    });
+  });
+
+  function apply() {
+    const suitChip = document.querySelector('[data-suit].on');
+    const typeChip = document.querySelector('[data-type].on');
+    const suit = suitChip?.getAttribute('data-suit') || 'all';
+    const type = typeChip?.getAttribute('data-type') || 'all';
+    let n = 0;
+    allCells.forEach(c => {
+      const okSuit = suit === 'all' || c.getAttribute('data-suit') === suit;
+      const types = c.getAttribute('data-types') || '';
+      const okType = type === 'all' || types.indexOf(type) > -1;
+      const show = okSuit && okType;
+      (c as HTMLElement).style.display = show ? '' : 'none';
+      if (show) n++;
+    });
+    suitsecs.forEach(sec => {
+      const any = sec.querySelectorAll('.ccell').length > 0 &&
+                  [...sec.querySelectorAll('.ccell')].some(c => (c as HTMLElement).style.display !== 'none');
+      (sec as HTMLElement).style.display = any ? '' : 'none';
+    });
+  }
+</script>
+
+<style>
+  .chip {
+    font-size: 14px;
+    font-weight: 500;
+    color: #5b5246;
+    border: 1px solid #d8ccb6;
+    background: #F4EDE0;
+    border-radius: 30px;
+    padding: 6px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .chip:hover { border-color: #D97757; color: #2B2722; }
+  .chip.on { background: #D97757; border-color: #D97757; color: #fff; }
+</style>

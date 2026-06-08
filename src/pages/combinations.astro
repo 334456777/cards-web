@@ -1,0 +1,200 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+import { getCollection } from "astro:content";
+import type { ComboData } from "../lib/cards";
+
+const comboEntries = await getCollection("combinations");
+const combos = comboEntries.map(e => ({ key: e.id, ...e.data })) as ({ key: string } & ComboData)[];
+
+const SUITS = ["hearts", "spades", "diamonds", "clubs"];
+const SYM: Record<string, string> = { hearts: "♥", spades: "♠", diamonds: "♦", clubs: "♣" };
+const CLS: Record<string, string> = { hearts: "r", spades: "k", diamonds: "r", clubs: "k" };
+const CN: Record<string, string> = { hearts: "红桃", spades: "黑桃", diamonds: "方块", clubs: "梅花" };
+
+function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
+
+// 构建配对查找表
+const pairMap = new Map<string, { key: string } & ComboData>();
+for (const c of combos) {
+  if (c.suits.length === 2) {
+    const k = pairKey(c.suits[0], c.suits[1]);
+    pairMap.set(k, c);
+  }
+}
+---
+
+<BaseLayout title="组合浏览器" activeNav="组合浏览器">
+  <nav class="max-w-[1200px] mx-auto px-7 pt-5 font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
+    <a href="/" class="text-ink-faint hover:text-coral">首页</a>
+    <span class="text-line">›</span>
+    <span class="text-suit-red font-medium">组合浏览器</span>
+  </nav>
+
+  <div class="max-w-[1200px] mx-auto px-7 pt-[18px] pb-[6px]">
+    <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-3">花色相遇 · 嵌套 / 依存 / 转化</div>
+    <h1 class="font-serif font-black text-[56px] leading-[1.04] mb-3 flex items-baseline gap-4 flex-wrap">
+      组合浏览器
+      <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
+    </h1>
+    <p class="text-[19px] text-ink-soft max-w-[32em] leading-[1.7]">花色从不孤立。两色、三色同现,会嵌套、依存、转化出新的状态。体系里组合无穷,这里只收精选——点开配对矩阵任意一格,或在下方画廊里翻阅。</p>
+  </div>
+
+  <Divider />
+
+  <main class="max-w-[1200px] mx-auto px-7 pb-[100px]">
+    <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mt-[42px] mb-2 flex items-center gap-[11px]">
+      花色配对矩阵
+      <span class="flex-1 h-px bg-line" />
+    </h2>
+    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">行 × 列 = 两种花色相遇。点亮珊瑚点的格子已收录精选释义;斜线格是同色相叠;其余配对体系中存在,但本站尚未收录。</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-[38px] items-start">
+      <div class="font-sans">
+        <div class="grid grid-cols-[46px_repeat(4,1fr)] grid-rows-[46px_repeat(4,1fr)] gap-[6px]">
+          <!-- 角 -->
+          <div class="flex items-center justify-center text-ink-faint text-[11px] tracking-[0.06em] font-bold">行 + 列</div>
+          <!-- 列头 -->
+          {SUITS.map(c => <div class:list={["flex items-center justify-center text-2xl leading-none", CLS[c] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[c]}</div>)}
+          <!-- 行 -->
+          {SUITS.map(r => (
+            <>
+              <div class:list={["flex items-center justify-center text-2xl leading-none", CLS[r] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[r]}</div>
+              {SUITS.map(c => {
+                if (r === c) {
+                  return <div class="aspect-square border border-line rounded-[9px] bg-[repeating-linear-gradient(45deg,#EFE6D6,#EFE6D6_5px,#F4EDE0_5px,#F4EDE0_10px)] flex items-center justify-center cursor-default">
+                    <span class:list={["text-[17px] leading-none opacity-40", CLS[r] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[r]}</span>
+                  </div>;
+                }
+                const k = pairKey(r, c);
+                const curated = pairMap.has(k);
+                return <div
+                  class:list={["mcell aspect-square border border-line rounded-[9px] bg-paper-deep flex items-center justify-center cursor-pointer relative transition-all gap-[2px] hover:-translate-y-[2px]", curated && "bg-white border-gold"]}
+                  data-pair={k}
+                  data-a={r}
+                  data-b={c}
+                >
+                  <span class:list={["text-[17px] leading-none", CLS[r] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[r]}</span>
+                  <span class:list={["text-[17px] leading-none", CLS[c] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[c]}</span>
+                  {curated && <span class="absolute top-[5px] right-[5px] w-[6px] h-[6px] rounded-full bg-coral"></span>}
+                </div>;
+              })}
+            </>
+          ))}
+        </div>
+        <div class="flex gap-[18px] mt-4 text-[12.5px] text-ink-faint flex-wrap">
+          <span class="flex items-center gap-[6px]"><span class="w-2 h-2 rounded-full bg-coral"></span>已收录精选</span>
+          <span class="flex items-center gap-[6px]"><span class="w-[14px] h-[14px] rounded-[4px] border border-gold bg-white"></span>可点击</span>
+        </div>
+      </div>
+
+      <!-- 详情面板 -->
+      <div class="detail bg-paper-deep border border-line rounded-2xl p-[30px_32px] relative min-h-[300px]" id="detail">
+        <div class="flex flex-col items-center justify-center text-center text-ink-faint h-full min-h-[300px]">
+          <div class="text-[40px] text-line mb-3">❦</div>
+          <div class="font-serif text-[21px] text-ink-soft mb-2">点开矩阵任意一格</div>
+          <div class="font-sans text-sm max-w-[24em] leading-[1.6]">选择一种花色配对,查看它在落差体系中的含义。</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mt-[42px] mb-2 flex items-center gap-[11px]">
+      精选组合 · 画廊
+      <span class="flex-1 h-px bg-line" />
+    </h2>
+    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">收录的组合一览。</p>
+    <div class="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(330px,1fr))] gap-5" id="gallery">
+      {combos.map((c) => (
+        <div class:list={["gcard border border-line rounded-[14px] bg-paper-deep p-[24px_26px] relative transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-18px_rgba(43,39,34,0.45)]", c.warn && "bg-[#f8ece9] border-[#d9a59c]"]}
+          data-suits={c.suits.join(" ")}
+        >
+          <span class:list={["absolute top-[18px] right-[20px] font-sans text-[11px] font-bold tracking-[0.08em] uppercase border rounded-[20px] px-[10px] py-[2px] opacity-70", c.warn ? "text-suit-red border-[#d9a59c]" : "text-gold border-gold"]}>
+            {c.warn ? "特例" : "精选"}
+          </span>
+          <div class="flex items-center gap-2 mb-[13px]">
+            {c.suits.map((s, i) => (
+              <>
+                {i > 0 && <span class="text-gold text-base">+</span>}
+                <span class:list={["text-[27px] leading-none", CLS[s] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[s]}</span>
+              </>
+            ))}
+            <span class:list={["font-serif font-bold text-[19px] ml-[7px]", c.warn ? "text-suit-red" : "text-ink"]}>{c.name}</span>
+          </div>
+          <div class="mb-[11px]">
+            <span class="font-sans text-[11px] font-bold tracking-[0.12em] uppercase text-coral mb-1 inline-block">显义 · 一面</span>
+            <p class="text-ink text-[15.5px] leading-[1.64]">{c.pos}</p>
+          </div>
+          <div>
+            <span class="font-sans text-[11px] font-bold tracking-[0.12em] uppercase text-ink-faint mb-1 inline-block">隐义 · 反面</span>
+            <p class="text-ink-soft text-[15.5px] leading-[1.64]">{c.neg}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</BaseLayout>
+
+<script define:vars={{ SUITS, SYM, CLS, CN, pairKey }}>
+  const detail = document.getElementById('detail');
+
+  function selectPair(k, a, b) {
+    document.querySelectorAll('.mcell').forEach(c => {
+      c.style.boxShadow = c.getAttribute('data-pair') === k ? 'inset 0 0 0 2px #D97757' : '';
+      c.style.borderColor = c.getAttribute('data-pair') === k ? '#D97757' : '';
+    });
+
+    // 从画廊查找数据
+    const galleryCards = document.querySelectorAll('.gcard');
+    let found = null;
+    galleryCards.forEach(gc => {
+      const suits = gc.getAttribute('data-suits')?.split(' ') || [];
+      const pk = suits.length === 2 ? pairKey(suits[0], suits[1]) : '';
+      if (pk === k) {
+        found = {
+          pos: gc.querySelector('.text-ink')?.textContent || '',
+          neg: gc.querySelectorAll('p')[1]?.textContent || '',
+          name: gc.querySelector('.font-serif')?.textContent || '',
+        };
+      }
+    });
+
+    if (found) {
+      detail.innerHTML = `
+        <div class="flex items-center gap-[10px] mb-[6px]">
+          <span class="text-[38px] leading-none ${CLS[a]==='r'?'text-suit-red':'text-ink'}">${SYM[a]}</span>
+          <span class="text-gold text-[22px]">+</span>
+          <span class="text-[38px] leading-none ${CLS[b]==='r'?'text-suit-red':'text-ink'}">${SYM[b]}</span>
+        </div>
+        <h3 class="font-serif font-black text-[30px] mt-[6px] mb-[2px]">${CN[a]} + ${CN[b]}</h3>
+        <div class="font-sans text-[13px] text-ink-faint tracking-[0.05em] mb-[18px]">${found.name}</div>
+        <div class="mb-[15px]"><span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-coral mb-[5px] inline-block">显义 · 一面</span><p class="text-ink text-[16.5px] leading-[1.7]">${found.pos}</p></div>
+        <div><span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-ink-faint mb-[5px] inline-block">隐义 · 反面</span><p class="text-ink-soft text-[16.5px] leading-[1.7]">${found.neg}</p></div>
+      `;
+    } else {
+      detail.innerHTML = `
+        <div class="flex flex-col items-center justify-center text-center text-ink-faint h-full min-h-[300px]">
+          <div class="flex items-center gap-[10px] mb-[14px]">
+            <span class="text-[38px] leading-none ${CLS[a]==='r'?'text-suit-red':'text-ink'}">${SYM[a]}</span>
+            <span class="text-gold text-[22px]">+</span>
+            <span class="text-[38px] leading-none ${CLS[b]==='r'?'text-suit-red':'text-ink'}">${SYM[b]}</span>
+          </div>
+          <div class="text-[40px] text-line mb-[12px]">❦</div>
+          <div class="font-serif text-[21px] text-ink-soft mb-2">${CN[a]} + ${CN[b]} · 尚未收录</div>
+          <div class="font-sans text-sm max-w-[24em] leading-[1.6]">这一配对在体系中确实存在,但本站只收精选。可先分别读两种花色的性格,按语境自行叠合。</div>
+        </div>
+      `;
+    }
+  }
+
+  document.querySelectorAll('.mcell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const k = cell.getAttribute('data-pair');
+      const a = cell.getAttribute('data-a');
+      const b = cell.getAttribute('data-b');
+      if (k && a && b) selectPair(k, a, b);
+    });
+  });
+
+  // 默认选中红桃+梅花
+  selectPair(pairKey('hearts','clubs'), 'hearts', 'clubs');
+</script>

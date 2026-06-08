@@ -1,0 +1,232 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+import { getCollection } from "astro:content";
+import type { SuitData } from "../lib/cards";
+
+const suitEntries = await getCollection("suits");
+const SUIT_ORDER = ["hearts", "spades", "diamonds", "clubs"];
+const suits = SUIT_ORDER.map((k) => {
+  const e = suitEntries.find((s) => s.id === k);
+  return e ? { key: k, ...e.data } : null;
+}).filter(Boolean) as (({ key: string } & SuitData))[];
+
+const SYM: Record<string, string> = { hearts: "♥", spades: "♠", diamonds: "♦", clubs: "♣" };
+const CLS: Record<string, string> = { hearts: "r", spades: "k", diamonds: "r", clubs: "k" };
+const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+---
+
+<BaseLayout title="四花色" activeNav="四花色">
+  <nav class="max-w-[1200px] mx-auto px-7 pt-5 font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
+    <a href="/library" class="text-ink-faint hover:text-coral">牌库</a>
+    <span class="text-line">›</span>
+    <span class="text-suit-red font-medium" id="crumbHere">红桃</span>
+  </nav>
+
+  <main class="max-w-[1200px] mx-auto px-7 pb-[100px]">
+    <!-- 四花色标签页 -->
+    <div class="flex gap-[10px] mt-[22px] mb-2 font-sans flex-wrap">
+      {suits.map((s) => (
+        <button
+          class="suit-tab flex items-center gap-2 border border-line bg-paper-deep rounded-[30px] px-[17px] py-2 cursor-pointer text-[15px] font-medium text-ink-soft transition-all hover:border-coral hover:text-ink"
+          data-suit={s.key}
+          data-accent={s.accent}
+        >
+          <span class:list={["text-lg leading-none", s.cls === "r" ? "text-suit-red" : "text-ink"]}>{s.sym}</span>
+          {s.cn}
+        </button>
+      ))}
+    </div>
+
+    <!-- 每个花色面板 -->
+    {suits.map((s) => (
+      <div class="suit-panel hidden" data-suit={s.key} id={`panel-${s.key}`}>
+        <!-- Hero -->
+        <section class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-[50px] items-center py-[26px] pb-[24px]">
+          <div class="flex items-center justify-center relative order-first md:order-first">
+            <span class="absolute w-[280px] h-[280px] border-[1.5px] border-gold rounded-full opacity-40 [filter:url(#rough)]"></span>
+            <span class="absolute w-[240px] h-[240px] border-[1.5px] border-gold rounded-full opacity-25"></span>
+            <span class="text-[200px] leading-none transition-all duration-500" style={`color: ${s.accent}; filter: url(#rough) drop-shadow(0 8px 14px rgba(43,39,34,0.2))`}>{s.sym}</span>
+          </div>
+          <div>
+            <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-[10px]">花色 · {s.group}</div>
+            <h1 class="font-serif font-black text-[66px] leading-[1.02] mb-1 flex items-baseline gap-[18px]">
+              {s.cn} <span class="text-[50px]" style={`color: ${s.accent}`}>{s.sym}</span>
+            </h1>
+            <div class="font-sans text-[15px] text-ink-faint tracking-[0.05em] mb-[18px]">{s.latin} — {s.yy} · {s.group}</div>
+            <div class="flex flex-wrap gap-[9px] mb-5">
+              {s.tags.map((t, i) => (
+                <span class:list={[
+                  "font-sans text-[13px] font-medium px-[13px] py-[5px] rounded-[30px] border whitespace-nowrap",
+                  i === 0 ? "border-gold bg-white text-gold" : "border-line bg-paper-deep text-ink-soft",
+                ]}>{t}</span>
+              ))}
+            </div>
+            <p class="text-[19px] text-ink-soft max-w-[32em] leading-[1.72]" set:html={`<span class="float-left font-serif font-black text-gold text-[64px] leading-[0.76] pt-[6px] pr-3">${s.cn.charAt(0)}</span>${s.lede}`} />
+          </div>
+        </section>
+
+        <Divider />
+
+        <!-- 花色性格 -->
+        <div class="max-w-[1010px] mx-auto">
+          <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
+            花色性格 · 正向 × 阴影
+            <span class="flex-1 h-px bg-line" />
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+              <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
+              <span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-coral mb-[9px] inline-block">正向 · 显义</span>
+              <h3 class="font-serif font-bold text-[21px] mb-[10px]">{s.posH}</h3>
+              <p class="text-ink text-[16.5px] leading-[1.72]">{s.pos}</p>
+            </div>
+            <div class="bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+              <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
+              <span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-ink-faint mb-[9px] inline-block">阴影 · 隐义</span>
+              <h3 class="font-serif font-bold text-[21px] mb-[10px]">{s.negH}</h3>
+              <p class="text-ink-soft text-[16.5px] leading-[1.72]">{s.neg}</p>
+            </div>
+          </div>
+        </div>
+
+        <Divider />
+
+        <!-- 四象限 -->
+        <div class="max-w-[680px] mx-auto">
+          <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
+            在体系里的位置
+            <span class="flex-1 h-px bg-line" />
+          </h2>
+          <div class="grid grid-cols-[120px_1fr_1fr] gap-0">
+            <div></div>
+            <div class="text-center font-sans text-[12.5px] font-bold tracking-[0.1em] text-gold uppercase pb-3">心之动 · 有偏向</div>
+            <div class="text-center font-sans text-[12.5px] font-bold tracking-[0.1em] text-gold uppercase pb-3">客观存在 · 无偏向</div>
+            <div class="flex items-center justify-end pr-4 font-sans text-[13px] font-bold tracking-[0.08em] text-gold uppercase text-right">阳</div>
+            <div class:list={["qcell border border-line p-5 min-h-[118px] flex flex-col items-center justify-center gap-[5px] text-center bg-paper-deep transition-all cursor-pointer", s.key === "hearts" && "active bg-white shadow-[inset_0_0_0_2px_var(--tw-shadow-color)]"]} data-qsuit="hearts" style={s.key === "hearts" ? "box-shadow: inset 0 0 0 2px " + s.accent : ""}>
+              <span class="text-[34px] leading-none text-suit-red">♥</span>
+              <span class="font-serif text-[17px] font-bold text-ink">红桃</span>
+              <span class="text-[11.5px] text-ink-faint">阳 · 心之动</span>
+            </div>
+            <div class:list={["qcell border border-line p-5 min-h-[118px] flex flex-col items-center justify-center gap-[5px] text-center bg-paper-deep transition-all cursor-pointer", s.key === "clubs" && "active"]} data-qsuit="clubs" style={s.key === "clubs" ? "box-shadow: inset 0 0 0 2px " + s.accent : ""}>
+              <span class="text-[34px] leading-none text-ink">♣</span>
+              <span class="font-serif text-[17px] font-bold text-ink">梅花</span>
+              <span class="text-[11.5px] text-ink-faint">阳 · 客观存在</span>
+            </div>
+            <div class="flex items-center justify-end pr-4 font-sans text-[13px] font-bold tracking-[0.08em] text-gold uppercase text-right">阴</div>
+            <div class:list={["qcell border border-line p-5 min-h-[118px] flex flex-col items-center justify-center gap-[5px] text-center bg-paper-deep transition-all cursor-pointer", s.key === "spades" && "active"]} data-qsuit="spades" style={s.key === "spades" ? "box-shadow: inset 0 0 0 2px " + s.accent : ""}>
+              <span class="text-[34px] leading-none text-ink">♠</span>
+              <span class="font-serif text-[17px] font-bold text-ink">黑桃</span>
+              <span class="text-[11.5px] text-ink-faint">阴 · 心之动</span>
+            </div>
+            <div class:list={["qcell border border-line p-5 min-h-[118px] flex flex-col items-center justify-center gap-[5px] text-center bg-paper-deep transition-all cursor-pointer", s.key === "diamonds" && "active"]} data-qsuit="diamonds" style={s.key === "diamonds" ? "box-shadow: inset 0 0 0 2px " + s.accent : ""}>
+              <span class="text-[34px] leading-none text-suit-red">♦</span>
+              <span class="font-serif text-[17px] font-bold text-ink">方块</span>
+              <span class="text-[11.5px] text-ink-faint">阴 · 客观存在</span>
+            </div>
+          </div>
+        </div>
+
+        <Divider label="A — K" />
+
+        <!-- 13 张牌 -->
+        <div class="max-w-[1010px] mx-auto">
+          <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
+            {s.cn} · 十三层
+            <span class="flex-1 h-px bg-line" />
+          </h2>
+          <div class="grid grid-cols-7 md:grid-cols-13 gap-[9px]">
+            {RANKS.map((r) => (
+              <a href={`/cards/${s.key}_${r}`} class="block rounded-md overflow-hidden transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_20px_-10px_rgba(43,39,34,0.5)] bg-white shadow-[0_3px_8px_-5px_rgba(43,39,34,0.45)]">
+                <img loading="lazy" src={`/cards_svg/${s.key}_${r}.svg`} alt={`${s.cn}${r}`} class="w-full block aspect-[238/333]" />
+              </a>
+            ))}
+          </div>
+          <div class="font-sans text-[12.5px] text-ink-faint text-center mt-3">从 A 到 K,这一花色穿过十三层落差 · 点开任意一张读它的显义与隐义</div>
+        </div>
+
+        <Divider />
+
+        <!-- 精选组合 -->
+        <div class="max-w-[1010px] mx-auto">
+          <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
+            含{s.cn}的精选组合
+            <span class="flex-1 h-px bg-line" />
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+            {s.combos.map((c) => (
+              <div class:list={["border border-line rounded-xl bg-paper-deep p-[20px_22px] transition-all hover:border-coral hover:-translate-y-[2px] hover:shadow-[0_12px_24px_-16px_rgba(43,39,34,0.4)]", c[0] === "hearts" && c[1] === "spades" && c[2] === "clubs" && "bg-[#f8ece9] border-[#d9a59c]"]}>
+                <div class="flex items-center gap-[7px] mb-[10px] font-sans">
+                  {c[0] && c[1] ? (
+                    <>
+                      <span class:list={["text-[21px] leading-none", CLS[c[0]] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[c[0]]}</span>
+                      {c[0] !== c[1] && <span class="text-gold text-sm">+</span>}
+                      <span class:list={["text-[21px] leading-none", CLS[c[1]] === "r" ? "text-suit-red" : "text-ink"]}>{SYM[c[1]]}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span class="text-[21px] leading-none text-suit-red">♥</span>
+                      <span class="text-[21px] leading-none text-ink">♠</span>
+                      <span class="text-[21px] leading-none text-ink">♣</span>
+                    </>
+                  )}
+                  <span class="font-bold text-sm ml-[5px] text-ink whitespace-nowrap">{c[2]}</span>
+                </div>
+                <p class="text-[15.5px] text-ink-soft leading-[1.66]">{c[3]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+
+    <!-- 花色间导航 -->
+    <div class="flex gap-4 max-w-[1010px] mx-auto mt-11 font-sans">
+      <button id="prevSuitBtn" class="flex-1 border border-line rounded-[11px] p-[15px_20px] bg-paper-deep flex flex-col gap-[3px] text-left hover:border-coral hover:bg-paper transition-all cursor-pointer">
+        <span class="text-[11.5px] tracking-[0.15em] uppercase text-ink-faint">← 上一花色</span>
+        <span class="font-serif text-lg font-bold text-ink flex items-center gap-2" id="prevCt"></span>
+      </button>
+      <button id="nextSuitBtn" class="flex-1 border border-line rounded-[11px] p-[15px_20px] bg-paper-deep flex flex-col gap-[3px] text-right items-end hover:border-coral hover:bg-paper transition-all cursor-pointer">
+        <span class="text-[11.5px] tracking-[0.15em] uppercase text-ink-faint">下一花色 →</span>
+        <span class="font-serif text-lg font-bold text-ink flex items-center gap-2" id="nextCt"></span>
+      </button>
+    </div>
+  </main>
+</BaseLayout>
+
+<script define:vars={{ SUIT_ORDER, SYM, CLS }}>
+  const tabs = document.querySelectorAll('.suit-tab');
+  const panels = document.querySelectorAll('.suit-panel');
+  const crumb = document.getElementById('crumbHere');
+
+  function go(key) {
+    tabs.forEach(t => t.classList.toggle('bg-coral', t.dataset.suit === key));
+    tabs.forEach(t => t.classList.toggle('border-coral', t.dataset.suit === key));
+    tabs.forEach(t => t.classList.toggle('text-white', t.dataset.suit === key));
+    panels.forEach(p => p.classList.toggle('hidden', p.dataset.suit !== key));
+    const s = SUIT_ORDER.indexOf(key);
+    const pv = SUIT_ORDER[(s - 1 + 4) % 4], nx = SUIT_ORDER[(s + 1) % 4];
+    document.getElementById('prevCt').innerHTML = `<span class="${CLS[pv]==='r'?'text-suit-red':'text-ink'}">${SYM[pv]}</span>${pv === 'hearts' ? '红桃' : pv === 'spades' ? '黑桃' : pv === 'diamonds' ? '方块' : '梅花'}`;
+    document.getElementById('nextCt').innerHTML = `<span class="${CLS[nx]==='r'?'text-suit-red':'text-ink'}">${SYM[nx]}</span>${nx === 'hearts' ? '红桃' : nx === 'spades' ? '黑桃' : nx === 'diamonds' ? '方块' : '梅花'}`;
+    const names = { hearts: '红桃', spades: '黑桃', diamonds: '方块', clubs: '梅花' };
+    if (crumb) crumb.textContent = names[key] || '红桃';
+    try { localStorage.setItem('suit-cur', key); } catch {}
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.suit)));
+  document.querySelectorAll('.qcell').forEach(c => c.addEventListener('click', () => go(c.dataset.qsuit)));
+  document.getElementById('prevSuitBtn').addEventListener('click', () => {
+    const cur = [...panels].find(p => !p.classList.contains('hidden'))?.dataset.suit || 'hearts';
+    go(SUIT_ORDER[(SUIT_ORDER.indexOf(cur) - 1 + 4) % 4]);
+  });
+  document.getElementById('nextSuitBtn').addEventListener('click', () => {
+    const cur = [...panels].find(p => !p.classList.contains('hidden'))?.dataset.suit || 'hearts';
+    go(SUIT_ORDER[(SUIT_ORDER.indexOf(cur) + 1) % 4]);
+  });
+
+  let saved = 'hearts';
+  try { saved = localStorage.getItem('suit-cur') || 'hearts'; } catch {}
+  if (!SUIT_ORDER.includes(saved)) saved = 'hearts';
+  go(saved);
+</script>

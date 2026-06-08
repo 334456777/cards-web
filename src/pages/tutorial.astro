@@ -1,0 +1,263 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+---
+
+<BaseLayout title="教程" activeNav="教程">
+  <!-- 阅读进度条 -->
+  <div id="progress" class="fixed top-0 left-0 h-[3px] bg-coral z-50 transition-[width] duration-100" style="width:0"></div>
+
+  <!-- 面包屑 -->
+  <nav class="max-w-[1280px] mx-auto px-8 pt-[22px] font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
+    <a href="/" class="text-ink-faint hover:text-coral">首页</a>
+    <span class="text-line">›</span>
+    <span class="text-suit-red font-medium">教程</span>
+  </nav>
+
+  <!-- 标题区 -->
+  <div class="max-w-[1280px] mx-auto px-8 pt-5 pb-[6px]">
+    <div class="font-sans text-[13px] tracking-[0.24em] uppercase text-gold font-bold mb-3">入门读本 · 五章</div>
+    <h1 class="font-serif font-black text-[60px] leading-[1.05] mb-[14px] tracking-[0.01em]">读懂落差体系</h1>
+    <p class="text-xl text-ink-soft max-w-[30em] leading-[1.7]">一套非线性的解牌方法:每张牌都由花色与数字两重含义叠合而成,而每一重含义,都同时藏着它的反面。从核心理念读起,到亲手解一张牌。</p>
+  </div>
+
+  <Divider />
+
+  <!-- 主布局 -->
+  <div class="max-w-[1280px] mx-auto px-8 pb-[110px] grid grid-cols-1 lg:grid-cols-[222px_minmax(0,1fr)] gap-[54px] items-start">
+    <!-- 目录 -->
+    <aside class="hidden lg:block sticky top-[92px] font-sans">
+      <div class="text-[11.5px] tracking-[0.18em] uppercase text-ink-faint font-bold mb-[14px] pb-3 border-b border-line">目录</div>
+      <ol class="list-none m-0 p-0">
+        <li><a href="#c1" data-t="c1" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">核心理念</a></li>
+        <li><a href="#c2" data-t="c2" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">四花色</a></li>
+        <li><a href="#c3" data-t="c3" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">花色组合</a></li>
+        <li><a href="#c4" data-t="c4" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">数字层次 1–K</a></li>
+        <li><a href="#c5" data-t="c5" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">解牌方法</a></li>
+      </ol>
+      <div class="mt-[22px] pt-[18px] border-t border-line text-[13.5px]">
+        读到一半想查牌?<br><a href="/library" class="text-gold hover:text-coral">前往牌库索引 →</a>
+      </div>
+    </aside>
+
+    <!-- 文章 -->
+    <div class="max-w-[1000px]">
+      <!-- 01 核心理念 -->
+      <section class="mb-16 scroll-mt-[96px]" id="c1">
+        <div class="flex items-start gap-[18px] mb-[26px]">
+          <span class="font-serif font-black text-[50px] leading-[0.9] text-gold opacity-55 shrink-0 tracking-[-0.02em]">01</span>
+          <div>
+            <h2 class="font-serif font-black text-[34px] leading-[1.15] whitespace-nowrap">核心理念</h2>
+            <div class="font-sans text-sm text-ink-faint mt-[6px] tracking-[0.04em] font-medium">非线性 · 叠加态 · 优势即劣势</div>
+          </div>
+        </div>
+        <div class="text-ink-soft">
+          <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">落</span>差体系是一套<strong class="text-ink font-bold">非线性</strong>的解牌方法。它不把牌排成"从弱到强"的直线,而是认为每一张牌、每一种花色,都能在同一时刻代表自身,也代表自身的反面——这就是<span class="underline decoration-coral decoration-wavy decoration-2 underline-offset-1">叠加态</span>。</p>
+          <p class="mb-5">所以读牌时,我们不问"这是好牌还是坏牌",而问"在此刻的语境里,它偏向哪一面"。同一份勇敢,可以是照亮众人的热忱,也可以是用力过猛、被人利用的莽撞。两者并非先后,而是<strong class="text-ink font-bold">同一个存在</strong>。</p>
+          <blockquote class="my-[30px] py-1 pl-[26px] border-l-[3px] border-gold font-serif text-2xl leading-[1.5] text-ink">
+            优势即劣势,劣势即优势——<span class="text-suit-red font-bold">随语境翻转,二者同时成立。</span>
+          </blockquote>
+          <p>每张牌的含义由两条线索叠合:它的<strong class="text-ink font-bold">花色</strong>(心往何处),以及它的<strong class="text-ink font-bold">数字</strong>(处在第几层落差)。"落差"指的正是这十三层之间的高下与转化关系。读懂一张牌,就是读懂这两重含义如何在具体处境里相乘、显隐。</p>
+        </div>
+      </section>
+
+      <Divider label="♠ ♥ ♦ ♣" />
+
+      <!-- 02 四花色 -->
+      <section class="mb-16 scroll-mt-[96px]" id="c2">
+        <div class="flex items-start gap-[18px] mb-[26px]">
+          <span class="font-serif font-black text-[50px] leading-[0.9] text-gold opacity-55 shrink-0 tracking-[-0.02em]">02</span>
+          <div>
+            <h2 class="font-serif font-black text-[34px] leading-[1.15] whitespace-nowrap">四花色</h2>
+            <div class="font-sans text-sm text-ink-faint mt-[6px] tracking-[0.04em] font-medium">心之动 与 客观存在 · 阴阳互嵌</div>
+          </div>
+        </div>
+        <div class="text-ink-soft">
+          <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">四</span>种花色分作两类:<strong class="text-ink font-bold">♥ 红桃</strong>与<strong class="text-ink font-bold">♠ 黑桃</strong>是<span class="text-gold font-medium">心之动</span>——带有偏向、关乎意志;<strong class="text-ink font-bold">♣ 梅花</strong>与<strong class="text-ink font-bold">♦ 方块</strong>是<span class="text-gold font-medium">客观存在</span>——无偏向、关乎有无。四色相互嵌套、依存、转化,谁也离不开谁。</p>
+
+          <div class="border-t border-line py-[22px] grid grid-cols-[96px_1fr] gap-[22px] items-start">
+            <img loading="lazy" src="/cards_svg/hearts_A.svg" alt="红桃" class="w-24 block rounded-md shadow-[0_6px_16px_-8px_rgba(43,39,34,0.5)] bg-white aspect-[238/333]" />
+            <div>
+              <div class="flex items-baseline gap-3 mb-1"><span class="text-[26px] leading-none text-suit-red">♥</span><h3 class="font-serif font-bold text-[23px]">红桃</h3><span class="font-sans text-[13px] text-ink-faint tracking-[0.06em] font-medium">阳 · 心之动</span></div>
+              <div class="mt-[10px] space-y-[7px]">
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-coral pt-1">正向</span><span class="text-ink">积极、主动、勇敢、爱心、生命力、向上进取,带着创造的驱动力。</span></div>
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-ink-faint pt-1">阴影</span><span>也可代表缺乏积极、缺乏勇敢,或这份勇敢被他人利用。</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-line py-[22px] grid grid-cols-[96px_1fr] gap-[22px] items-start">
+            <img loading="lazy" src="/cards_svg/spades_A.svg" alt="黑桃" class="w-24 block rounded-md shadow-[0_6px_16px_-8px_rgba(43,39,34,0.5)] bg-white aspect-[238/333]" />
+            <div>
+              <div class="flex items-baseline gap-3 mb-1"><span class="text-[26px] leading-none text-ink">♠</span><h3 class="font-serif font-bold text-[23px]">黑桃</h3><span class="font-sans text-[13px] text-ink-faint tracking-[0.06em] font-medium">阴 · 心之动</span></div>
+              <div class="mt-[10px] space-y-[7px]">
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-coral pt-1">正向</span><span class="text-ink">承载、沉淀、厚重、基底、潜能、深入挖掘、包容。</span></div>
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-ink-faint pt-1">阴影</span><span>破坏、抽离、消亡;也可指视野狭隘、自大傲慢,或反向的扩张打破。</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-line py-[22px] grid grid-cols-[96px_1fr] gap-[22px] items-start">
+            <img loading="lazy" src="/cards_svg/clubs_A.svg" alt="梅花" class="w-24 block rounded-md shadow-[0_6px_16px_-8px_rgba(43,39,34,0.5)] bg-white aspect-[238/333]" />
+            <div>
+              <div class="flex items-baseline gap-3 mb-1"><span class="text-[26px] leading-none text-ink">♣</span><h3 class="font-serif font-bold text-[23px]">梅花</h3><span class="font-sans text-[13px] text-ink-faint tracking-[0.06em] font-medium">阳(黑色)· 客观存在</span></div>
+              <div class="mt-[10px] space-y-[7px]">
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-coral pt-1">正向</span><span class="text-ink">已坍缩 / 显化,具象、实体、可见——有形的行动、思想、成果与产品。</span></div>
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-ink-faint pt-1">阴影</span><span>固化、被有形所困;或缺乏建树、尚未结果。</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-line py-[22px] grid grid-cols-[96px_1fr] gap-[22px] items-start">
+            <img loading="lazy" src="/cards_svg/diamonds_A.svg" alt="方块" class="w-24 block rounded-md shadow-[0_6px_16px_-8px_rgba(43,39,34,0.5)] bg-white aspect-[238/333]" />
+            <div>
+              <div class="flex items-baseline gap-3 mb-1"><span class="text-[26px] leading-none text-suit-red">♦</span><h3 class="font-serif font-bold text-[23px]">方块</h3><span class="font-sans text-[13px] text-ink-faint tracking-[0.06em] font-medium">阴(红色)· 客观存在</span></div>
+              <div class="mt-[10px] space-y-[7px]">
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-coral pt-1">正向</span><span class="text-ink">未显化 / 潜在,概率场、无尽可能;规则、边界、形状,可塑性强。</span></div>
+                <div class="grid grid-cols-[62px_1fr] gap-3 text-base leading-[1.6]"><span class="font-sans text-[11.5px] font-bold tracking-[0.1em] uppercase text-ink-faint pt-1">阴影</span><span>未行动、未建树、未探索;或太固化、偏向太多。</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Divider label="♠ ♥ ♦ ♣" />
+
+      <!-- 03 花色组合 -->
+      <section class="mb-16 scroll-mt-[96px]" id="c3">
+        <div class="flex items-start gap-[18px] mb-[26px]">
+          <span class="font-serif font-black text-[50px] leading-[0.9] text-gold opacity-55 shrink-0 tracking-[-0.02em]">03</span>
+          <div>
+            <h2 class="font-serif font-black text-[34px] leading-[1.15] whitespace-nowrap">花色组合</h2>
+            <div class="font-sans text-sm text-ink-faint mt-[6px] tracking-[0.04em] font-medium">嵌套 · 依存 · 转化</div>
+          </div>
+        </div>
+        <div class="text-ink-soft">
+          <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">花</span>色不是孤立的。两种、三种花色同时出现,会嵌套、依存、转化出新的状态。下面是几组精选组合,读它们时,记得每一组也都带着自己的反面。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-[18px] mt-2">
+            <div class="border border-line rounded-xl bg-paper-deep p-[20px_22px]">
+              <div class="flex items-center gap-[7px] mb-[10px] font-sans"><span class="text-[21px] text-suit-red leading-none">♥</span><span class="text-gold text-sm">+</span><span class="text-[21px] text-ink leading-none">♣</span><span class="font-bold text-sm ml-[5px] text-ink whitespace-nowrap">红桃 + 梅花</span></div>
+              <p class="text-[15.5px] text-ink-soft leading-[1.68]">积极行动、勇于创造,不断进取拓展;一种生机勃勃、无尽生发的状态,生命力充沛。</p>
+            </div>
+            <div class="border border-line rounded-xl bg-paper-deep p-[20px_22px]">
+              <div class="flex items-center gap-[7px] mb-[10px] font-sans"><span class="text-[21px] text-ink leading-none">♠</span><span class="text-gold text-sm">+</span><span class="text-[21px] text-ink leading-none">♣</span><span class="font-bold text-sm ml-[5px] text-ink whitespace-nowrap">黑桃 + 梅花</span></div>
+              <p class="text-[15.5px] text-ink-soft leading-[1.68]">摧毁性质的状态:汲取、抽离、分割、破坏;另一面,则是极致的承载与包容、深度挖掘。</p>
+            </div>
+            <div class="border border-line rounded-xl bg-paper-deep p-[20px_22px]">
+              <div class="flex items-center gap-[7px] mb-[10px] font-sans"><span class="text-[21px] text-suit-red leading-none">♥</span><span class="text-gold text-sm">+</span><span class="text-[21px] text-ink leading-none">♠</span><span class="font-bold text-sm ml-[5px] text-ink whitespace-nowrap">红桃 + 黑桃</span></div>
+              <p class="text-[15.5px] text-ink-soft leading-[1.68]">偏向的极致:可正可负,甚至 360 度任意偏向,并可随意极化到不同程度。</p>
+            </div>
+            <div class="border border-[#d9a59c] rounded-xl bg-[#f8ece9] p-[20px_22px]">
+              <div class="flex items-center gap-[7px] mb-[10px] font-sans"><span class="text-[21px] text-suit-red leading-none">♥</span><span class="text-[21px] text-ink leading-none">♠</span><span class="text-[21px] text-ink leading-none">♣</span><span class="font-bold text-sm ml-[5px] text-suit-red whitespace-nowrap">缺方块</span></div>
+              <p class="text-[15.5px] text-ink-soft leading-[1.68]">整个世界乱套、无规则、卡死态——没有边界、大小、范围,所有东西混乱地堆叠卡在一起。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Divider label="A 7 10 K" />
+
+      <!-- 04 数字层次 -->
+      <section class="mb-16 scroll-mt-[96px]" id="c4">
+        <div class="flex items-start gap-[18px] mb-[26px]">
+          <span class="font-serif font-black text-[50px] leading-[0.9] text-gold opacity-55 shrink-0 tracking-[-0.02em]">04</span>
+          <div>
+            <h2 class="font-serif font-black text-[34px] leading-[1.15] whitespace-nowrap">数字层次 1–K</h2>
+            <div class="font-sans text-sm text-ink-faint mt-[6px] tracking-[0.04em] font-medium">十三层落差</div>
+          </div>
+        </div>
+        <div class="text-ink-soft">
+          <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">数</span>字给牌定下"在第几层"。从 A 到 K,是一道十三层的落差。人类真正活动的区间是 <strong class="text-ink font-bold">3 到 9</strong>;往下是起始的意识,往上是超脱人类的圆满与权位。</p>
+
+          <!-- 数字表 -->
+          <div class="mt-[6px]">
+            <div class="mb-6"><div class="font-sans text-xs font-bold tracking-[0.12em] uppercase text-gold mb-2 flex items-center gap-[10px]">起始意识<span class="flex-1 h-px bg-line" /></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">A<small class="block font-sans text-[10.5px] font-medium text-ink-faint tracking-[0.05em] mt-[3px]">尖 · 1</small></span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">起初意识</b>、最起始、单点;阳 / 男。对应 K 的初始低百分比态。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">2</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">互动</b>;阴 / 女。对应 Q 的初始态。</span></div>
+            </div>
+            <div class="mb-6"><div class="font-sans text-xs font-bold tracking-[0.12em] uppercase text-gold mb-2 flex items-center gap-[10px]">人类层级 3–9<span class="flex-1 h-px bg-line" /></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">3</span><span class="text-[16.5px] text-ink-soft leading-[1.62]">开始复合叠加,<b class="text-ink font-bold">最基本的人类</b>,多种面相显现。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">4</span><span class="text-[16.5px] text-ink-soft leading-[1.62]">经历、思考、思想进化后的人类,各有不同经历与感受。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">5</span><span class="text-[16.5px] text-ink-soft leading-[1.62]">三四号中的<b class="text-ink font-bold">佼佼者</b>,专业技能 / 特质突出。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">6</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">博学渊博、广识智慧</b>,向万物学习,开始接纳并朝向超脱自我。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">7</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">通达世间万物、领悟"落差"</b>;十三层的中间牌,更进一步超脱自我。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">8</span><span class="text-[16.5px] text-ink-soft leading-[1.62]">无人格 / 无定义 / 无态,理解并设计规则机制;<b class="text-ink font-bold">变牌(癞子)</b>,可替代或演变成其他牌。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-suit-red text-center leading-none">9</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">不可直接描述</b>,层面碾压、强度无上限;也可象征特定框架内最强的作品 / 产物。</span></div>
+            </div>
+            <div class="mb-6"><div class="font-sans text-xs font-bold tracking-[0.12em] uppercase text-gold mb-2 flex items-center gap-[10px]">圆满<span class="flex-1 h-px bg-line" /></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">10</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">圆满 / 极致</b>,非人类层级,理论上达不到;"圆满即不圆满"。</span></div>
+            </div>
+            <div class="mb-6"><div class="font-sans text-xs font-bold tracking-[0.12em] uppercase text-gold mb-2 flex items-center gap-[10px]">权位<span class="flex-1 h-px bg-line" /></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">J<small class="block font-sans text-[10.5px] font-medium text-ink-faint tracking-[0.05em] mt-[3px]">勾</small></span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">官位</b>,自主意识的权利与意志。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] border-b border-line items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">Q</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">女王</b>,阴性面向的极致意志。</span></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">K</span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">国王</b>,阳性面向的极致意志。</span></div>
+            </div>
+            <div><div class="font-sans text-xs font-bold tracking-[0.12em] uppercase text-gold mb-2 flex items-center gap-[10px]">混沌与有序<span class="flex-1 h-px bg-line" /></div>
+              <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">★<small class="block font-sans text-[10.5px] font-medium text-ink-faint tracking-[0.05em] mt-[3px]">大 / 小王</small></span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">混沌与有序</b>,初始阴阳一体;既是创始起点,又是圆融归零。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Divider />
+
+      <!-- 05 解牌方法 -->
+      <section class="scroll-mt-[96px]" id="c5">
+        <div class="flex items-start gap-[18px] mb-[26px]">
+          <span class="font-serif font-black text-[50px] leading-[0.9] text-gold opacity-55 shrink-0 tracking-[-0.02em]">05</span>
+          <div>
+            <h2 class="font-serif font-black text-[34px] leading-[1.15] whitespace-nowrap">解牌方法</h2>
+            <div class="font-sans text-sm text-ink-faint mt-[6px] tracking-[0.04em] font-medium">花色面 × 数字面 → 合成</div>
+          </div>
+        </div>
+        <div class="text-ink-soft">
+          <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">解</span>一张牌,先把它拆成两重:<strong class="text-ink font-bold">花色面</strong>继承花色的性格,<strong class="text-ink font-bold">数字面</strong>继承层次的含义。两者相乘,就是这张牌的合成。多张牌同现时,若命中精选组合,便读组合的含义;未收录,则按语境自行解读。</p>
+          <p class="mb-5">别忘了叠加态:得到合成含义后,还要问一句"此刻偏向显义还是隐义"。同一张牌,优势与劣势是同一份特质的两面。下面用红桃三走一遍。</p>
+          <div class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-[30px] items-center bg-paper-deep border border-line rounded-2xl p-[26px_30px] relative">
+            <img loading="lazy" src="/cards_svg/hearts_3.svg" alt="红桃三" class="w-[150px] block rounded-lg shadow-[0_12px_26px_-12px_rgba(43,39,34,0.55)] bg-white aspect-[238/333]" />
+            <div>
+              <h4 class="font-serif font-bold text-[22px] mb-2 flex items-baseline gap-[10px]">红桃三 <span class="text-suit-red text-[17px]">♥3</span></h4>
+              <p class="mb-[10px] text-base text-ink-soft leading-[1.66]"><strong class="text-ink">花色面 ·</strong> 红桃(阳·心之动)——积极、爱心、勇敢、生命力。</p>
+              <p class="mb-[10px] text-base text-ink-soft leading-[1.66]"><strong class="text-ink">数字面 ·</strong> 3 号(人类基础复合层级)——最基本的人类,开始叠加多种面相。</p>
+              <p class="mb-[10px] text-base text-ink-soft leading-[1.66]"><strong class="text-ink">合成 ·</strong> 一个充满爱心、积极勇敢的基础人类。优势是爱心积极勇敢;换个语境,劣势也是爱心积极勇敢。</p>
+              <a href="/cards/hearts_3" class="inline-flex items-center gap-[7px] font-sans text-[13.5px] font-bold text-white bg-coral px-4 py-2 rounded-[30px] mt-1 hover:bg-suit-red hover:text-white transition-colors">翻开红桃三单卡页 →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // 阅读进度条
+  const prog = document.getElementById('progress');
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    if (prog) prog.style.width = (max > 0 ? (h.scrollTop / max * 100) : 0) + '%';
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // 目录高亮
+  const links = document.querySelectorAll('[data-t]');
+  const secs = ['c1','c2','c3','c4','c5'].map(id => document.getElementById(id));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(a => a.classList.toggle('on', a.getAttribute('data-t') === e.target.id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+  secs.forEach(s => { if (s) io.observe(s); });
+</script>
+
+<style>
+  /* 目录 active 状态 */
+  [data-t].on {
+    color: #A3372B !important;
+    border-left-color: #D97757 !important;
+    font-weight: 500;
+  }
+</style>

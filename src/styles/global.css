@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ── 思源宋体 SC (400, 700, 900) ── */
+@import "@fontsource/noto-serif-sc/chinese-simplified-400.css";
+@import "@fontsource/noto-serif-sc/chinese-simplified-700.css";
+@import "@fontsource/noto-serif-sc/chinese-simplified-900.css";
+
+/* ── 思源黑体 SC (400, 500, 700) ── */
+@import "@fontsource/noto-sans-sc/chinese-simplified-400.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-500.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-700.css";
+
+@theme {
+  /* ── 配色 ── */
+  --color-paper:       #FAF6EF;
+  --color-paper-deep:  #F4EDE0;
+  --color-paper-3:     #EFE6D6;
+  --color-ink:         #2B2722;
+  --color-ink-soft:    #5b5246;
+  --color-ink-faint:   #8b8173;
+  --color-gold:        #B8893A;
+  --color-gold-bright: #C9A227;
+  --color-coral:       #D97757;
+  --color-suit-red:    #A3372B;
+  --color-suit-black:  #2B2722;
+  --color-line:        #d8ccb6;
+
+  /* ── 字体 ── */
+  --font-serif: "Noto Serif SC", "Source Serif 4", Georgia, serif;
+  --font-sans:  "Noto Sans SC", "Inter", system-ui, sans-serif;
+}
+
+/* ── 全局基础样式 ── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 纸张纹理 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+/* 内容层确保在纹理之上 */
+.page-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* 链接 */
+a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-coral);
+}
+
+/* SVG 纹理滤镜（全局共用） */
+.rough-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+}

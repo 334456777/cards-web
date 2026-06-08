@@ -1,0 +1,138 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+---
+
+<BaseLayout title="落差扑克牌占卜 · 一套非线性的解牌体系">
+  <!-- ===== HERO ===== -->
+  <section class="max-w-[1200px] mx-auto px-7 pt-16 pb-8 grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-[50px] items-center">
+    <div>
+      <div class="font-sans text-[13px] tracking-[0.26em] uppercase text-gold font-bold mb-5 flex items-center gap-3">
+        非线性解牌体系
+        <span class="tracking-[3px] text-[15px]">
+          <span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span>
+        </span>
+      </div>
+      <h1 class="font-serif font-black text-[72px] leading-[1.04] mb-[22px] tracking-[0.01em]">
+        每张牌,<br>都<span class="text-suit-red">同时</span>藏着<br>它的反面
+      </h1>
+      <p class="text-[21px] text-ink-soft max-w-[26em] mb-4 leading-[1.72]">
+        <span class="float-left font-serif font-black text-gold text-[76px] leading-[0.72] pt-2 pr-[14px]">落</span>差占卜不问吉凶,而问"此刻偏向哪一面"。一张牌由花色与数字两重含义叠合,而每一重,都同时成立着自己与自己的相反。
+      </p>
+      <p class="text-[17px] text-ink-faint max-w-[30em] mb-8">
+        优势即劣势,劣势即优势——随语境翻转。这是一套把"叠加态"当作读牌方法的体系。
+      </p>
+      <a href="#concept" class="inline-flex items-center gap-[10px] font-sans text-[15px] font-semibold text-ink-soft tracking-[0.02em] pb-1 border-b-[1.5px] border-transparent hover:text-coral hover:border-coral transition-colors">
+        先从核心理念读起
+        <span class="text-gold text-[17px] animate-bounce">↓</span>
+      </a>
+    </div>
+    <div class="relative h-[420px] flex items-center justify-center order-first md:order-last">
+      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[-16deg] translate-x-[-118px] translate-y-[16px]">
+        <img src="/cards_svg/spades_A.svg" alt="黑桃A" class="w-full block rounded-[11px] aspect-[238/333]" />
+      </div>
+      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[-7deg] translate-x-[-58px] translate-y-[-6px]">
+        <img src="/cards_svg/diamonds_7.svg" alt="方块7" class="w-full block rounded-[11px] aspect-[238/333]" />
+      </div>
+      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom z-[3] rotate-[1deg] translate-y-[-14px]">
+        <img src="/cards_svg/hearts_3.svg" alt="红桃三" class="w-full block rounded-[11px] aspect-[238/333]" />
+      </div>
+      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[9deg] translate-x-[60px] translate-y-[-4px]">
+        <img src="/cards_svg/clubs_10.svg" alt="梅花10" class="w-full block rounded-[11px] aspect-[238/333]" />
+      </div>
+      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[17deg] translate-x-[120px] translate-y-[18px]">
+        <img src="/cards_svg/joker_red.svg" alt="大王" class="w-full block rounded-[11px] aspect-[238/333]" />
+      </div>
+    </div>
+  </section>
+
+  <Divider />
+
+  <!-- ===== CONCEPT ===== -->
+  <section class="max-w-[980px] mx-auto px-7 mt-[54px] text-center" id="concept">
+    <div class="font-sans text-[12.5px] tracking-[0.2em] uppercase text-gold font-bold mb-[14px]">核心理念 · 叠加态</div>
+    <p class="font-serif text-[30px] leading-[1.5] text-ink mx-auto max-w-[20em]">
+      不问"这是好牌还是坏牌",<br>只问"在此刻的语境里,它<span class="underline decoration-coral decoration-wavy decoration-2 underline-offset-4">偏向哪一面</span>。<br><span class="text-suit-red font-bold">优势即劣势,二者同时成立。</span>
+    </p>
+  </section>
+
+  <!-- ===== PORTAL CARDS ===== -->
+  <section class="max-w-[1200px] mx-auto px-7 mt-[56px]">
+    <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[22px] flex items-center gap-[11px]">
+      从这里开始
+      <span class="flex-1 h-px bg-line" />
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <a href="/tutorial" class="flex gap-[22px] items-start border border-line rounded-2xl bg-paper-deep p-[26px_28px] transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-20px_rgba(43,39,34,0.45)] no-underline">
+        <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-gold">❦</div>
+        <div>
+          <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">教程读本 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">5 章</span></h3>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">从核心理念到亲手解一张牌——非线性、叠加态、四花色、组合与解牌方法,书式单栏,循序渐进。</p>
+          <span class="font-sans text-[13.5px] font-bold text-coral">开始阅读 →</span>
+        </div>
+      </a>
+      <a href="/library" class="flex gap-[22px] items-start border border-line rounded-2xl bg-paper-deep p-[26px_28px] transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-20px_rgba(43,39,34,0.45)] no-underline">
+        <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-suit-red">♥</div>
+        <div>
+          <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">牌库索引 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">54 张</span></h3>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">四花色 × 十三层落差,外加大小王。按花色与层级筛选,或搜索牌名与要义。</p>
+          <span class="font-sans text-[13.5px] font-bold text-coral">翻阅牌库 →</span>
+        </div>
+      </a>
+      <a href="/suits" class="flex gap-[22px] items-start border border-line rounded-2xl bg-paper-deep p-[26px_28px] transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-20px_rgba(43,39,34,0.45)] no-underline">
+        <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-ink">♠</div>
+        <div>
+          <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">四花色 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">心之动 / 客观存在</span></h3>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">红桃、黑桃、方块、梅花的性格与阴阳定位,可切换对照,理解"颜色不等于阴阳"。</p>
+          <span class="font-sans text-[13.5px] font-bold text-coral">查看花色 →</span>
+        </div>
+      </a>
+      <a href="/combinations" class="flex gap-[22px] items-start border border-line rounded-2xl bg-paper-deep p-[26px_28px] transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-20px_rgba(43,39,34,0.45)] no-underline">
+        <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-gold">♦</div>
+        <div>
+          <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">组合浏览器 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">精选</span></h3>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">花色相遇的嵌套、依存、转化。点开 4×4 配对矩阵任意一格,读组合的显义与隐义。</p>
+          <span class="font-sans text-[13.5px] font-bold text-coral">浏览组合 →</span>
+        </div>
+      </a>
+      <a href="/cards/hearts_3" class="flex gap-[22px] items-start border border-line rounded-2xl bg-paper-deep p-[26px_28px] transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-20px_rgba(43,39,34,0.45)] no-underline md:col-span-2">
+        <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-suit-red">♥3</div>
+        <div>
+          <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">完整样卡 · 红桃三 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">单卡页</span></h3>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">一张牌的完整读法:花色面 × 数字面,以及标志性的"正义 / 反义"叠加态开关——同一份特质,在显义与隐义间翻面。</p>
+          <span class="font-sans text-[13.5px] font-bold text-coral">翻开红桃三 →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== SUIT STRIP ===== -->
+  <section class="max-w-[1200px] mx-auto px-7 mt-[46px] mb-[30px]">
+    <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[22px] flex items-center gap-[11px]">
+      四花色一览
+      <span class="flex-1 h-px bg-line" />
+    </h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="/suits" class="border border-line rounded-[14px] bg-paper-deep p-[22px] text-center transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_14px_28px_-18px_rgba(43,39,34,0.4)] no-underline">
+        <div class="text-[42px] leading-none text-suit-red [filter:url(#rough)]">♥</div>
+        <h4 class="font-serif font-bold text-xl text-ink mt-[10px] mb-[2px]">红桃</h4>
+        <div class="font-sans text-[12.5px] text-ink-faint tracking-[0.04em]">阳 · 心之动</div>
+      </a>
+      <a href="/suits" class="border border-line rounded-[14px] bg-paper-deep p-[22px] text-center transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_14px_28px_-18px_rgba(43,39,34,0.4)] no-underline">
+        <div class="text-[42px] leading-none text-ink [filter:url(#rough)]">♠</div>
+        <h4 class="font-serif font-bold text-xl text-ink mt-[10px] mb-[2px]">黑桃</h4>
+        <div class="font-sans text-[12.5px] text-ink-faint tracking-[0.04em]">阴 · 心之动</div>
+      </a>
+      <a href="/suits" class="border border-line rounded-[14px] bg-paper-deep p-[22px] text-center transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_14px_28px_-18px_rgba(43,39,34,0.4)] no-underline">
+        <div class="text-[42px] leading-none text-suit-red [filter:url(#rough)]">♦</div>
+        <h4 class="font-serif font-bold text-xl text-ink mt-[10px] mb-[2px]">方块</h4>
+        <div class="font-sans text-[12.5px] text-ink-faint tracking-[0.04em]">阴 · 客观存在</div>
+      </a>
+      <a href="/suits" class="border border-line rounded-[14px] bg-paper-deep p-[22px] text-center transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_14px_28px_-18px_rgba(43,39,34,0.4)] no-underline">
+        <div class="text-[42px] leading-none text-ink [filter:url(#rough)]">♣</div>
+        <h4 class="font-serif font-bold text-xl text-ink mt-[10px] mb-[2px]">梅花</h4>
+        <div class="font-sans text-[12.5px] text-ink-faint tracking-[0.04em]">阳 · 客观存在</div>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
