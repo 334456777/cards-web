@@ -27,21 +27,21 @@ import Divider from "../components/Divider.astro";
         <span class="text-gold text-[17px] animate-bounce">↓</span>
       </a>
     </div>
-    <div class="relative h-[420px] flex items-center justify-center order-first md:order-last">
-      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[-16deg] translate-x-[-118px] translate-y-[16px]">
-        <img src="/cards_svg/spades_A.svg" alt="黑桃A" class="w-full block rounded-[11px] aspect-[238/333]" />
+    <div class="fan relative h-[420px] flex items-center justify-center order-first md:order-last">
+      <div class="fc">
+        <img src="/cards_svg/spades_A.svg" alt="黑桃A" />
       </div>
-      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[-7deg] translate-x-[-58px] translate-y-[-6px]">
-        <img src="/cards_svg/diamonds_7.svg" alt="方块7" class="w-full block rounded-[11px] aspect-[238/333]" />
+      <div class="fc">
+        <img src="/cards_svg/diamonds_7.svg" alt="方块7" />
       </div>
-      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom z-[3] rotate-[1deg] translate-y-[-14px]">
-        <img src="/cards_svg/hearts_3.svg" alt="红桃三" class="w-full block rounded-[11px] aspect-[238/333]" />
+      <div class="fc">
+        <img src="/cards_svg/hearts_3.svg" alt="红桃三" />
       </div>
-      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[9deg] translate-x-[60px] translate-y-[-4px]">
-        <img src="/cards_svg/clubs_10.svg" alt="梅花10" class="w-full block rounded-[11px] aspect-[238/333]" />
+      <div class="fc">
+        <img src="/cards_svg/clubs_10.svg" alt="梅花10" />
       </div>
-      <div class="absolute w-[188px] rounded-[11px] bg-white shadow-[0_18px_40px_-18px_rgba(43,39,34,0.55),0_4px_10px_-4px_rgba(43,39,34,0.3)] border border-[rgba(184,137,58,0.25)] transition-transform duration-550 origin-bottom rotate-[17deg] translate-x-[120px] translate-y-[18px]">
-        <img src="/cards_svg/joker_red.svg" alt="大王" class="w-full block rounded-[11px] aspect-[238/333]" />
+      <div class="fc">
+        <img src="/cards_svg/joker_red.svg" alt="大王" />
       </div>
     </div>
   </section>
@@ -136,3 +136,43 @@ import Divider from "../components/Divider.astro";
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* ── 牌扇展开动画（对照设计稿 cards-design/index.html .fan） ── */
+  .fan { position: relative; }
+  .fan .fc {
+    position: absolute;
+    width: 188px;
+    border-radius: 11px;
+    background: #fff;
+    box-shadow:
+      0 18px 40px -18px rgba(43, 39, 34, 0.55),
+      0 4px 10px -4px  rgba(43, 39, 34, 0.3);
+    transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform-origin: bottom center;
+    border: 1px solid rgba(184, 137, 58, 0.25);
+  }
+  .fan .fc img {
+    width: 100%;
+    display: block;
+    border-radius: 11px;
+    aspect-ratio: 238 / 333;
+  }
+  /* 默认叠放位置 */
+  .fan .fc:nth-child(1) { transform: rotate(-16deg) translate(-118px, 16px); }
+  .fan .fc:nth-child(2) { transform: rotate(-7deg)  translate(-58px, -6px); }
+  .fan .fc:nth-child(3) { transform: rotate(1deg)   translate(0, -14px); z-index: 3; }
+  .fan .fc:nth-child(4) { transform: rotate(9deg)   translate(60px, -4px); }
+  .fan .fc:nth-child(5) { transform: rotate(17deg)  translate(120px, 18px); }
+  /* hover 扇开展开 */
+  .fan:hover .fc:nth-child(1) { transform: rotate(-22deg) translate(-150px, 10px); }
+  .fan:hover .fc:nth-child(2) { transform: rotate(-10deg) translate(-74px, -12px); }
+  .fan:hover .fc:nth-child(3) { transform: rotate(1deg)   translate(0, -24px); }
+  .fan:hover .fc:nth-child(4) { transform: rotate(12deg)  translate(76px, -10px); }
+  .fan:hover .fc:nth-child(5) { transform: rotate(23deg)  translate(152px, 12px); }
+
+  /* 移动端缩小 */
+  @media (max-width: 860px) {
+    .fan { height: 300px; transform: scale(0.82); }
+  }
+</style>

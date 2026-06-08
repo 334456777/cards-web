@@ -38,9 +38,8 @@ const rankTxt = card.special ? "" : card.rank;
     <!-- HERO -->
     <section class="grid grid-cols-1 md:grid-cols-[340px_1fr] gap-[54px] items-center py-10 pb-[30px]">
       <div class="flex justify-center order-first">
-        <div class="relative w-[300px] bg-gradient-to-br from-[#FCF8F0] to-[#F1E7D4] rounded-[14px] p-4 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset,0_0_18px_rgba(43,39,34,0.05),0_4px_10px_rgba(43,39,34,0.08),0_12px_26px_-6px_rgba(43,39,34,0.13),0_22px_44px_-14px_rgba(43,39,34,0.17)] -rotate-2 hover:rotate-0 hover:-translate-y-[7px] hover:scale-[1.025] transition-all duration-500">
-          <div class="absolute inset-[7px] rounded-[9px] border-[1.5px] border-gold opacity-85 z-[2] pointer-events-none [filter:url(#rough)]"></div>
-          <img src={`/cards_svg/${card.key}.svg`} alt={card.name} class="w-full block rounded-[6px] aspect-[63/88] object-contain" />
+        <div class="card">
+          <img class="cardimg" src={`/cards_svg/${card.key}.svg`} alt={card.name} />
         </div>
       </div>
       <div>
@@ -178,3 +177,60 @@ const rankTxt = card.special ? "" : card.rank;
     </div>
   </main>
 </BaseLayout>
+
+<style>
+  /* ── 单卡浮空阴影卡片（对照设计稿 cards-design/单卡页模板.html .card） ── */
+  .card {
+    position: relative;
+    width: 300px;
+    background: linear-gradient(150deg, #FCF8F0, #F1E7D4);
+    border-radius: 14px;
+    padding: 16px;
+    /* 5 层叠加阴影 —— 白顶内发光 + 多层偏移扩散 */
+    box-shadow:
+      0 1px 0    rgba(255, 255, 255, 0.7) inset,
+      0 0 18px   rgba(43, 39, 34, 0.05),
+      0 4px 10px rgba(43, 39, 34, 0.08),
+      0 12px 26px -6px  rgba(43, 39, 34, 0.13),
+      0 22px 44px -14px rgba(43, 39, 34, 0.17);
+    transform: rotate(-2deg);
+    transition:
+      transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  /* 粗糙烫金内框 */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 9px;
+    border: 1.5px solid #B8893A;
+    filter: url(#rough);
+    opacity: 0.85;
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* hover 浮起 + 阴影加深 */
+  .card:hover {
+    transform: rotate(0deg) translateY(-7px) scale(1.025);
+    box-shadow:
+      0 1px 0    rgba(255, 255, 255, 0.7) inset,
+      0 0 26px   rgba(43, 39, 34, 0.06),
+      0 8px 16px rgba(43, 39, 34, 0.10),
+      0 20px 38px -8px  rgba(43, 39, 34, 0.17),
+      0 34px 62px -16px rgba(43, 39, 34, 0.22);
+  }
+  .cardimg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 63 / 88;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+    transition: filter 0.5s, opacity 0.5s;
+  }
+  /* 移动端 */
+  @media (max-width: 760px) {
+    .card { width: 240px; }
+  }
+</style>
