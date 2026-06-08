@@ -10,13 +10,11 @@ const links = [
   { href: "/combinations", label: "组合浏览器" },
 ];
 ---
-
 <BaseLayout title="页面走丢了 · 404">
   <main class="max-w-[760px] mx-auto px-7 pt-[88px] pb-[120px] text-center">
     <div class="font-sans text-[13px] tracking-[0.24em] uppercase text-gold font-bold mb-6">
       404 · 此牌不在牌库
     </div>
-
     <div class="flex items-center justify-center gap-[14px] text-[58px] leading-none mb-7 [filter:url(#rough)]">
       <span class="text-suit-red">♥</span>
       <span class="text-ink">♠</span>
@@ -24,7 +22,6 @@ const links = [
       <span class="text-suit-red">♦</span>
       <span class="text-ink">♣</span>
     </div>
-
     <h1 class="font-serif font-black text-[56px] leading-[1.08] mb-[18px] tracking-[0.01em]">
       这一页,翻空了
     </h1>
@@ -34,26 +31,17 @@ const links = [
     <p class="text-[16px] text-ink-faint max-w-[26em] mx-auto leading-[1.7]">
       从下面任意一个入口,重新翻起。
     </p>
-
     <Divider />
-
     <div class="flex flex-wrap justify-center gap-3 font-sans text-[14.5px] font-semibold mt-[40px]">
-      {links.map((l) => {
-        const isHome = l.href === "/";
-        return (
-          <a
-            href={l.href}
-            class={
-              isHome
-                ? "inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-coral border-coral text-white hover:-translate-y-[2px] hover:shadow-[0_14px_26px_-16px_rgba(43,39,34,0.5)]"
-                : "inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]"
-            }
-          >
-            {l.label}
-            <span class={isHome ? "text-white" : "text-gold"}>→</span>
-          </a>
-        )}
-      )}
+      {links.map((l) => (
+        <a
+          href={l.href}
+          class="inline-flex items-center gap-2 rounded-[30px] px-[22px] py-[10px] border transition-all no-underline bg-paper-deep border-line text-ink-soft hover:border-coral hover:text-ink hover:-translate-y-[2px]"
+        >
+          {l.label}
+          <span class="text-gold">→</span>
+        </a>
+      ))}
     </div>
   </main>
 </BaseLayout>
