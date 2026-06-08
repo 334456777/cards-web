@@ -164,12 +164,12 @@ import Divider from "../components/Divider.astro";
   .fan .fc:nth-child(3) { transform: rotate(1deg)   translate(0, -14px); z-index: 3; }
   .fan .fc:nth-child(4) { transform: rotate(9deg)   translate(60px, -4px); }
   .fan .fc:nth-child(5) { transform: rotate(17deg)  translate(120px, 18px); }
-  /* hover 扇开展开 */
-  .fan:hover .fc:nth-child(1) { transform: rotate(-22deg) translate(-150px, 10px); }
-  .fan:hover .fc:nth-child(2) { transform: rotate(-10deg) translate(-74px, -12px); }
-  .fan:hover .fc:nth-child(3) { transform: rotate(1deg)   translate(0, -24px); }
-  .fan:hover .fc:nth-child(4) { transform: rotate(12deg)  translate(76px, -10px); }
-  .fan:hover .fc:nth-child(5) { transform: rotate(23deg)  translate(152px, 12px); }
+  /* hover 扇开展开 —— 鼠标焦点直接落在卡片上才触发 */
+  .fan:has(.fc:hover) .fc:nth-child(1) { transform: rotate(-22deg) translate(-150px, 10px); }
+  .fan:has(.fc:hover) .fc:nth-child(2) { transform: rotate(-10deg) translate(-74px, -12px); }
+  .fan:has(.fc:hover) .fc:nth-child(3) { transform: rotate(1deg)   translate(0, -24px); }
+  .fan:has(.fc:hover) .fc:nth-child(4) { transform: rotate(12deg)  translate(76px, -10px); }
+  .fan:has(.fc:hover) .fc:nth-child(5) { transform: rotate(23deg)  translate(152px, 12px); }
 
   /* 移动端缩小 */
   @media (max-width: 860px) {
