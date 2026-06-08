@@ -102,7 +102,16 @@ for (const c of combos) {
       精选组合 · 画廊
       <span class="flex-1 h-px bg-line" />
     </h2>
-    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">收录的组合一览。</p>
+    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">收录的组合一览。用花色筛选,只看包含某一花色的组合。</p>
+    <!-- 画廊花色筛选器 -->
+    <div class="flex items-center gap-[9px] flex-wrap font-sans mb-[22px]" id="filters">
+      <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[4px]">含花色</span>
+      <button class="chip on" data-f="all">全部</button>
+      <button class="chip" data-f="hearts"><span class="text-suit-red">♥</span>红桃</button>
+      <button class="chip" data-f="spades"><span class="text-ink">♠</span>黑桃</button>
+      <button class="chip" data-f="diamonds"><span class="text-suit-red">♦</span>方块</button>
+      <button class="chip" data-f="clubs"><span class="text-ink">♣</span>梅花</button>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(330px,1fr))] gap-5" id="gallery">
       {combos.map((c) => (
         <div class:list={["gcard border border-line rounded-[14px] bg-paper-deep p-[24px_26px] relative transition-all hover:border-coral hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-18px_rgba(43,39,34,0.45)]", c.warn && "bg-[#f8ece9] border-[#d9a59c]"]}
@@ -197,4 +206,62 @@ for (const c of combos) {
 
   // 默认选中红桃+梅花
   selectPair(pairKey('hearts','clubs'), 'hearts', 'clubs');
+
+  // 画廊花色筛选
+  document.getElementById('filters')?.addEventListener('click', function(e) {
+    const b = (e.target as HTMLElement).closest('.chip');
+    if (!b) return;
+    const parent = (b as HTMLElement).parentElement!;
+    parent.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    b.classList.add('on');
+    const fstate = b.getAttribute('data-f');
+    document.querySelectorAll('.gcard').forEach(c => {
+      const has = fstate === 'all' || (c.getAttribute('data-suits') || '').indexOf(fstate!) > -1;
+      (c as HTMLElement).classList.toggle('hidden', !has);
+    });
+  });
 </script>
+
+<style>
+  /* matrixwrap 响应式 */
+  @media (max-width: 900px) {
+    .lg\\:grid-cols-\\[minmax\\(0\\,420px\\)_1fr\\] {
+      grid-template-columns: 1fr !important;
+      gap: 26px !important;
+    }
+  }
+  /* 详情面板空状态 */
+  .detail.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  /* gcard 隐藏 */
+  .gcard.hidden { display: none; }
+  /* gcard.warn 样式 */
+  .gcard.warn { background: #f8ece9; border-color: #d9a59c; }
+  .gcard.warn .font-serif.font-bold { color: #A3372B; }
+
+  /* 画廊筛选芯片样式 */
+  #filters .chip {
+    font-size: 14px;
+    font-weight: 500;
+    color: #5b5246;
+    border: 1px solid #d8ccb6;
+    background: #F4EDE0;
+    border-radius: 30px;
+    padding: 6px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  #filters .chip:hover { border-color: #D97757; color: #2B2722; }
+  #filters .chip.on { background: #D97757; border-color: #D97757; color: #fff; }
+  #filters .chip.on .text-suit-red,
+  #filters .chip.on .text-ink { color: #fff; }
+</style>

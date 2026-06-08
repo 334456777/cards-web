@@ -22,9 +22,9 @@ import Divider from "../components/Divider.astro";
       <p class="text-[17px] text-ink-faint max-w-[30em] mb-8">
         优势即劣势,劣势即优势——随语境翻转。这是一套把"叠加态"当作读牌方法的体系。
       </p>
-      <a href="#concept" class="inline-flex items-center gap-[10px] font-sans text-[15px] font-semibold text-ink-soft tracking-[0.02em] pb-1 border-b-[1.5px] border-transparent hover:text-coral hover:border-coral transition-colors">
+      <a href="#concept" class="scrollcue inline-flex items-center gap-[10px] font-sans text-[15px] font-semibold text-ink-soft tracking-[0.02em] pb-1 border-b-[1.5px] border-transparent hover:text-coral hover:border-coral transition-colors">
         先从核心理念读起
-        <span class="text-gold text-[17px] animate-bounce">↓</span>
+        <span class="arr text-gold text-[17px]">↓</span>
       </a>
     </div>
     <div class="fan relative h-[420px] flex items-center justify-center order-first md:order-last">
@@ -174,5 +174,20 @@ import Divider from "../components/Divider.astro";
   /* 移动端缩小 */
   @media (max-width: 860px) {
     .fan { height: 300px; transform: scale(0.82); }
+  }
+
+  /* scrollcue 弹跳动画 */
+  .scrollcue .arr {
+    animation: cuebob 1.8s ease-in-out infinite;
+  }
+  .scrollcue:hover .arr {
+    color: #D97757;
+  }
+  @keyframes cuebob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(4px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scrollcue .arr { animation: none; }
   }
 </style>

@@ -51,7 +51,7 @@ const JOKERS = [
         <p class="text-lg text-ink-soft max-w-[34em] mt-[14px] leading-[1.7]">五十四张牌,四花色 × 十三层落差,外加混沌与有序的大小王。每张都能代表自身的反面——点开任意一张,读它的显义与隐义。</p>
       </div>
       <div class="font-sans text-[13px] text-ink-faint tracking-[0.04em] text-right shrink-0">
-        <b class="block font-serif text-[40px] font-black text-gold leading-none">54</b>张 · 当前显示
+        <b id="resultN" class="block font-serif text-[40px] font-black text-gold leading-none">54</b>张 · 当前显示
       </div>
     </div>
   </div>
@@ -148,6 +148,12 @@ const JOKERS = [
         ))}
       </div>
     </section>
+    <!-- 空状态 -->
+    <div class="empty hidden text-center py-20 px-5 text-ink-faint font-sans" id="empty">
+      <div class="text-[46px] text-line mb-[14px]">❦</div>
+      <div class="font-serif text-[22px] text-ink-soft mb-[6px]">这一格暂时是空的</div>
+      <div>没有匹配的牌。换个关键词,或重置筛选试试。</div>
+    </div>
   </main>
 </BaseLayout>
 
@@ -155,6 +161,8 @@ const JOKERS = [
   const allCells = document.querySelectorAll('.ccell');
   const suitsecs = document.querySelectorAll('.suitsec');
   const chips = document.querySelectorAll('.chip');
+  const resultN = document.getElementById('resultN');
+  const empty = document.getElementById('empty');
 
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -180,10 +188,11 @@ const JOKERS = [
       if (show) n++;
     });
     suitsecs.forEach(sec => {
-      const any = sec.querySelectorAll('.ccell').length > 0 &&
-                  [...sec.querySelectorAll('.ccell')].some(c => (c as HTMLElement).style.display !== 'none');
+      const any = [...sec.querySelectorAll('.ccell')].some(c => (c as HTMLElement).style.display !== 'none');
       (sec as HTMLElement).style.display = any ? '' : 'none';
     });
+    if (resultN) resultN.textContent = String(n);
+    if (empty) empty.classList.toggle('hidden', n > 0);
   }
 </script>
 
@@ -206,4 +215,24 @@ const JOKERS = [
   }
   .chip:hover { border-color: #D97757; color: #2B2722; }
   .chip.on { background: #D97757; border-color: #D97757; color: #fff; }
+
+  /* ccell hover 阴影加强 */
+  .ccell .cimg {
+    background: #F4EDE0;
+    border: 1px solid #d8ccb6;
+    border-radius: 11px;
+    padding: 11px;
+    transition: all 0.25s;
+  }
+  .ccell:hover .cimg {
+    border-color: #D97757;
+    box-shadow: 0 14px 28px -16px rgba(43, 39, 34, 0.5);
+  }
+  .ccell .cimg img {
+    box-shadow: 0 4px 12px -6px rgba(43, 39, 34, 0.45);
+    transition: box-shadow 0.25s;
+  }
+  .ccell:hover .cimg img {
+    box-shadow: 0 8px 18px -6px rgba(43, 39, 34, 0.5);
+  }
 </style>

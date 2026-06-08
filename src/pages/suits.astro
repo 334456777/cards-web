@@ -70,18 +70,27 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
         <!-- 花色性格 -->
         <div class="max-w-[1010px] mx-auto">
+          <aside class="aside"><div class="pin">叠加态</div><div class="body">花色没有"好坏"。拨动开关,<em>同一性格</em>会在正向与阴影之间翻面——这正是落差体系读牌的方式。</div></aside>
           <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
             花色性格 · 正向 × 阴影
             <span class="flex-1 h-px bg-line" />
           </h2>
+          <!-- toggle-row 开关 -->
+          <div class="flex items-center gap-4 mb-5 font-sans">
+            <span class="tl l text-coral font-serif text-lg font-bold">正向 · 显义</span>
+            <button class="toggle-btn w-[74px] h-[38px] rounded-[30px] border-[1.5px] border-gold bg-paper cursor-pointer relative shrink-0 transition-colors duration-350 p-0" id={`tog-${s.key}`}>
+              <span class="knob absolute top-[3px] left-[3px] w-[30px] h-[30px] rounded-full bg-coral shadow-[0_2px_6px_rgba(43,39,34,0.3)] transition-all duration-400"></span>
+            </button>
+            <span class="tl r text-ink-faint opacity-60 font-serif text-lg font-bold">阴影 · 隐义</span>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+            <div class="panel-pos bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
               <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
               <span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-coral mb-[9px] inline-block">正向 · 显义</span>
               <h3 class="font-serif font-bold text-[21px] mb-[10px]">{s.posH}</h3>
               <p class="text-ink text-[16.5px] leading-[1.72]">{s.pos}</p>
             </div>
-            <div class="bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+            <div class="panel-neg bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
               <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
               <span class="font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-ink-faint mb-[9px] inline-block">阴影 · 隐义</span>
               <h3 class="font-serif font-bold text-[21px] mb-[10px]">{s.negH}</h3>
@@ -94,6 +103,7 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
         <!-- 四象限 -->
         <div class="max-w-[680px] mx-auto">
+          <aside class="aside"><div class="pin">注意阴阳颠倒</div><div class="body">颜色 ≠ 阴阳。方块虽<em>红</em>却属阴,梅花虽<em>黑</em>却属阳。四色按"心之动 / 客观存在"与"阴 / 阳"两轴分布。</div></aside>
           <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[18px] flex items-center gap-[11px]">
             在体系里的位置
             <span class="flex-1 h-px bg-line" />
@@ -229,4 +239,73 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   try { saved = localStorage.getItem('suit-cur') || 'hearts'; } catch {}
   if (!SUIT_ORDER.includes(saved)) saved = 'hearts';
   go(saved);
+
+  // toggle 开关交互
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('shadow');
+      const pressed = document.body.classList.contains('shadow');
+      btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    });
+  });
+  // 切换花色时重置 toggle
+  tabs.forEach(t => t.addEventListener('click', () => {
+    document.body.classList.remove('shadow');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  }));
 </script>
+
+<style>
+  /* toggle 开关 */
+  .tl.l { color: #D97757; }
+  .tl.r { color: #8b8173; opacity: 0.6; }
+  body.shadow .tl.l { color: #8b8173; opacity: 0.6; }
+  body.shadow .tl.r { color: #A3372B; opacity: 1; }
+  body.shadow .toggle-btn .knob { transform: translateX(36px); background: #A3372B; }
+
+  /* body.shadow 面板显隐 */
+  .panel-pos { transition: opacity 0.4s, filter 0.4s; }
+  .panel-neg { transition: opacity 0.4s, filter 0.4s; opacity: 0.5; }
+  body:not(.shadow) .panel-neg { opacity: 0.5; }
+  body.shadow .panel-pos { opacity: 0.5; }
+  body.shadow .panel-neg { opacity: 1; }
+  body.shadow .panel-neg span[class*="text-ink-faint"] { color: #A3372B; }
+
+  /* body.shadow glyph 变化 */
+  body.shadow .qcell-g[style] { filter: saturate(0.55) brightness(0.8); opacity: 0.85; }
+
+  /* aside 旁注 */
+  .aside {
+    float: right;
+    clear: right;
+    width: 240px;
+    margin-right: -286px;
+    margin-bottom: 24px;
+    font-family: "Noto Sans SC", sans-serif;
+  }
+  .aside .pin {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #D97757;
+    font-weight: 700;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .aside .pin::before { content: "❧"; font-family: "Noto Serif SC", serif; font-size: 15px; }
+  .aside .body {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #5b5246;
+    border-left: 2px solid #B8893A;
+    padding: 2px 0 2px 15px;
+    font-style: italic;
+  }
+  .aside .body em { color: #A3372B; font-style: italic; font-weight: 500; }
+  @media (max-width: 980px) {
+    .aside { float: none; width: auto; margin: 18px 0 24px; background: #fbf2e6; border: 1px solid #d8ccb6; border-radius: 10px; padding: 15px 17px; }
+    .aside .body { border-left-width: 3px; }
+  }
+</style>

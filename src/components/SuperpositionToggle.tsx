@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface SuperpositionToggleProps {
   sym: string;
@@ -18,6 +18,11 @@ export default function SuperpositionToggle({ sym, sup }: SuperpositionTogglePro
       return false;
     }
   });
+
+  // 同步 body.reverse class
+  useEffect(() => {
+    document.body.classList.toggle("reverse", reversed);
+  }, [reversed]);
 
   const toggle = useCallback(() => {
     setReversed((prev) => {

@@ -28,7 +28,7 @@ import Divider from "../components/Divider.astro";
     <!-- 目录 -->
     <aside class="hidden lg:block sticky top-[92px] font-sans">
       <div class="text-[11.5px] tracking-[0.18em] uppercase text-ink-faint font-bold mb-[14px] pb-3 border-b border-line">目录</div>
-      <ol class="list-none m-0 p-0">
+      <ol class="toc-list list-none m-0 p-0" style="counter-reset:toc">
         <li><a href="#c1" data-t="c1" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">核心理念</a></li>
         <li><a href="#c2" data-t="c2" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">四花色</a></li>
         <li><a href="#c3" data-t="c3" class="flex gap-[11px] items-baseline py-2 text-[14.5px] text-ink-soft border-l-2 border-transparent pl-[14px] ml-[-2px] transition-all leading-[1.45] hover:text-ink">花色组合</a></li>
@@ -42,6 +42,17 @@ import Divider from "../components/Divider.astro";
 
     <!-- 文章 -->
     <div class="max-w-[1000px]">
+      <!-- 移动端目录 -->
+      <div class="mtoc">
+        <div class="mtoc-inner">
+          <a href="#c1" data-t="c1">核心理念</a>
+          <a href="#c2" data-t="c2">四花色</a>
+          <a href="#c3" data-t="c3">花色组合</a>
+          <a href="#c4" data-t="c4">数字层次</a>
+          <a href="#c5" data-t="c5">解牌方法</a>
+        </div>
+      </div>
+
       <!-- 01 核心理念 -->
       <section class="mb-16 scroll-mt-[96px]" id="c1">
         <div class="flex items-start gap-[18px] mb-[26px]">
@@ -52,6 +63,7 @@ import Divider from "../components/Divider.astro";
           </div>
         </div>
         <div class="text-ink-soft">
+          <aside class="aside"><div class="pin">一句话</div><div class="body">这不是"抽到好牌就吉、坏牌就凶"的体系。每张牌<em>同时</em>是它自己和它的反面,吉凶由语境决定。</div></aside>
           <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">落</span>差体系是一套<strong class="text-ink font-bold">非线性</strong>的解牌方法。它不把牌排成"从弱到强"的直线,而是认为每一张牌、每一种花色,都能在同一时刻代表自身,也代表自身的反面——这就是<span class="underline decoration-coral decoration-wavy decoration-2 underline-offset-1">叠加态</span>。</p>
           <p class="mb-5">所以读牌时,我们不问"这是好牌还是坏牌",而问"在此刻的语境里,它偏向哪一面"。同一份勇敢,可以是照亮众人的热忱,也可以是用力过猛、被人利用的莽撞。两者并非先后,而是<strong class="text-ink font-bold">同一个存在</strong>。</p>
           <blockquote class="my-[30px] py-1 pl-[26px] border-l-[3px] border-gold font-serif text-2xl leading-[1.5] text-ink">
@@ -133,6 +145,7 @@ import Divider from "../components/Divider.astro";
           </div>
         </div>
         <div class="text-ink-soft">
+          <aside class="aside"><div class="pin">只收精选</div><div class="body">体系里组合<em>无穷</em>,本站只收录精选,直观给出大致含义——不针对具体问题。未收录的,按语境自行解读。</div></aside>
           <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">花</span>色不是孤立的。两种、三种花色同时出现,会嵌套、依存、转化出新的状态。下面是几组精选组合,读它们时,记得每一组也都带着自己的反面。</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-[18px] mt-2">
             <div class="border border-line rounded-xl bg-paper-deep p-[20px_22px]">
@@ -167,6 +180,7 @@ import Divider from "../components/Divider.astro";
           </div>
         </div>
         <div class="text-ink-soft">
+          <aside class="aside"><div class="pin">读法</div><div class="body"><em>3–9</em> 才是人类的发展层级;1、2 是起始意识,10 是非人类的圆满层级,J/Q/K 与大小王属另一层面。7 是十三层的中间牌,领悟"落差"之处。</div></aside>
           <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">数</span>字给牌定下"在第几层"。从 A 到 K,是一道十三层的落差。人类真正活动的区间是 <strong class="text-ink font-bold">3 到 9</strong>;往下是起始的意识,往上是超脱人类的圆满与权位。</p>
 
           <!-- 数字表 -->
@@ -211,6 +225,7 @@ import Divider from "../components/Divider.astro";
           </div>
         </div>
         <div class="text-ink-soft">
+          <aside class="aside"><div class="pin">三步走</div><div class="body">① 读<em>花色面</em>(心之所向)② 读<em>数字面</em>(第几层)③ 两者相乘,得到这张牌的合成含义——再用语境决定显义或隐义。</div></aside>
           <p class="mb-5"><span class="float-left font-serif font-black text-gold text-[70px] leading-[0.72] pt-[7px] pr-[14px]">解</span>一张牌,先把它拆成两重:<strong class="text-ink font-bold">花色面</strong>继承花色的性格,<strong class="text-ink font-bold">数字面</strong>继承层次的含义。两者相乘,就是这张牌的合成。多张牌同现时,若命中精选组合,便读组合的含义;未收录,则按语境自行解读。</p>
           <p class="mb-5">别忘了叠加态:得到合成含义后,还要问一句"此刻偏向显义还是隐义"。同一张牌,优势与劣势是同一份特质的两面。下面用红桃三走一遍。</p>
           <div class="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-[30px] items-center bg-paper-deep border border-line rounded-2xl p-[26px_30px] relative">
@@ -259,5 +274,126 @@ import Divider from "../components/Divider.astro";
     color: #A3372B !important;
     border-left-color: #D97757 !important;
     font-weight: 500;
+  }
+
+  /* TOC 编号 (decimal-leading-zero) */
+  .toc-list li {
+    counter-increment: toc;
+  }
+  .toc-list li a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: "Noto Serif SC", serif;
+    font-size: 12px;
+    color: #B8893A;
+    font-weight: 700;
+    flex: none;
+    letter-spacing: 0.04em;
+  }
+  .toc-list li a.on::before {
+    color: #D97757;
+  }
+
+  /* 移动端目录 .mtoc */
+  .mtoc { display: none; }
+  @media (max-width: 980px) {
+    .mtoc {
+      display: block;
+      position: sticky;
+      top: 53px;
+      z-index: 30;
+      background: rgba(250, 246, 239, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #d8ccb6;
+      margin: 0 -32px 24px;
+      padding: 11px 0;
+    }
+    .mtoc-inner {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 32px;
+      font-family: "Noto Sans SC", sans-serif;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mtoc a {
+      flex: none;
+      font-size: 13px;
+      color: #5b5246;
+      border: 1px solid #d8ccb6;
+      border-radius: 30px;
+      padding: 5px 13px;
+      white-space: nowrap;
+      background: #F4EDE0;
+      text-decoration: none;
+    }
+    .mtoc a.on {
+      background: #D97757;
+      border-color: #D97757;
+      color: #fff;
+    }
+  }
+  @media (max-width: 760px) {
+    .mtoc { margin: 0 -20px 22px; }
+    .mtoc-inner { padding: 0 20px; }
+  }
+
+  /* aside 旁注 */
+  .aside {
+    float: right;
+    clear: right;
+    width: 240px;
+    margin-right: -288px;
+    margin-bottom: 24px;
+    font-family: "Noto Sans SC", sans-serif;
+  }
+  .aside .pin {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #D97757;
+    font-weight: 700;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .aside .pin::before {
+    content: "❧";
+    font-family: "Noto Serif SC", serif;
+    font-size: 15px;
+  }
+  .aside .body {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #5b5246;
+    border-left: 2px solid #B8893A;
+    padding: 2px 0 2px 15px;
+    font-style: italic;
+  }
+  .aside .body em {
+    color: #A3372B;
+    font-style: italic;
+    font-weight: 500;
+  }
+  @media (max-width: 980px) {
+    .aside {
+      float: none;
+      width: auto;
+      margin: 18px 0 24px;
+      background: #fbf2e6;
+      border: 1px solid #d8ccb6;
+      border-radius: 10px;
+      padding: 15px 17px;
+    }
+    .aside .body { border-left-width: 3px; }
+  }
+
+  /* prose .uline 珊瑚下划线 */
+  .prose .uline {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='10'%3E%3Cpath d='M2 6 Q 30 2 60 5 T 118 4' stroke='%23D97757' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 9px;
+    padding-bottom: 3px;
   }
 </style>
