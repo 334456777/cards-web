@@ -86,8 +86,6 @@ const { title, activeNav } = Astro.props;
   </div>
 
   <script>
-    import { navigate } from "astro:transitions/client";
-
     // ── 移动端导航(每次换页都重新绑定,因 header 会被换掉) ──
     function initNav() {
       const navToggle = document.getElementById("navToggle");
@@ -113,9 +111,8 @@ const { title, activeNav } = Astro.props;
     let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    // 点击进入单卡页:接管这次导航 —— 先把当前页高斯模糊淡出,在模糊中切换,
-    // 新页再从模糊中显现(astro:after-swap),落地飞牌在 astro:page-load 完成。
-    // 捕获阶段 + stopImmediatePropagation,抢在 ClientRouter 的点击处理之前接管。
+    // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
+    // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。
     document.addEventListener("click", (e) => {
       const me = e as MouseEvent;
       if (me.button !== 0 || me.metaKey || me.ctrlKey || me.shiftKey || me.altKey) { pending = null; return; }
@@ -124,9 +121,7 @@ const { title, activeNav } = Astro.props;
       if (!a || a.getAttribute("target") === "_blank") { pending = null; return; }
       let url: URL;
       try { url = new URL(a.href, location.href); } catch { pending = null; return; }
-      if (url.origin !== location.origin || reduceMQ.matches) { pending = null; return; } // 减少动态 → 交回 ClientRouter
-      e.preventDefault();
-      e.stopImmediatePropagation();
+      if (url.origin !== location.origin || reduceMQ.matches) { pending = null; return; }
 
       const parts = url.pathname.split("/").filter(Boolean);
       const key = parts[parts.length - 1];
@@ -141,33 +136,15 @@ const { title, activeNav } = Astro.props;
         origin = { x: r.left + r.width / 2 - w / 2, y: r.top + r.height / 2 - h / 2, w, h };
       }
       pending = { key, origin };
-
-      // 当前页高斯模糊淡出
-      const pw = document.querySelector(".page-wrap") as HTMLElement | null;
-      if (pw) pw.animate(
-        [{ filter: "blur(0px)", opacity: 1 }, { filter: "blur(16px)", opacity: 0.4 }],
-        { duration: 340, easing: "ease-in", fill: "forwards" }
-      );
-      // 在模糊中切换(旧页此刻已大体糊掉,换页被模糊遮住)
-      window.setTimeout(() => navigate(url.href), 230);
     }, true);
 
-    // 换页中:新页从高斯模糊中显现;飞牌进入时时长贴着牌的飞行节奏,并先藏起目标 hero 卡
+    // 换页中:新页内容从纸色淡入(背景渐变过渡);若是飞牌进入,先藏起目标 hero 卡
     document.addEventListener("astro:after-swap", () => {
       const pw = document.querySelector(".page-wrap") as HTMLElement | null;
-      if (pending) {
-        if (pw) pw.animate(
-          [{ filter: "blur(16px)", opacity: 0.5 }, { filter: "blur(0px)", opacity: 1 }],
-          { duration: 680, easing: "cubic-bezier(0.3,0.7,0.2,1)", fill: "backwards" }
-        );
-        const card = document.querySelector("main .card") as HTMLElement | null;
-        if (card) card.style.visibility = "hidden";
-      } else if (pw) {
-        pw.animate(
-          [{ filter: "blur(12px)", opacity: 0.5 }, { filter: "blur(0px)", opacity: 1 }],
-          { duration: 420, easing: "ease-out", fill: "backwards" }
-        );
-      }
+      if (pw) pw.classList.add("cf-pagein");
+      if (!pending) return;
+      const card = document.querySelector("main .card") as HTMLElement | null;
+      if (card) card.style.visibility = "hidden";
     });
 
     // 换页完成 → 牌从原位移动放大、悬停后落到桌面;落定后卡片边饰从内向外滑出
