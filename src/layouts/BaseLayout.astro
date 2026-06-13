@@ -61,7 +61,7 @@ const { title, activeNav } = Astro.props;
         </button>
       </div>
       <!-- 移动端下拉菜单 -->
-      <nav id="mobileNav" class="mobile-nav sm:hidden hidden border-t border-line bg-paper font-medium text-[15.5px]">
+      <nav id="mobileNav" class="mobile-nav sm:hidden hidden absolute top-full inset-x-0 z-50 border-t border-line bg-paper font-medium text-[15.5px] shadow-[0_16px_30px_-12px_rgba(43,39,34,0.45)]">
         <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "教程" && "text-suit-red"]}>教程</a>
         <a href="/library" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
         <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
@@ -100,10 +100,19 @@ const { title, activeNav } = Astro.props;
       mobileNav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
     }
     document.addEventListener("astro:page-load", initNav);
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
+    // 关闭叠层菜单的公共逻辑(顶层绑定一次,避免 SPA 换页时监听泄漏)
+    const closeMobileNav = () => {
       const mn = document.getElementById("mobileNav"), nt = document.getElementById("navToggle");
       if (mn && nt) { mn.classList.add("hidden"); nt.setAttribute("aria-expanded", "false"); nt.classList.remove("is-open"); }
+    };
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMobileNav(); });
+    // 点击菜单与汉堡按钮以外的区域 → 收起叠层菜单
+    document.addEventListener("click", (e) => {
+      const mn = document.getElementById("mobileNav"), nt = document.getElementById("navToggle");
+      if (!mn || !nt || mn.classList.contains("hidden")) return;
+      const t = e.target as Node;
+      if (mn.contains(t) || nt.contains(t)) return;
+      closeMobileNav();
     });
 
     // ════════ 单卡页跳转 · 卡片「移动放大、落到桌面」转场(无刷新) ════════
@@ -242,6 +251,13 @@ const { title, activeNav } = Astro.props;
     .nav-toggle.is-open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .nav-toggle.is-open .bar:nth-child(2) { opacity: 0; }
     .nav-toggle.is-open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* 叠层菜单:出现时轻微下滑淡入(浮在内容之上,不挤压页面) */
+    .mobile-nav:not(.hidden) { animation: navDrop 0.22s ease both; transform-origin: top; }
+    @keyframes navDrop {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </body>
 </html>
