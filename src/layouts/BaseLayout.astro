@@ -158,12 +158,24 @@ const { title, activeNav } = Astro.props;
       const { key, origin } = pending;
       const card = document.querySelector("main .card") as HTMLElement | null;
       const real = document.querySelector("main .card .cardimg") as HTMLElement | null;
-      const finish = () => {
+      const FLY = 900;
+      let settling = false, done = false;
+      // 牌抵达目标、开始落定时调用:露出真卡的边饰(随 .cf-arrived 由内向外展开),
+      // 同时藏起真卡牌面 —— 让仍在的飞行牌盖住中心,只露出四周边饰/金框/阴影在展开。
+      const startSettle = () => {
+        if (settling) return; settling = true;
         if (card) { card.style.visibility = ""; card.classList.add("cf-arrived"); }
+        if (real) real.style.visibility = "hidden";
+      };
+      // 飞行结束:撤掉飞行牌,露出真卡牌面(此刻边饰已在展开过程中)
+      const land = () => {
+        if (done) return; done = true;
+        startSettle();
         document.getElementById("cardflip-stage")?.remove();
+        if (real) real.style.visibility = "";
         pending = null;
       };
-      if (!real || !card) { finish(); return; }
+      if (!real || !card) { land(); return; }
 
       const rr = real.getBoundingClientRect();
       const target = { x: rr.left, y: rr.top, w: rr.width, h: rr.height };
@@ -202,11 +214,13 @@ const { title, activeNav } = Astro.props;
               filter: "drop-shadow(0 3px 8px rgba(43,39,34,0.10))",
               offset: 1 },
           ] as Keyframe[],
-          { duration: 900, easing: "linear", fill: "forwards" }
+          { duration: FLY, easing: "linear", fill: "forwards" }
         );
-        anim.addEventListener("finish", finish, { once: true });
+        anim.addEventListener("finish", land, { once: true });
+        // 牌一抵达目标(0.72)即开始落定:边饰与下压的牌同步展开,而非落定后才展开
+        window.setTimeout(startSettle, FLY * 0.72);
       }));
-      window.setTimeout(finish, 1500); // 看门狗
+      window.setTimeout(land, FLY + 800); // 看门狗
     });
 
     // 离开页面前清掉叠加态 body class,避免残留到下一页
