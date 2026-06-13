@@ -150,9 +150,11 @@ const { title, activeNav } = Astro.props;
     // 换页完成 → 牌从原位移动放大、悬停后落到桌面;落定后卡片边饰从内向外滑出
     document.addEventListener("astro:page-load", () => {
       if (!pending) {
-        // 直接进入单卡页(非飞牌):也让边饰滑出一次
+        // 直接进入单卡页(非飞牌):让边饰滑出一次 —— 但原地刷新(reload)时不放,避免每次刷新重播动画
+        const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+        const isReload = navEntry?.type === "reload";
         const c = document.querySelector("main .card") as HTMLElement | null;
-        if (c) c.classList.add("cf-arrived");
+        if (c && !isReload) c.classList.add("cf-arrived");
         return;
       }
       const { key, origin } = pending;
