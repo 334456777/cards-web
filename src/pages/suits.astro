@@ -45,7 +45,7 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
         <section class="py-[26px] pb-[24px]">
           <div>
             <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-[10px]">花色 · {s.group}</div>
-            <h1 class="font-serif font-black text-[66px] leading-[1.02] mb-1 flex items-baseline gap-[18px]">
+            <h1 class="font-serif font-black text-[clamp(2.6rem,12vw,66px)] leading-[1.02] mb-1 flex items-baseline gap-[18px]">
               {s.cn} <span class="text-[50px]" style={`color: ${s.accent}`}>{s.sym}</span>
             </h1>
             <div class="font-sans text-[15px] text-ink-faint tracking-[0.05em] mb-[18px]">{s.latin} — {s.yy} · {s.group}</div>

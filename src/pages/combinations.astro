@@ -35,7 +35,7 @@ for (const c of combos) {
 
   <div class="max-w-[1200px] mx-auto px-7 pt-[18px] pb-[6px]">
     <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-3">花色相遇 · 嵌套 / 依存 / 转化</div>
-    <h1 class="font-serif font-black text-[56px] leading-[1.04] mb-3 flex items-baseline gap-4 flex-wrap">
+    <h1 class="font-serif font-black text-[clamp(2.3rem,11vw,56px)] leading-[1.04] mb-3 flex items-baseline gap-4 flex-wrap">
       组合浏览器
       <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
     </h1>
@@ -514,6 +514,10 @@ for (const c of combos) {
   }
   .filters .chip:hover { border-color: #D97757; color: #2B2722; }
   .filters .chip.on { background: #D97757; border-color: #D97757; color: #fff; }
+  /* 触摸屏:撑到 44px 的舒适点按高度(桌面保持紧凑) */
+  @media (hover: none) {
+    .filters .chip { min-height: 44px; }
+  }
   .filters .chip.on .s.r,
   .filters .chip.on .s.k { color: #fff; }
   .filters .chip .s.r { color: #A3372B; }

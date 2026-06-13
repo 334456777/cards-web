@@ -44,7 +44,7 @@ const rankTxt = card.special ? "" : card.rank;
       </div>
       <div>
         <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-[10px]">{card.kicker}</div>
-        <h1 class="font-serif font-black text-[64px] leading-[1.02] mb-[6px] tracking-[0.01em]">
+        <h1 class="font-serif font-black text-[clamp(2.5rem,11.5vw,64px)] leading-[1.02] mb-[6px] tracking-[0.01em]">
           {card.name}<span class="ml-1" style={`color: ${card.accent}`}> {card.sym}</span>{rankTxt}
         </h1>
         <div class="font-sans text-[15px] text-ink-faint tracking-[0.04em] mb-5">{card.latin}{card.special ? "" : ` — ${card.tags[0]} · ${card.tags[1]}`}</div>

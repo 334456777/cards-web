@@ -41,10 +41,10 @@ const { title, activeNav } = Astro.props;
           <span>落差扑克牌占卜</span>
         </a>
         <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
-          <a href="/tutorial" class:list={["text-ink-soft hover:text-coral", activeNav === "教程" && "text-suit-red"]}>教程</a>
-          <a href="/library" class:list={["text-ink-soft hover:text-coral", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
-          <a href="/suits" class:list={["text-ink-soft hover:text-coral", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
-          <a href="/combinations" class:list={["text-ink-soft hover:text-coral", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
+          <a href="/tutorial" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "教程" && "text-suit-red"]}>教程</a>
+          <a href="/library" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
+          <a href="/suits" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
+          <a href="/combinations" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
         </nav>
         <!-- 移动端汉堡按钮 -->
         <button
@@ -75,11 +75,11 @@ const { title, activeNav } = Astro.props;
     <footer class="border-t border-line mt-[70px] font-sans text-[13px] text-ink-faint">
       <div class="max-w-[1200px] mx-auto px-7 py-[30px] flex justify-between gap-5 flex-wrap">
         <span>落差扑克牌占卜 · 一套非线性、叠加态的解牌体系</span>
-        <span>
-          <a href="/tutorial">教程</a> ·
-          <a href="/library">牌库索引</a> ·
-          <a href="/suits">四花色</a> ·
-          <a href="/combinations">组合浏览器</a>
+        <span class="flex flex-wrap gap-x-1 gap-y-1 items-center">
+          <a href="/tutorial" class="inline-block py-1">教程</a> ·
+          <a href="/library" class="inline-block py-1">牌库索引</a> ·
+          <a href="/suits" class="inline-block py-1">四花色</a> ·
+          <a href="/combinations" class="inline-block py-1">组合浏览器</a>
         </span>
       </div>
     </footer>
@@ -110,10 +110,9 @@ const { title, activeNav } = Astro.props;
     const RATIO = 332.59947 / 238.11099; // 正面 svg 长宽比
     let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // 触摸屏(主指针 coarse、无 hover):等同「减少动态」,跳过整段飞行转场。
-    // CSS 动画/过渡已由 global.css 的同条件媒体查询归零;此处管 WAAPI 飞行。
-    const touchMQ = window.matchMedia("(hover: none) and (pointer: coarse)");
-    const noMotion = () => reduceMQ.matches || touchMQ.matches;
+    // 仅「减少动态」时跳过整段飞牌转场,走普通 SPA 跳转。触摸屏(iPad / iPhone)
+    // 照常播放飞牌落桌 —— 这是本站招牌交互,性能足以流畅,不再因 coarse 指针跳过。
+    const noMotion = () => reduceMQ.matches;
 
     // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
     // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。

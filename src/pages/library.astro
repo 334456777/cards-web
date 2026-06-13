@@ -45,7 +45,7 @@ const JOKERS = [
   <div class="max-w-[1240px] mx-auto px-7 pt-[14px] pb-2">
     <div class="flex items-end justify-between gap-[30px] flex-wrap">
       <div>
-        <h1 class="font-serif font-black text-[52px] tracking-[0.01em] flex items-baseline gap-4">
+        <h1 class="font-serif font-black text-[clamp(2.2rem,9vw,52px)] tracking-[0.01em] flex items-baseline gap-4">
           牌库 <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
         </h1>
         <p class="text-lg text-ink-soft max-w-[34em] mt-[14px] leading-[1.7]">五十四张牌,四花色 × 十三层落差,外加混沌与有序的大小王。每张都能代表自身的反面——点开任意一张,读它的显义与隐义。</p>
@@ -61,7 +61,7 @@ const JOKERS = [
   <!-- 筛选栏 -->
   <div class="sticky top-[57px] z-30 bg-[rgba(250,246,239,0.92)] backdrop-blur-[8px] border-b border-line mt-[18px]">
     <div class="max-w-[1240px] mx-auto px-7 py-[13px] flex items-center gap-[22px] flex-wrap font-sans">
-      <div class="flex items-center gap-[9px]">
+      <div class="flex flex-wrap items-center gap-[9px]">
         <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[2px]">花色</span>
         <button class="chip on" data-suit="all">全部</button>
         <button class="chip" data-suit="hearts"><span class="text-suit-red">♥</span>红桃</button>
@@ -70,7 +70,7 @@ const JOKERS = [
         <button class="chip" data-suit="clubs"><span class="text-ink">♣</span>梅花</button>
         <button class="chip" data-suit="joker"><span class="text-suit-red">★</span>大小王</button>
       </div>
-      <div class="flex items-center gap-[9px]">
+      <div class="flex flex-wrap items-center gap-[9px]">
         <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[2px]">层级</span>
         <button class="chip on" data-type="all">全部</button>
         <button class="chip" data-type="number">数字 A–10</button>
@@ -220,6 +220,10 @@ const JOKERS = [
   }
   .chip:hover { border-color: #D97757; color: #2B2722; }
   .chip.on { background: #D97757; border-color: #D97757; color: #fff; }
+  /* 触摸屏:撑到 44px 的舒适点按高度(桌面保持紧凑) */
+  @media (hover: none) {
+    .chip { min-height: 44px; }
+  }
 
   /* ccell hover 阴影加强 */
   .ccell .cimg {

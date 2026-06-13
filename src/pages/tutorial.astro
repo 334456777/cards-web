@@ -17,7 +17,7 @@ import Divider from "../components/Divider.astro";
   <!-- 标题区 -->
   <div class="max-w-[1280px] mx-auto px-8 pt-5 pb-[6px]">
     <div class="font-sans text-[13px] tracking-[0.24em] uppercase text-gold font-bold mb-3">入门读本 · 五章</div>
-    <h1 class="font-serif font-black text-[60px] leading-[1.05] mb-[14px] tracking-[0.01em]">读懂落差体系</h1>
+    <h1 class="font-serif font-black text-[clamp(2.4rem,11vw,60px)] leading-[1.05] mb-[14px] tracking-[0.01em]">读懂落差体系</h1>
     <p class="text-xl text-ink-soft max-w-[30em] leading-[1.7]">一套非线性的解牌方法:每张牌都由花色与数字两重含义叠合而成,而每一重含义,都同时藏着它的反面。从核心理念读起,到亲手解一张牌。</p>
   </div>
 
@@ -385,11 +385,14 @@ import Divider from "../components/Divider.astro";
     }
     .mtoc a {
       flex: none;
+      display: flex;
+      align-items: center;
+      min-height: 40px;
       font-size: 13px;
       color: #5b5246;
       border: 1px solid #d8ccb6;
       border-radius: 30px;
-      padding: 5px 13px;
+      padding: 5px 15px;
       white-space: nowrap;
       background: #F4EDE0;
       text-decoration: none;

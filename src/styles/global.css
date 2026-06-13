@@ -34,6 +34,13 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* iOS 点击不再出现灰色高亮块,改用各元素自定义的 :active 按压反馈 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 可点击元素:去掉移动端 300ms 点击延迟与误触发的双击缩放 */
+a, button, [role="button"], summary, label, .chip, .suit-tab, .toggle-btn {
+  touch-action: manipulation;
 }
 
 body {
@@ -105,13 +112,28 @@ a:hover {
   border-radius: 6px;
 }
 
-/* ════════ 触摸屏:全局禁用动画与过渡 ════════ */
-/* 手机/平板等以触摸为主输入的设备(主指针 coarse、无 hover):把一切 CSS
-   动画/过渡时长归零 —— 元素瞬时到达终态。保留 fill 模式(不归零 iteration
-   /fill),故靠动画淡入的烫金边框(.card::before)等终态仍显示,只是没了过程。
-   WAAPI 的「飞行落桌」转场不受 CSS 时长影响,另在 BaseLayout 脚本里按同一
-   条件(noMotion)直接跳过,走普通 SPA 跳转。 */
-@media (hover: none) and (pointer: coarse) {
+/* ════════ 触摸屏:按压反馈(替代 hover) ════════ */
+/* 触摸设备没有 hover,点击只在「按住」时短暂触发 :active。给主要可点元素一个
+   轻微下压/缩放,让点击有即时的触感反馈 —— hover 态(浮起/描边)仍保留给鼠标。
+   动画与过渡在触摸屏上「照常播放」:iPad / iPhone 性能足以流畅呈现飞牌落桌、
+   开关滑动、叠加态明暗等效果,这正是本站的核心观感,不再一刀切关掉。 */
+@media (hover: none) {
+  .ccell:active,
+  .gcard:active,
+  .mcell:not(.diag):active,
+  .suit-tab:active,
+  .chip:active,
+  .card:active {
+    transform: scale(0.97);
+    transition-duration: 0.09s;
+  }
+}
+
+/* ════════ 无障碍:尊重「减少动态」 ════════ */
+/* 仅当用户在系统里明确选择「减少动态」时,才把动画/过渡归零并瞬时到达终态。
+   保留 fill 模式终态(烫金边框等仍显示)。BaseLayout 的 WAAPI 飞牌转场另按
+   同一条件(reduceMQ)跳过,走普通 SPA 跳转。 */
+@media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
