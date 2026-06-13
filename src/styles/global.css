@@ -65,12 +65,6 @@ body::before {
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
-/* 触摸屏(iOS Safari 等):position:fixed + mix-blend-mode 的全屏纸纹叠层
-   在合成时会留下「灰屏附着」的残影,粘在屏上不随滚动清除。触摸设备直接
-   关掉这层纹理 —— 它本就极淡,牺牲它换干净的画面更值。 */
-@media (hover: none) and (pointer: coarse) {
-  body::before { display: none; }
-}
 
 /* 内容层确保在纹理之上 */
 .page-wrap {
@@ -133,6 +127,16 @@ a:hover {
     transform: scale(0.97);
     transition-duration: 0.09s;
   }
+}
+
+/* ════════ 触摸屏:关闭换页渐变 + 飞牌移动转场 ════════ */
+/* 触摸设备(iPad / iPhone)关掉两类「大」动效:
+   ① 换页时新页从纸色淡入的全局渐变(.page-wrap.cf-pagein);
+   ② 单卡页的飞牌「移动放大、落到桌面」转场 —— 在 BaseLayout 脚本里按同一条件
+      (touchMQ)跳过,走普通 SPA 跳转。
+   轻量过渡(开关滑动、叠加态明暗、:active 按压反馈)仍保留,不受影响。 */
+@media (hover: none) and (pointer: coarse) {
+  .page-wrap.cf-pagein { animation: none !important; }
 }
 
 /* ════════ 无障碍:尊重「减少动态」 ════════ */

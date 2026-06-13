@@ -119,9 +119,10 @@ const { title, activeNav } = Astro.props;
     const RATIO = 332.59947 / 238.11099; // 正面 svg 长宽比
     let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // 仅「减少动态」时跳过整段飞牌转场,走普通 SPA 跳转。触摸屏(iPad / iPhone)
-    // 照常播放飞牌落桌 —— 这是本站招牌交互,性能足以流畅,不再因 coarse 指针跳过。
-    const noMotion = () => reduceMQ.matches;
+    // 触摸屏(主指针 coarse、无 hover)与「减少动态」都跳过飞牌移动转场,走普通
+    // SPA 跳转。换页的全局渐变(.cf-pagein)由 global.css 的同条件媒体查询关掉。
+    const touchMQ = window.matchMedia("(hover: none) and (pointer: coarse)");
+    const noMotion = () => reduceMQ.matches || touchMQ.matches;
 
     // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
     // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。
