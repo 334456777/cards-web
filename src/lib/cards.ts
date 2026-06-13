@@ -33,6 +33,8 @@ export interface CardData {
   synth: string; sup: { same: string; pos: string; neg: string };
   /* part 2 细分:综合特点 / 优势清单 / 劣势清单 / 特殊说明(缺一色视角) */
   traits: string[]; merits: string[]; flaws: string[]; note?: string;
+  /* 同数字两两组合(含该牌花色的那几组) */
+  rankPairs: { suits: string[]; text: string }[];
   combos: ComboData[]; special?: boolean;
 }
 
@@ -50,6 +52,17 @@ const RANK_NOTES: Record<string, string> = {
   "10": `圆满牌的诡谲:抽出十,往往恰恰代表「不圆满」或正朝向圆满——圆满即不圆满。四花色的十须同时俱全才算圆满;缺一张,圆满就翻成另一种奇异的「空满 / 溢出 / 卡死」之态。`,
   J: `官牌(勾)是自主意识的权利与意志,不分阴阳男女。它既可代表「我们自己」——自己是自己的官;也可代表相对于我们的上位者:一种命令式、规则管理式、权限高于我们的存在。`,
   Q: `女王是阴性面向的极致意志,2 号牌的极致——阴性自主意识的觉醒,与 K(国王 / 阳极)互为一对。Q / K 属体系框架里的权位,并非靠修炼得到的人类层级。`,
+};
+
+/* ── 同数字层级的两两组合(part 2)。机制按数字键扩展;目前仅 3 号牌在文本中给出
+   (原文 ♠+♣ 留空、♥+♣ 未给,故略)。单卡页只展示含该牌花色的那几组。 ── */
+const RANK_PAIRS: Record<string, { suits: [string, string]; text: string }[]> = {
+  "3": [
+    { suits: ["hearts", "spades"], text: `人的初心、本心本性,纯白无瑕,近朱者赤近墨者黑,如婴儿之心。` },
+    { suits: ["clubs", "diamonds"], text: `最基本的物质、材料、原料,基础的、组建的、构建的。` },
+    { suits: ["hearts", "diamonds"], text: `起始的偏向、生命能、活力、动能,源源不断地涌入生发。` },
+    { suits: ["spades", "diamonds"], text: `流逝、消耗、磨损,凝聚、凝结、结晶、聚合、承接、囊括。` },
+  ],
 };
 
 /* ── 运行时单卡覆盖文案 ── */
@@ -462,6 +475,7 @@ export async function buildDeck(): Promise<CardData[]> {
         merits: o.merits || [],
         flaws: o.flaws || [],
         note: o.note || RANK_NOTES[rankKey],
+        rankPairs: (RANK_PAIRS[rankKey] || []).filter((p) => p.suits.includes(suitKey)),
         combos: suitCombos[suitKey] || [],
       });
     }
@@ -473,6 +487,7 @@ export async function buildDeck(): Promise<CardData[]> {
       ...j, suit: "joker", rank: "★", special: true,
       traits: ["混沌", "有序", "阴阳一体"], merits: [], flaws: [],
       note: "大小王不分阴阳、不入十三层,混沌与有序本是同一存在;实际解牌时可叠加、可不分开看,含义灵活多变。",
+      rankPairs: [],
       combos: [],
     });
   }

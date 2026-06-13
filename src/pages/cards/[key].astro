@@ -216,6 +216,31 @@ const rankTxt = card.special ? "" : card.rank;
         )}
       </div>
 
+      {card.rankPairs.length > 0 && (
+        <>
+          <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-4 mt-[34px] flex items-center gap-[11px]">
+            同数字 · 两两组合
+            <span class="flex-1 h-px bg-line" />
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {card.rankPairs.map((p) => (
+              <div class="border border-line rounded-xl bg-paper-deep p-[22px_24px] transition-all hover:border-coral hover:-translate-y-[2px] hover:shadow-[0_12px_26px_-16px_rgba(43,39,34,0.4)]">
+                <div class="flex items-center gap-[6px] mb-[11px]">
+                  {p.suits.map((s, i) => (
+                    <Fragment>
+                      {i > 0 && <span class="text-gold text-[15px] mx-[3px]">+</span>}
+                      <span class:list={["text-2xl leading-none", SUIT_CLS[s] === "r" ? "text-suit-red" : "text-ink"]}>{SUIT_SYM[s]}</span>
+                      <span class="font-serif font-bold text-[17px] text-ink leading-none">{rankTxt}</span>
+                    </Fragment>
+                  ))}
+                </div>
+                <p class="text-[16px] text-ink-soft leading-[1.7]">{p.text}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       <!-- PREV / NEXT NAV -->
       <div class="flex gap-4 mt-10 font-sans">
         <a href={`/cards/${prev.key}`} class="flex-1 border border-line rounded-[11px] p-[15px_20px] bg-paper-deep flex flex-col gap-[3px] hover:border-coral hover:bg-paper transition-all no-underline">

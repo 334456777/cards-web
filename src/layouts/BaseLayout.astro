@@ -178,12 +178,14 @@ const { title, activeNav } = Astro.props;
       if (!real || !card) { land(); return; }
 
       const rr = real.getBoundingClientRect();
-      const target = { x: rr.left, y: rr.top, w: rr.width, h: rr.height };
+      // 中心用包围盒(旋转安全);尺寸用 offsetWidth/Height —— 真卡有 -2° 旋转,
+      // 包围盒会比实际宽约 5%,若用它做落定缩放,交接到真卡时会突然缩小。
+      const tw = real.offsetWidth || rr.width, th = real.offsetHeight || rr.height;
       const ocx = origin.x + origin.w / 2, ocy = origin.y + origin.h / 2;
-      const tcx = target.x + target.w / 2, tcy = target.y + target.h / 2;
+      const tcx = rr.left + rr.width / 2, tcy = rr.top + rr.height / 2;
       const dx = tcx - ocx, dy = tcy - ocy;
-      const sEnd = target.w / origin.w;   // 落定缩放(与真卡同大)
-      const sOver = sEnd * 1.09;          // 悬停时略大于真卡
+      const sEnd = tw / origin.w;   // 落定缩放(与真卡实际同大)
+      const sOver = sEnd * 1.09;    // 悬停时略大于真卡
 
       // 等根过渡的快照撤掉(下一帧)再放飞,确保整段移动都看得见
       requestAnimationFrame(() => requestAnimationFrame(() => {
