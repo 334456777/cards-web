@@ -207,7 +207,7 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   const panels = document.querySelectorAll('.suit-panel');
   const crumb = document.getElementById('crumbHere');
 
-  function go(key) {
+  function go(key, scroll = true) {
     tabs.forEach(t => {
       const on = t.dataset.suit === key;
       t.classList.toggle('on', on);
@@ -223,11 +223,11 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
     const names = { hearts: '红桃', spades: '黑桃', diamonds: '方块', clubs: '梅花' };
     if (crumb) crumb.textContent = names[key] || '红桃';
     try { localStorage.setItem('suit-cur', key); } catch {}
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (scroll) window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.suit)));
-  document.querySelectorAll('.qcell').forEach(c => c.addEventListener('click', () => go(c.dataset.qsuit)));
+  document.querySelectorAll('.qcell').forEach(c => c.addEventListener('click', () => go(c.dataset.qsuit, false)));
   document.getElementById('prevSuitBtn').addEventListener('click', () => {
     const cur = [...panels].find(p => !p.classList.contains('hidden'))?.dataset.suit || 'hearts';
     go(SUIT_ORDER[(SUIT_ORDER.indexOf(cur) - 1 + 4) % 4]);
