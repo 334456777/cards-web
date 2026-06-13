@@ -86,8 +86,8 @@ a:hover {
    背景的渐变过渡改为「新页内容从纸色淡入」——与牌的飞行同时进行,不会盖住飞行的牌。 */
 ::view-transition-old(root),
 ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-@keyframes cf-page-in { from { opacity: 0; } to { opacity: 1; } }
-.page-wrap.cf-pagein { animation: cf-page-in 0.5s ease both; }
+/* 背景换页改为高斯模糊交叉:当前页模糊淡出 → 模糊中切换 → 新页从模糊中显现
+   (在 BaseLayout 的脚本里用 WAAPI 对 .page-wrap 的 filter 做,飞牌时长贴飞行节奏)。 */
 /* 飞行的牌(运行时注入,定位到原矩形,移动放大、悬停后落到 hero 卡) */
 #cardflip-stage {
   position: fixed;
