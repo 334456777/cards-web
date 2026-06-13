@@ -65,12 +65,6 @@ body::before {
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
-/* 触摸屏(iOS Safari 等):position:fixed + mix-blend-mode 的全屏纸纹叠层
-   在合成时会留下「灰屏附着」的残影,粘在屏上不随滚动清除。触摸设备直接
-   关掉这层纹理 —— 它本就极淡,牺牲它换干净的画面更值。 */
-@media (hover: none) and (pointer: coarse) {
-  body::before { display: none; }
-}
 
 /* 内容层确保在纹理之上 */
 .page-wrap {
