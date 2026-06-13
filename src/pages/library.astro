@@ -158,42 +158,47 @@ const JOKERS = [
 </BaseLayout>
 
 <script>
-  const allCells = document.querySelectorAll('.ccell');
-  const suitsecs = document.querySelectorAll('.suitsec');
-  const chips = document.querySelectorAll('.chip');
-  const resultN = document.getElementById('resultN');
-  const empty = document.getElementById('empty');
+  // ClientRouter 下:每次进入牌库页重新绑定筛选
+  function initLibrary() {
+    const allCells = document.querySelectorAll('.ccell');
+    if (!allCells.length) return; // 不在牌库页
+    const suitsecs = document.querySelectorAll('.suitsec');
+    const chips = document.querySelectorAll('.chip');
+    const resultN = document.getElementById('resultN');
+    const empty = document.getElementById('empty');
 
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const parent = chip.parentElement!;
-      parent.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-      chip.classList.add('on');
-      apply();
-    });
-  });
+    function apply() {
+      const suitChip = document.querySelector('[data-suit].on');
+      const typeChip = document.querySelector('[data-type].on');
+      const suit = suitChip?.getAttribute('data-suit') || 'all';
+      const type = typeChip?.getAttribute('data-type') || 'all';
+      let n = 0;
+      allCells.forEach(c => {
+        const okSuit = suit === 'all' || c.getAttribute('data-suit') === suit;
+        const types = c.getAttribute('data-types') || '';
+        const okType = type === 'all' || types.indexOf(type) > -1;
+        const show = okSuit && okType;
+        (c as HTMLElement).style.display = show ? '' : 'none';
+        if (show) n++;
+      });
+      suitsecs.forEach(sec => {
+        const any = [...sec.querySelectorAll('.ccell')].some(c => (c as HTMLElement).style.display !== 'none');
+        (sec as HTMLElement).style.display = any ? '' : 'none';
+      });
+      if (resultN) resultN.textContent = String(n);
+      if (empty) empty.classList.toggle('hidden', n > 0);
+    }
 
-  function apply() {
-    const suitChip = document.querySelector('[data-suit].on');
-    const typeChip = document.querySelector('[data-type].on');
-    const suit = suitChip?.getAttribute('data-suit') || 'all';
-    const type = typeChip?.getAttribute('data-type') || 'all';
-    let n = 0;
-    allCells.forEach(c => {
-      const okSuit = suit === 'all' || c.getAttribute('data-suit') === suit;
-      const types = c.getAttribute('data-types') || '';
-      const okType = type === 'all' || types.indexOf(type) > -1;
-      const show = okSuit && okType;
-      (c as HTMLElement).style.display = show ? '' : 'none';
-      if (show) n++;
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const parent = chip.parentElement!;
+        parent.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        apply();
+      });
     });
-    suitsecs.forEach(sec => {
-      const any = [...sec.querySelectorAll('.ccell')].some(c => (c as HTMLElement).style.display !== 'none');
-      (sec as HTMLElement).style.display = any ? '' : 'none';
-    });
-    if (resultN) resultN.textContent = String(n);
-    if (empty) empty.classList.toggle('hidden', n > 0);
   }
+  document.addEventListener('astro:page-load', initLibrary);
 </script>
 
 <style>

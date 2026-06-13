@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 238.11099 332.59947" width="238.11099" height="332.59947">
+  <title>Card Back · 落差扑克牌占卜</title>
+  <defs>
+    <!-- 白边卡身的圆角,用于裁剪红底花纹 -->
+    <clipPath id="panelClip">
+      <rect x="14.4413" y="17.3942" width="209.22835" height="297.81104" rx="7" ry="7"/>
+    </clipPath>
+    <!-- 白色菱形格纹(呼应 Vector 卡背的交叉线) -->
+    <pattern id="lattice" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M0 0 L20 20 M20 0 L0 20" stroke="#ffffff" stroke-width="2" stroke-opacity="0.82" fill="none"/>
+    </pattern>
+  </defs>
+
+  <!-- 白色卡身(与正面 STANDARD BORDERED 同尺寸圆角,形成白边) -->
+  <rect x="7.4413" y="10.3942" width="223.22835" height="311.81104" rx="10.6776" ry="10.664" fill="#ffffff"/>
+  <!-- 复古红底面 -->
+  <rect x="14.4413" y="17.3942" width="209.22835" height="297.81104" rx="7" ry="7" fill="#A3372B"/>
+  <!-- 菱形格纹(裁剪在红底圆角内) -->
+  <g clip-path="url(#panelClip)">
+    <rect x="14.4413" y="17.3942" width="209.22835" height="297.81104" fill="url(#lattice)"/>
+  </g>
+  <!-- 烫金细描边(呼应站点 #B8893A 烫金调) -->
+  <rect x="20.4413" y="23.3942" width="197.22835" height="285.81104" rx="4" ry="4" fill="none" stroke="#B8893A" stroke-width="1.5" stroke-opacity="0.9"/>
+  <!-- 中心烫金菱形纹章 -->
+  <g transform="translate(119.0555 166.2997)" fill="none" stroke="#B8893A" stroke-opacity="0.95">
+    <rect x="-26" y="-37" width="52" height="74" rx="3" transform="rotate(45)" stroke-width="1.6"/>
+    <rect x="-16" y="-23" width="32" height="46" rx="2" transform="rotate(45)" stroke-width="1.2" stroke-opacity="0.7"/>
+    <circle r="6" fill="#B8893A" stroke="none" fill-opacity="0.92"/>
+  </g>
+</svg>

@@ -200,7 +200,10 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 </BaseLayout>
 
 <script define:vars={{ SUIT_ORDER, SYM, CLS }}>
+  // ClientRouter 下:每次进入四花色页重新初始化(define:vars 只能写纯 JS)
+  function initSuits() {
   const tabs = document.querySelectorAll('.suit-tab');
+  if (!tabs.length) return; // 不在四花色页
   const panels = document.querySelectorAll('.suit-panel');
   const crumb = document.getElementById('crumbHere');
 
@@ -252,6 +255,11 @@ const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
     document.body.classList.remove('shadow');
     document.querySelectorAll('.toggle-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
   }));
+  }
+  if (!window.__suitsBound) {
+    window.__suitsBound = true;
+    document.addEventListener('astro:page-load', initSuits);
+  }
 </script>
 
 <style>

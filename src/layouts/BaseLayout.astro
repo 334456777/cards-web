@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -15,6 +16,8 @@ const { title, activeNav } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title} · 落差扑克牌占卜</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- 客户端路由:换页不刷新,卡片转场在其生命周期里完成 -->
+  <ClientRouter />
 </head>
 <body>
   <!-- SVG 纹理滤镜（全局共用） -->
@@ -83,9 +86,11 @@ const { title, activeNav } = Astro.props;
   </div>
 
   <script>
-    const navToggle = document.getElementById("navToggle");
-    const mobileNav = document.getElementById("mobileNav");
-    if (navToggle && mobileNav) {
+    // ── 移动端导航(每次换页都重新绑定,因 header 会被换掉) ──
+    function initNav() {
+      const navToggle = document.getElementById("navToggle");
+      const mobileNav = document.getElementById("mobileNav");
+      if (!navToggle || !mobileNav) return;
       const setOpen = (open: boolean) => {
         mobileNav.classList.toggle("hidden", !open);
         navToggle.setAttribute("aria-expanded", open ? "true" : "false");
@@ -93,8 +98,121 @@ const { title, activeNav } = Astro.props;
       };
       navToggle.addEventListener("click", () => setOpen(mobileNav.classList.contains("hidden")));
       mobileNav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
-      document.addEventListener("keydown", (e) => { if (e.key === "Escape") setOpen(false); });
     }
+    document.addEventListener("astro:page-load", initNav);
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      const mn = document.getElementById("mobileNav"), nt = document.getElementById("navToggle");
+      if (mn && nt) { mn.classList.add("hidden"); nt.setAttribute("aria-expanded", "false"); nt.classList.remove("is-open"); }
+    });
+
+    // ════════ 单卡页跳转 · 卡片「移动放大、落到桌面」转场(无刷新) ════════
+    const RATIO = 332.59947 / 238.11099; // 正面 svg 长宽比
+    let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
+    const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
+    // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。
+    document.addEventListener("click", (e) => {
+      const me = e as MouseEvent;
+      if (me.button !== 0 || me.metaKey || me.ctrlKey || me.shiftKey || me.altKey) { pending = null; return; }
+      const t = e.target as Element | null;
+      const a = t && t.closest ? (t.closest('a[href^="/cards/"]') as HTMLAnchorElement | null) : null;
+      if (!a || a.getAttribute("target") === "_blank") { pending = null; return; }
+      let url: URL;
+      try { url = new URL(a.href, location.href); } catch { pending = null; return; }
+      if (url.origin !== location.origin || reduceMQ.matches) { pending = null; return; }
+
+      const parts = url.pathname.split("/").filter(Boolean);
+      const key = parts[parts.length - 1];
+      const img = a.querySelector("img") as HTMLImageElement | null;
+      let origin: { x: number; y: number; w: number; h: number };
+      if (img) {
+        const r = img.getBoundingClientRect();
+        origin = { x: r.left, y: r.top, w: r.width, h: r.height };
+      } else {
+        const r = a.getBoundingClientRect();
+        const w = Math.min(110, r.width || 110), h = w * RATIO;
+        origin = { x: r.left + r.width / 2 - w / 2, y: r.top + r.height / 2 - h / 2, w, h };
+      }
+      pending = { key, origin };
+    }, true);
+
+    // 换页中:新页内容从纸色淡入(背景渐变过渡);若是飞牌进入,先藏起目标 hero 卡
+    document.addEventListener("astro:after-swap", () => {
+      const pw = document.querySelector(".page-wrap") as HTMLElement | null;
+      if (pw) pw.classList.add("cf-pagein");
+      if (!pending) return;
+      const card = document.querySelector("main .card") as HTMLElement | null;
+      if (card) card.style.visibility = "hidden";
+    });
+
+    // 换页完成 → 牌从原位移动放大、悬停后落到桌面;落定后卡片边饰从内向外滑出
+    document.addEventListener("astro:page-load", () => {
+      if (!pending) {
+        // 直接进入单卡页(非飞牌):也让边饰滑出一次
+        const c = document.querySelector("main .card") as HTMLElement | null;
+        if (c) c.classList.add("cf-arrived");
+        return;
+      }
+      const { key, origin } = pending;
+      const card = document.querySelector("main .card") as HTMLElement | null;
+      const real = document.querySelector("main .card .cardimg") as HTMLElement | null;
+      const finish = () => {
+        if (card) { card.style.visibility = ""; card.classList.add("cf-arrived"); }
+        document.getElementById("cardflip-stage")?.remove();
+        pending = null;
+      };
+      if (!real || !card) { finish(); return; }
+
+      const rr = real.getBoundingClientRect();
+      const target = { x: rr.left, y: rr.top, w: rr.width, h: rr.height };
+      const ocx = origin.x + origin.w / 2, ocy = origin.y + origin.h / 2;
+      const tcx = target.x + target.w / 2, tcy = target.y + target.h / 2;
+      const dx = tcx - ocx, dy = tcy - ocy;
+      const sEnd = target.w / origin.w;   // 落定缩放(与真卡同大)
+      const sOver = sEnd * 1.09;          // 悬停时略大于真卡
+
+      // 等根过渡的快照撤掉(下一帧)再放飞,确保整段移动都看得见
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const stage = document.createElement("div");
+        stage.id = "cardflip-stage";
+        stage.style.left = origin.x + "px";
+        stage.style.top = origin.y + "px";
+        stage.style.width = origin.w + "px";
+        stage.style.height = origin.h + "px";
+        const face = document.createElement("img");
+        face.className = "cf-face";
+        face.src = "/cards_svg/" + key + ".svg";
+        stage.append(face);
+        document.body.append(stage);
+
+        const anim = stage.animate(
+          [
+            // 起:原位、原大小
+            { transform: "translate(0px,0px) scale(1) rotate(0deg)",
+              filter: "drop-shadow(0 8px 16px rgba(43,39,34,0.20))",
+              offset: 0, easing: "cubic-bezier(0.33,0.45,0.4,1)" },
+            // 移动 + 逐渐放大,到目标上方悬停(略大于真卡、投影最大)
+            { transform: `translate(${dx}px,${dy}px) scale(${sOver}) rotate(-2.5deg)`,
+              filter: "drop-shadow(0 46px 66px rgba(43,39,34,0.42))",
+              offset: 0.72, easing: "cubic-bezier(0.45,0,0.35,1)" },
+            // 落到桌面:回到真卡大小与 -2° 静止态;投影几乎收没,余下交给真卡阴影缓慢渐显
+            { transform: `translate(${dx}px,${dy}px) scale(${sEnd}) rotate(-2deg)`,
+              filter: "drop-shadow(0 3px 8px rgba(43,39,34,0.10))",
+              offset: 1 },
+          ] as Keyframe[],
+          { duration: 900, easing: "linear", fill: "forwards" }
+        );
+        anim.addEventListener("finish", finish, { once: true });
+      }));
+      window.setTimeout(finish, 1500); // 看门狗
+    });
+
+    // 离开页面前清掉叠加态 body class,避免残留到下一页
+    document.addEventListener("astro:before-swap", () => {
+      document.body.classList.remove("reverse", "shadow");
+    });
   </script>
 
   <style>

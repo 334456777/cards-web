@@ -45,6 +45,7 @@ Astro 按 `src/pages/` 的文件自动生成路由:
 ### 改东西在哪改
 
 - **改某张牌的专属文字** → `src/lib/cards.ts` 的 `OVERRIDES`(按 `key` 补 `lede` / `synth` / `sup`)。
+- **改某张牌的「综合特点 / 优势 / 劣势 / 补注」** → 同一 `OVERRIDES` 条目补 `traits` / `merits` / `flaws` / `note`(可选数组 / 字符串),单卡页「优势 / 劣势」双栏区块自动渲染。映射:缺♠→红桃、缺♥→黑桃、缺♣→方块、缺♦→梅花。
 - **改某花色 / 某数字的通用含义** → 对应的 `src/content/suits|ranks/*.json`,该花色 / 数字的全部牌一并生效。
 - **增删精选组合** → `src/content/combinations/` 增删 JSON,组合浏览器与单卡页自动同步。
 - **换牌面图** → 替换 `public/cards_svg/<key>.svg`,路径不变。

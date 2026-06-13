@@ -123,6 +123,64 @@ const rankTxt = card.special ? "" : card.rank;
       <SuperpositionToggle client:load sym={card.sym} sup={card.sup} />
     </div>
 
+    {(card.traits.length > 0 || card.merits.length > 0 || card.flaws.length > 0 || !!card.note) && (
+      <div class="max-w-[1080px] mx-auto mt-[44px]">
+        {card.note && (
+          <aside class="aside"><div class="pin">落差体系 · 补注</div><div class="body" set:html={card.note} /></aside>
+        )}
+
+        {card.traits.length > 0 && (
+          <div class="mb-[26px]">
+            <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-[14px] flex items-center gap-[11px]">
+              综合特点
+              <span class="flex-1 h-px bg-line" />
+            </h2>
+            <div class="flex flex-wrap gap-[9px]">
+              {card.traits.map((t) => (
+                <span class="font-sans text-[13.5px] font-medium px-[13px] py-[6px] rounded-[30px] border border-line bg-paper-deep text-ink-soft">{t}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(card.merits.length > 0 || card.flaws.length > 0) && (
+          <>
+            <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-4 flex items-center gap-[11px]">
+              优势 / 劣势 · 同一份特质的两面
+              <span class="flex-1 h-px bg-line" />
+            </h2>
+            <p class="font-sans text-[13.5px] text-ink-faint mb-[18px] max-w-[44em] leading-[1.7]">同一份特质,既是优势也是劣势——随语境翻转。拨动上方的「正义 / 反义」开关,这两栏会随之一明一暗。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="mf-pos bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+                <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
+                <span class="mf-pos-l font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-coral mb-[14px] inline-block">优势 · 显义</span>
+                <ul class="space-y-[10px] m-0 list-none p-0">
+                  {card.merits.map((m) => (
+                    <li class="flex gap-[10px] text-ink text-[15.5px] leading-[1.6]">
+                      <span class="text-coral shrink-0 font-serif leading-[1.6]">＋</span>
+                      <span set:html={m} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="mf-neg bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
+                <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
+                <span class="mf-neg-l font-sans text-[11.5px] font-bold tracking-[0.12em] uppercase text-ink-faint mb-[14px] inline-block">劣势 · 隐义</span>
+                <ul class="space-y-[10px] m-0 list-none p-0">
+                  {card.flaws.map((f) => (
+                    <li class="flex gap-[10px] text-ink-soft text-[15.5px] leading-[1.6]">
+                      <span class="text-ink-faint shrink-0 font-serif leading-[1.6]">－</span>
+                      <span set:html={f} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )}
+
     <Divider />
 
     <!-- COMBOS + NAV -->
@@ -199,7 +257,7 @@ const rankTxt = card.special ? "" : card.rank;
       transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
       box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  /* 粗糙烫金内框 */
+  /* 粗糙烫金内框 —— 默认透明,落定后随卡身一起由内向外展开并淡入 */
   .card::before {
     content: "";
     position: absolute;
@@ -207,9 +265,41 @@ const rankTxt = card.special ? "" : card.rank;
     border-radius: 9px;
     border: 1.5px solid #B8893A;
     filter: url(#rough);
-    opacity: 0.85;
+    opacity: 0;
     z-index: 2;
     pointer-events: none;
+  }
+  /* 落定(.cf-arrived):卡身/边缘/金框从内向外展开,svg 反向缩放保持原位不跳,阴影缓慢渐显 */
+  .card.cf-arrived { animation: cardSettle 0.66s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
+  .card.cf-arrived .cardimg { animation: cardImgHold 0.66s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
+  .card.cf-arrived::before { animation: cardFrameIn 0.6s ease 0.1s both; }
+  @keyframes cardSettle {
+    from {
+      transform: rotate(-2deg) scale(0.9);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 0 0 rgba(43, 39, 34, 0),
+        0 0 0 rgba(43, 39, 34, 0),
+        0 0 0 rgba(43, 39, 34, 0),
+        0 0 0 rgba(43, 39, 34, 0);
+    }
+    to {
+      transform: rotate(-2deg) scale(1);
+      box-shadow:
+        0 1px 0    rgba(255, 255, 255, 0.7) inset,
+        0 0 18px   rgba(43, 39, 34, 0.05),
+        0 4px 10px rgba(43, 39, 34, 0.08),
+        0 12px 26px -6px  rgba(43, 39, 34, 0.13),
+        0 22px 44px -14px rgba(43, 39, 34, 0.17);
+    }
+  }
+  @keyframes cardImgHold {
+    from { transform: scale(1.1111); }
+    to   { transform: scale(1); }
+  }
+  @keyframes cardFrameIn {
+    from { opacity: 0; }
+    to   { opacity: 0.85; }
   }
   /* hover 浮起 + 阴影加深 */
   .card:hover {
@@ -250,6 +340,15 @@ const rankTxt = card.special ? "" : card.rank;
   body.reverse .row.neg-l { opacity: 1; }
   body.reverse .row.neg-l .rl-neg { color: #A3372B; }
   body.reverse .row.pos-l .rl-pos { color: #8b8173; }
+
+  /* 优势 / 劣势 双栏:随叠加态开关一明一暗 */
+  .mf-pos, .mf-neg { transition: opacity 0.45s, filter 0.45s; }
+  .mf-neg { opacity: 0.5; }
+  body:not(.reverse) .mf-neg { opacity: 0.5; }
+  body.reverse .mf-pos { opacity: 0.5; }
+  body.reverse .mf-neg { opacity: 1; }
+  body.reverse .mf-neg-l { color: #A3372B; }
+  body.reverse .mf-pos-l { color: #8b8173; }
 
   /* aside 旁注 */
   .aside {

@@ -210,6 +210,24 @@ import Divider from "../components/Divider.astro";
               <div class="grid grid-cols-[74px_1fr] gap-[18px] py-[11px] items-baseline"><span class="font-serif font-black text-[25px] text-ink text-center leading-none">★<small class="block font-sans text-[10.5px] font-medium text-ink-faint tracking-[0.05em] mt-[3px]">大 / 小王</small></span><span class="text-[16.5px] text-ink-soft leading-[1.62]"><b class="text-ink font-bold">混沌与有序</b>,初始阴阳一体;既是创始起点,又是圆融归零。</span></div>
             </div>
           </div>
+
+          <!-- 人类的发展 3→9 -->
+          <h3 class="font-serif font-bold text-[22px] mt-[42px] mb-[6px]">人类的发展 · 3 → 9</h3>
+          <p class="mb-[18px]">3 到 9,是一条由浅入深的进化线。每往上一阶,都把前面所有的花色牌一并补强——并非数值变大,而是层面跃迁。</p>
+          <ol class="list-none m-0 p-0 border-t border-line">
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">3</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">基础复合</b>——意识开始复合叠加,多种面相初现,善恶未分。</span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">4</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">生出「心」</b>——经历、思考、感受,长出自主的想法与内心。</span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">5</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">佼佼者</b>——某一专长、技能或特质突出,成为三四号中的优异者。</span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">6</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">跳出自我</b>——向万物学习,博学广识,开始超脱个体。<em class="text-suit-red not-italic">「虚学」的上限就在这里;往上必须实学。</em></span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">7</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">领悟落差</b>——以差异与复合态运作,统筹各种落差;十三层的中间牌。</span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">8</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">超越规则</b>——理解并设计、解构框架与体系;占卜中的变牌(癞子),须四色俱全。</span></li>
+            <li class="grid grid-cols-[30px_1fr] gap-[14px] py-[12px] items-baseline"><span class="font-serif font-black text-[22px] text-suit-red leading-none">9</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">不可描述</b>——层面碾压、强度无上限,非此层级无法窥探。</span></li>
+          </ol>
+
+          <!-- 低看不见高 -->
+          <aside class="aside mt-[30px]"><div class="pin">低看不见高</div><div class="body">视野只能向下看清:3、4 号大约只看得到 5 号;5 号求进取才看得见 6 号;要看见 7 号须先到 6 号;7、8、9 号只有 7 号及以上能看见——而 7、8 号都未必能真正理解 9 号。低阶看高阶,往往会把对方<em>渲染</em>成自己理解的样子。这与霍金斯能量层级中「低层级看不见高层级」同理。</div></aside>
+
+          <p class="mt-[24px]">最后记住:牌没有<strong class="text-ink font-bold">实际的大小</strong>。这是占卜,不是打牌——A 可以大于 K,2 又可以大于 A,3 还能大于 2(犹如百姓大于国王);J / Q / K 是体系框架里的<strong class="text-ink font-bold">权位</strong>,而非靠修炼得到的人类层级。当上国王的人,修为仍在 3–9 之间。</p>
         </div>
       </section>
 
@@ -245,27 +263,34 @@ import Divider from "../components/Divider.astro";
 </BaseLayout>
 
 <script>
-  // 阅读进度条
-  const prog = document.getElementById('progress');
-  function onScroll() {
-    const h = document.documentElement;
-    const max = h.scrollHeight - h.clientHeight;
-    if (prog) prog.style.width = (max > 0 ? (h.scrollTop / max * 100) : 0) + '%';
+  // ClientRouter 下:每次进入教程页初始化,离开页面前清理监听,避免泄漏到其它页
+  let teardown: (() => void) | null = null;
+  function initTutorial() {
+    const prog = document.getElementById('progress');
+    if (!prog) return; // 不在教程页
+    // 阅读进度条
+    function onScroll() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      if (prog) prog.style.width = (max > 0 ? (h.scrollTop / max * 100) : 0) + '%';
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    // 目录高亮
+    const links = document.querySelectorAll('[data-t]');
+    const secs = ['c1','c2','c3','c4','c5'].map(id => document.getElementById(id));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.toggle('on', a.getAttribute('data-t') === e.target.id));
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+    secs.forEach(s => { if (s) io.observe(s); });
+    teardown = () => { document.removeEventListener('scroll', onScroll); io.disconnect(); };
   }
-  document.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  // 目录高亮
-  const links = document.querySelectorAll('[data-t]');
-  const secs = ['c1','c2','c3','c4','c5'].map(id => document.getElementById(id));
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(a => a.classList.toggle('on', a.getAttribute('data-t') === e.target.id));
-      }
-    });
-  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-  secs.forEach(s => { if (s) io.observe(s); });
+  document.addEventListener('astro:page-load', initTutorial);
+  document.addEventListener('astro:before-swap', () => { if (teardown) { teardown(); teardown = null; } });
 </script>
 
 <style>
