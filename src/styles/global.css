@@ -104,3 +104,22 @@ a:hover {
   object-fit: contain;
   border-radius: 6px;
 }
+
+/* ════════ 触摸屏:全局禁用动画与过渡 ════════ */
+/* 手机/平板等以触摸为主输入的设备(主指针 coarse、无 hover):把一切 CSS
+   动画/过渡时长归零 —— 元素瞬时到达终态。保留 fill 模式(不归零 iteration
+   /fill),故靠动画淡入的烫金边框(.card::before)等终态仍显示,只是没了过程。
+   WAAPI 的「飞行落桌」转场不受 CSS 时长影响,另在 BaseLayout 脚本里按同一
+   条件(noMotion)直接跳过,走普通 SPA 跳转。 */
+@media (hover: none) and (pointer: coarse) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+  html { scroll-behavior: auto !important; }
+}

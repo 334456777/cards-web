@@ -110,6 +110,10 @@ const { title, activeNav } = Astro.props;
     const RATIO = 332.59947 / 238.11099; // 正面 svg 长宽比
     let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // 触摸屏(主指针 coarse、无 hover):等同「减少动态」,跳过整段飞行转场。
+    // CSS 动画/过渡已由 global.css 的同条件媒体查询归零;此处管 WAAPI 飞行。
+    const touchMQ = window.matchMedia("(hover: none) and (pointer: coarse)");
+    const noMotion = () => reduceMQ.matches || touchMQ.matches;
 
     // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
     // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。
@@ -121,7 +125,7 @@ const { title, activeNav } = Astro.props;
       if (!a || a.getAttribute("target") === "_blank") { pending = null; return; }
       let url: URL;
       try { url = new URL(a.href, location.href); } catch { pending = null; return; }
-      if (url.origin !== location.origin || reduceMQ.matches) { pending = null; return; }
+      if (url.origin !== location.origin || noMotion()) { pending = null; return; }
 
       const parts = url.pathname.split("/").filter(Boolean);
       const key = parts[parts.length - 1];
