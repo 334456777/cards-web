@@ -104,8 +104,8 @@ const JOKERS = [
                 data-types={[...types, ...(isSpecial ? ["special"] : [])].join(" ")}
                 data-search={`${name} ${RANK_INFO[rk]} ${s.cn} ${s.yy} ${s.desc}`}
               >
-                <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] shadow-[0_8px_20px_-14px_rgba(43,39,34,0.4)] transition-all group-hover:border-coral group-hover:shadow-[0_14px_28px_-16px_rgba(43,39,34,0.5)]">
-                  <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)] transition-shadow group-hover:shadow-[0_8px_18px_-6px_rgba(43,39,34,0.5)]" />
+                <div class="lcard bg-paper-deep border border-line rounded-[11px] p-[11px]">
+                  <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333]" />
                 </div>
                 <div class="pt-[11px] px-1 pb-[2px]">
                   <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
@@ -134,8 +134,8 @@ const JOKERS = [
       <div class="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-5">
         {JOKERS.map((j) => (
           <a href={`/cards/${j.file}`} class="ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special" data-search={`${j.cn} ${j.ess} 大小王 混沌 有序 王`}>
-            <div class="bg-paper-deep border border-line rounded-[11px] p-[11px] shadow-[0_8px_20px_-14px_rgba(43,39,34,0.4)] transition-all group-hover:border-coral group-hover:shadow-[0_14px_28px_-16px_rgba(43,39,34,0.5)]">
-              <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333] shadow-[0_4px_12px_-6px_rgba(43,39,34,0.45)] transition-shadow group-hover:shadow-[0_8px_18px_-6px_rgba(43,39,34,0.5)]" />
+            <div class="lcard bg-paper-deep border border-line rounded-[11px] p-[11px]">
+              <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333]" />
             </div>
             <div class="pt-[11px] px-1 pb-[2px]">
               <div class="font-serif font-bold text-[17px] text-ink flex items-baseline justify-center gap-[6px]">
@@ -225,23 +225,31 @@ const JOKERS = [
     .chip { min-height: 44px; }
   }
 
-  /* ccell hover 阴影加强 */
-  .ccell .cimg {
-    background: #F4EDE0;
-    border: 1px solid #d8ccb6;
-    border-radius: 11px;
-    padding: 11px;
-    transition: all 0.25s;
+  /* 库卡:平时单层柔和阴影;hover 时换成单卡页 .card 那种阴影 + 烫金内框(金边),
+     去掉了内层 img 自带的第二层阴影,只剩这一层。 */
+  .lcard {
+    position: relative;
+    box-shadow: 0 8px 20px -14px rgba(43, 39, 34, 0.4);
+    transition: box-shadow 0.28s ease, border-color 0.28s ease;
   }
-  .ccell:hover .cimg {
-    border-color: #D97757;
-    box-shadow: 0 14px 28px -16px rgba(43, 39, 34, 0.5);
+  .lcard::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 7px;
+    border: 1.5px solid #B8893A;
+    filter: url(#rough);
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    pointer-events: none;
   }
-  .ccell .cimg img {
-    box-shadow: 0 4px 12px -6px rgba(43, 39, 34, 0.45);
-    transition: box-shadow 0.25s;
+  .ccell:hover .lcard {
+    box-shadow:
+      0 1px 0    rgba(255, 255, 255, 0.7) inset,
+      0 0 18px   rgba(43, 39, 34, 0.05),
+      0 4px 10px rgba(43, 39, 34, 0.08),
+      0 12px 26px -6px  rgba(43, 39, 34, 0.13),
+      0 22px 44px -14px rgba(43, 39, 34, 0.17);
   }
-  .ccell:hover .cimg img {
-    box-shadow: 0 8px 18px -6px rgba(43, 39, 34, 0.5);
-  }
+  .ccell:hover .lcard::before { opacity: 0.85; }
 </style>

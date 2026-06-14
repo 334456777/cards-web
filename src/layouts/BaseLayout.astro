@@ -115,133 +115,111 @@ const { title, activeNav } = Astro.props;
       closeMobileNav();
     });
 
-    // ════════ 单卡页跳转 · 卡片「移动放大、落到桌面」转场(无刷新) ════════
-    const RATIO = 332.59947 / 238.11099; // 正面 svg 长宽比
-    let pending: { key: string; origin: { x: number; y: number; w: number; h: number } } | null = null;
+    // ════════ 库 → 单卡页:卡片「简易移动」转场(无刷新) ════════
+    // 点击库中的牌 → 一张克隆的「完整态」真卡(金边已在)从原位平移放大飞到 hero 位 → 落定亮出真卡。
+    // 阴影飞行时关掉、落定后由真卡渐显;prefers-reduced-motion 时整段跳过,走普通 SPA 跳转。
+    const FLY = 650;                       // 飞行总时长(ms)
+    const RATIO = 332.59947 / 238.11099;   // 正面 svg 长宽比(无 img 的 /cards/ 链接用它估起飞高度)
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // 仅「减少动态」时跳过整段飞牌转场,走普通 SPA 跳转。触摸屏(iPad / iPhone)
-    // 照常播放飞牌落桌 —— 这是本站招牌交互,性能足以流畅,不再因 coarse 指针跳过。
-    const noMotion = () => reduceMQ.matches;
+    type Rect = { x: number; y: number; w: number; h: number };
+    let origin: Rect | null = null;        // 本次点击牌的起飞矩形;null 表示非飞牌进入
 
-    // 点击:只记下原位置与牌 key —— 导航交给 ClientRouter(它已拦截 <a>),
-    // 落地动画在 astro:page-load 里依 pending 完成。捕获阶段,确保在 ClientRouter 之前记录。
+    // 捕获阶段记下起飞矩形(早于 ClientRouter);导航本身交给 ClientRouter
     document.addEventListener("click", (e) => {
+      origin = null;
       const me = e as MouseEvent;
-      if (me.button !== 0 || me.metaKey || me.ctrlKey || me.shiftKey || me.altKey) { pending = null; return; }
-      const t = e.target as Element | null;
-      const a = t && t.closest ? (t.closest('a[href^="/cards/"]') as HTMLAnchorElement | null) : null;
-      if (!a || a.getAttribute("target") === "_blank") { pending = null; return; }
+      if (me.button !== 0 || me.metaKey || me.ctrlKey || me.shiftKey || me.altKey) return;
+      const a = (e.target as Element | null)?.closest?.('a[href^="/cards/"]') as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || reduceMQ.matches) return;
       let url: URL;
-      try { url = new URL(a.href, location.href); } catch { pending = null; return; }
-      if (url.origin !== location.origin || noMotion()) { pending = null; return; }
-
-      const parts = url.pathname.split("/").filter(Boolean);
-      const key = parts[parts.length - 1];
-      const img = a.querySelector("img") as HTMLImageElement | null;
-      let origin: { x: number; y: number; w: number; h: number };
+      try { url = new URL(a.href, location.href); } catch { return; }
+      if (url.origin !== location.origin) return;
+      const img = a.querySelector("img");
       if (img) {
         const r = img.getBoundingClientRect();
         origin = { x: r.left, y: r.top, w: r.width, h: r.height };
       } else {
         const r = a.getBoundingClientRect();
         const w = Math.min(110, r.width || 110), h = w * RATIO;
-        origin = { x: r.left + r.width / 2 - w / 2, y: r.top + r.height / 2 - h / 2, w, h };
+        origin = { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
       }
-      pending = { key, origin };
     }, true);
 
-    // 换页中:新页内容从纸色淡入(背景渐变过渡);若是飞牌进入,先藏起目标 hero 卡
+    // 换页瞬间:新页内容从纸色淡入;飞牌进入时先藏起目标 hero 卡(由克隆牌代为飞行)
     document.addEventListener("astro:after-swap", () => {
-      const pw = document.querySelector(".page-wrap") as HTMLElement | null;
-      if (pw) pw.classList.add("cf-pagein");
-      if (!pending) return;
+      document.querySelector(".page-wrap")?.classList.add("cf-pagein");
       const card = document.querySelector("main .card") as HTMLElement | null;
-      if (card) card.style.visibility = "hidden";
+      if (origin && card) card.style.visibility = "hidden";
     });
 
-    // 换页完成 → 牌从原位移动放大、悬停后落到桌面;落定后卡片边饰从内向外滑出
+    // 换页完成:飞牌进入则放飞克隆牌,否则(直接进入)让真卡边缘滑出一次
     document.addEventListener("astro:page-load", () => {
-      if (!pending) {
-        // 直接进入单卡页(非飞牌):让边饰滑出一次 —— 但原地刷新(reload)时不放,避免每次刷新重播动画
-        const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-        const isReload = navEntry?.type === "reload";
-        const c = document.querySelector("main .card") as HTMLElement | null;
-        if (c && !isReload) c.classList.add("cf-arrived");
-        return;
-      }
-      const { key, origin } = pending;
       const card = document.querySelector("main .card") as HTMLElement | null;
-      const real = document.querySelector("main .card .cardimg") as HTMLElement | null;
-      const FLY = 900;
-      let settling = false, done = false;
-      // 牌抵达目标、开始落定时调用:露出真卡的边饰(随 .cf-arrived 由内向外展开),
-      // 同时藏起真卡牌面 —— 让仍在的飞行牌盖住中心,只露出四周边饰/金框/阴影在展开。
-      const startSettle = () => {
-        if (settling) return; settling = true;
-        if (card) { card.style.visibility = ""; card.classList.add("cf-arrived"); }
-        if (real) real.style.visibility = "hidden";
-      };
-      // 飞行结束:撤掉飞行牌,露出真卡牌面(此刻边饰已在展开过程中)
+      if (origin) { flyToCard(origin, card); origin = null; }
+      else revealOnDirectEntry(card);
+    });
+
+    // 直接进入单卡页(浏览器刷新除外):真卡边缘由内向外滑出一次
+    function revealOnDirectEntry(card: HTMLElement | null) {
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      if (card && nav?.type !== "reload") card.classList.add("cf-arrived");
+    }
+
+    // 飞牌进入:克隆一张「完整态」真卡(金边已在),从 from 平移放大飞到 card,落定后亮出真卡
+    function flyToCard(from: Rect, card: HTMLElement | null) {
+      let landed = false;
+      // 落定:清掉所有飞行牌(含「看门狗先落定、rAF 才补建」的孤儿克隆),首次落定时亮出真卡
       const land = () => {
-        if (done) return; done = true;
-        startSettle();
-        document.getElementById("cardflip-stage")?.remove();
-        if (real) real.style.visibility = "";
-        pending = null;
+        document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
+        if (landed) return;
+        landed = true;
+        if (card) { card.style.visibility = ""; card.classList.add("cf-settled"); }
       };
-      if (!real || !card) { land(); return; }
+      const img = card?.querySelector(".cardimg") as HTMLElement | null;
+      if (!card || !img) { land(); return; }
 
-      const rr = real.getBoundingClientRect();
-      // 中心用包围盒(旋转安全);尺寸用 offsetWidth/Height —— 真卡有 -2° 旋转,
-      // 包围盒会比实际宽约 5%,若用它做落定缩放,交接到真卡时会突然缩小。
-      const tw = real.offsetWidth || rr.width, th = real.offsetHeight || rr.height;
-      const ocx = origin.x + origin.w / 2, ocy = origin.y + origin.h / 2;
-      const tcx = rr.left + rr.width / 2, tcy = rr.top + rr.height / 2;
-      const dx = tcx - ocx, dy = tcy - ocy;
-      const sEnd = tw / origin.w;   // 落定缩放(与真卡实际同大)
-      const sOver = sEnd * 1.09;    // 悬停时略大于真卡
+      // 落点:真卡「实际」尺寸(offsetWidth/Height,不含 -2° 旋转后包围盒的虚胖);中心取包围盒中心
+      const box = card.getBoundingClientRect();
+      const w = card.offsetWidth || box.width, h = card.offsetHeight || box.height;
+      const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      const fromScale = from.w / w;
+      const dx = from.x + from.w / 2 - cx, dy = from.y + from.h / 2 - cy;
 
-      // 等根过渡的快照撤掉(下一帧)再放飞,确保整段移动都看得见
+      // 下一帧(待根过渡快照撤掉)再放飞;若看门狗已先落定则不补建,避免孤儿克隆
       requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (landed) return;
+        const fly = card.cloneNode(true) as HTMLElement;
+        fly.style.visibility = "";
+        fly.classList.remove("cf-arrived");
+        fly.classList.add("cf-settled");                          // 金边等完整态
+        fly.style.setProperty("box-shadow", "none", "important"); // 飞行无阴影(落定后真卡渐显)
+
         const stage = document.createElement("div");
         stage.id = "cardflip-stage";
-        stage.style.left = origin.x + "px";
-        stage.style.top = origin.y + "px";
-        stage.style.width = origin.w + "px";
-        stage.style.height = origin.h + "px";
-        const face = document.createElement("img");
-        face.className = "cf-face";
-        face.src = "/cards_svg/" + key + ".svg";
-        stage.append(face);
+        stage.style.left = cx - w / 2 + "px";
+        stage.style.top = cy - h / 2 + "px";
+        stage.style.width = w + "px";
+        stage.style.height = h + "px";
+        stage.append(fly);
         document.body.append(stage);
 
-        const anim = stage.animate(
+        // 简易移动:从原位(缩小、不旋转——克隆自带 -2°,起飞 +2° 抵消)平移放大到 hero 位(-2°)
+        stage.animate(
           [
-            // 起:原位、原大小
-            { transform: "translate(0px,0px) scale(1) rotate(0deg)",
-              filter: "drop-shadow(0 8px 16px rgba(43,39,34,0.20))",
-              offset: 0, easing: "cubic-bezier(0.33,0.45,0.4,1)" },
-            // 移动 + 逐渐放大,到目标上方悬停(略大于真卡、投影最大)
-            { transform: `translate(${dx}px,${dy}px) scale(${sOver}) rotate(-2.5deg)`,
-              filter: "drop-shadow(0 46px 66px rgba(43,39,34,0.42))",
-              offset: 0.72, easing: "cubic-bezier(0.45,0,0.35,1)" },
-            // 落到桌面:回到真卡大小与 -2° 静止态;投影几乎收没,余下交给真卡阴影缓慢渐显
-            { transform: `translate(${dx}px,${dy}px) scale(${sEnd}) rotate(-2deg)`,
-              filter: "drop-shadow(0 3px 8px rgba(43,39,34,0.10))",
-              offset: 1 },
-          ] as Keyframe[],
-          { duration: FLY, easing: "linear", fill: "forwards" }
-        );
-        anim.addEventListener("finish", land, { once: true });
-        // 牌一抵达目标(0.72)即开始落定:边饰与下压的牌同步展开,而非落定后才展开
-        window.setTimeout(startSettle, FLY * 0.72);
+            { transform: `translate(${dx}px, ${dy}px) scale(${fromScale}) rotate(2deg)` },
+            { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+          ],
+          { duration: FLY, easing: "cubic-bezier(0.33, 0.7, 0.25, 1)", fill: "forwards" }
+        ).addEventListener("finish", land, { once: true });
       }));
-      window.setTimeout(land, FLY + 800); // 看门狗
-    });
 
-    // 离开页面前清掉叠加态 body class,避免残留到下一页
+      window.setTimeout(land, FLY + 800); // 看门狗:rAF 未触发(如标签在后台)也能落定
+    }
+
+    // 离开页面前清掉叠加态 body class + 任何残留的飞行牌,避免带到下一页
     document.addEventListener("astro:before-swap", () => {
       document.body.classList.remove("reverse", "shadow");
+      document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
     });
   </script>
 

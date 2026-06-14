@@ -88,28 +88,20 @@ a:hover {
   height: 0;
 }
 
-/* ════════ 单卡页跳转 · 卡片「移动放大、落到桌面」转场 ════════ */
+/* ════════ 库 → 单卡页:卡片「简易移动」转场 ════════ */
 /* 关掉 ClientRouter 默认根过渡:换页瞬时(否则其快照会盖住牌的飞行)。
    背景的渐变过渡改为「新页内容从纸色淡入」——与牌的飞行同时进行,不会盖住飞行的牌。 */
 ::view-transition-old(root),
 ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 @keyframes cf-page-in { from { opacity: 0; } to { opacity: 1; } }
 .page-wrap.cf-pagein { animation: cf-page-in 0.5s ease both; }
-/* 飞行的牌(运行时注入,定位到原矩形,移动放大、悬停后落到 hero 卡) */
+/* 飞行舞台(运行时注入):内含一张克隆的真卡,从原位简易移动到 hero 位 */
 #cardflip-stage {
   position: fixed;
   z-index: 90;
   pointer-events: none;
   transform-origin: center;
-  will-change: transform, filter;
-}
-.cf-face {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 6px;
+  will-change: transform;
 }
 
 /* ════════ 触摸屏:按压反馈(替代 hover) ════════ */

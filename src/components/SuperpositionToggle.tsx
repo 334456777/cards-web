@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
 interface SuperpositionToggleProps {
-  sym: string;
   sup: {
     same: string;
     pos: string;
@@ -9,15 +8,9 @@ interface SuperpositionToggleProps {
   };
 }
 
-export default function SuperpositionToggle({ sym, sup }: SuperpositionToggleProps) {
-  const [reversed, setReversed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      return localStorage.getItem(`reverse-${sym}`) === "1";
-    } catch {
-      return false;
-    }
-  });
+export default function SuperpositionToggle({ sup }: SuperpositionToggleProps) {
+  // 不记忆反义态:每次进入单卡页都从默认「正义 · 显义」开始,反义只在本次会话内有效。
+  const [reversed, setReversed] = useState(false);
 
   // 同步 body.reverse class
   useEffect(() => {
@@ -25,14 +18,8 @@ export default function SuperpositionToggle({ sym, sup }: SuperpositionTogglePro
   }, [reversed]);
 
   const toggle = useCallback(() => {
-    setReversed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(`reverse-${sym}`, next ? "1" : "0");
-      } catch {}
-      return next;
-    });
-  }, [sym]);
+    setReversed((prev) => !prev);
+  }, []);
 
   const st = reversed
     ? { pre: "劣势", html: sup.neg.replace(/^换个语境[::]\s*/, "") }

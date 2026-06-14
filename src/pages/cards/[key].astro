@@ -120,7 +120,7 @@ const rankTxt = card.special ? "" : card.rank;
 
     <!-- SUPERPOSITION (React Island) -->
     <div data-superposition={JSON.stringify({ sym: card.sym, sup: card.sup })}>
-      <SuperpositionToggle client:load sym={card.sym} sup={card.sup} />
+      <SuperpositionToggle client:load sup={card.sup} />
     </div>
 
     {(card.traits.length > 0 || card.merits.length > 0 || card.flaws.length > 0 || !!card.note) && (
@@ -270,19 +270,24 @@ const rankTxt = card.special ? "" : card.rank;
     background: linear-gradient(150deg, #FCF8F0, #F1E7D4);
     border-radius: 14px;
     padding: 16px;
-    /* 5 层叠加阴影 —— 白顶内发光 + 多层偏移扩散 */
-    box-shadow:
+    transform: rotate(-2deg);
+    transition:
+      transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* 静止 5 层阴影(白顶内高光 + 多层偏移扩散)与其「收没」态 —— 供下方落定动画复用 */
+    --shadow-flat:
+      0 1px 0 rgba(255, 255, 255, 0.7) inset,
+      0 0 0 rgba(43, 39, 34, 0), 0 0 0 rgba(43, 39, 34, 0),
+      0 0 0 rgba(43, 39, 34, 0), 0 0 0 rgba(43, 39, 34, 0);
+    --shadow-rest:
       0 1px 0    rgba(255, 255, 255, 0.7) inset,
       0 0 18px   rgba(43, 39, 34, 0.05),
       0 4px 10px rgba(43, 39, 34, 0.08),
       0 12px 26px -6px  rgba(43, 39, 34, 0.13),
       0 22px 44px -14px rgba(43, 39, 34, 0.17);
-    transform: rotate(-2deg);
-    transition:
-      transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
-      box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: var(--shadow-rest);
   }
-  /* 粗糙烫金内框 —— 默认透明,落定后随卡身一起由内向外展开并淡入 */
+  /* 粗糙烫金内框 —— 默认透明,落定后显示(cf-arrived 渐显 / cf-settled 常驻) */
   .card::before {
     content: "";
     position: absolute;
@@ -294,37 +299,33 @@ const rankTxt = card.special ? "" : card.rank;
     z-index: 2;
     pointer-events: none;
   }
-  /* 落定(.cf-arrived):卡身/边缘/金框从内向外展开,svg 反向缩放保持原位不跳,阴影缓慢渐显 */
-  .card.cf-arrived { animation: cardSettle 0.66s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
-  .card.cf-arrived .cardimg { animation: cardImgHold 0.66s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
-  .card.cf-arrived::before { animation: cardFrameIn 0.6s ease 0.1s both; }
+
+  /* 直接进入单卡页(.cf-arrived):卡身由内向外展开(scale 0.9→1),svg 反向缩放保持原位不跳,
+     金框与阴影一并渐显。cardSettle 与 cardImgHold 的时长/缓动/延迟必须完全一致,否则 svg 会跳位。 */
+  .card.cf-arrived { animation: cardSettle 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
+  .card.cf-arrived .cardimg { animation: cardImgHold 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
+  .card.cf-arrived::before { animation: cardFrameIn 1.5s ease 0.06s both; }
+
+  /* 飞牌落定后的完整态(.cf-settled):金框常驻;外阴影由无到满逐渐渗出 ——
+     飞行途中克隆牌的阴影被关掉(见 BaseLayout),落定后才让真卡阴影缓缓出现。 */
+  .card.cf-settled::before { opacity: 0.85; }
+  .card.cf-settled { animation: cardShadowIn 0.55s ease 0.02s both; }
+
   @keyframes cardSettle {
-    from {
-      transform: rotate(-2deg) scale(0.9);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.7) inset,
-        0 0 0 rgba(43, 39, 34, 0),
-        0 0 0 rgba(43, 39, 34, 0),
-        0 0 0 rgba(43, 39, 34, 0),
-        0 0 0 rgba(43, 39, 34, 0);
-    }
-    to {
-      transform: rotate(-2deg) scale(1);
-      box-shadow:
-        0 1px 0    rgba(255, 255, 255, 0.7) inset,
-        0 0 18px   rgba(43, 39, 34, 0.05),
-        0 4px 10px rgba(43, 39, 34, 0.08),
-        0 12px 26px -6px  rgba(43, 39, 34, 0.13),
-        0 22px 44px -14px rgba(43, 39, 34, 0.17);
-    }
+    from { transform: rotate(-2deg) scale(0.9); box-shadow: var(--shadow-flat); }
+    to   { transform: rotate(-2deg) scale(1);   box-shadow: var(--shadow-rest); }
   }
-  @keyframes cardImgHold {
+  @keyframes cardImgHold {           /* 1.1111 = 1/0.9,抵消卡身 0.9→1 的放大,svg 视觉不动 */
     from { transform: scale(1.1111); }
     to   { transform: scale(1); }
   }
   @keyframes cardFrameIn {
     from { opacity: 0; }
     to   { opacity: 0.85; }
+  }
+  @keyframes cardShadowIn {          /* 只渐显外投影,顶部内高光始终在 */
+    from { box-shadow: var(--shadow-flat); }
+    to   { box-shadow: var(--shadow-rest); }
   }
   /* hover 浮起 + 阴影加深 */
   .card:hover {
