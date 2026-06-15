@@ -40,6 +40,7 @@ const rankTxt = card.special ? "" : card.rank;
       <div class="flex justify-center order-first">
         <div class="card">
           <img class="cardimg" src={`/cards_svg/${card.key}.svg`} alt={card.name} />
+          <div class="cardframe" aria-hidden="true"></div>
         </div>
       </div>
       <div>
@@ -285,31 +286,35 @@ const rankTxt = card.special ? "" : card.rank;
       0 4px 10px rgba(43, 39, 34, 0.08),
       0 12px 26px -6px  rgba(43, 39, 34, 0.13),
       0 22px 44px -14px rgba(43, 39, 34, 0.17);
+    /* 「浮起」态:卡片悬在桌面上方,投影放大、外扩、变软(飞行途中用,见 .cf-lift) */
+    --shadow-lift:
+      0 1px 0     rgba(255, 255, 255, 0.7) inset,
+      0 0 50px    rgba(43, 39, 34, 0.04),
+      0 20px 34px rgba(43, 39, 34, 0.07),
+      0 40px 64px -12px  rgba(43, 39, 34, 0.20),
+      0 72px 104px -26px rgba(43, 39, 34, 0.26);
     box-shadow: var(--shadow-rest);
   }
-  /* 粗糙烫金内框 —— 默认透明,落定后显示(cf-arrived 渐显 / cf-settled 常驻) */
-  .card::before {
-    content: "";
+  /* 粗糙烫金内框 —— 静态子元素,始终常驻,随卡片一同出现 */
+  .cardframe {
     position: absolute;
     inset: 7px;
     border-radius: 9px;
     border: 1.5px solid #B8893A;
     filter: url(#rough);
-    opacity: 0;
+    opacity: 0.85;
     z-index: 2;
     pointer-events: none;
   }
 
-  /* 直接进入单卡页(.cf-arrived):卡身由内向外展开(scale 0.9→1),svg 反向缩放保持原位不跳,
-     金框与阴影一并渐显。cardSettle 与 cardImgHold 的时长/缓动/延迟必须完全一致,否则 svg 会跳位。 */
+  /* 直接进入单卡页(.cf-arrived):卡身由内向外展开(scale 0.9→1),svg 反向缩放保持原位不跳。
+     cardSettle 与 cardImgHold 的时长/缓动/延迟必须完全一致,否则 svg 会跳位。 */
   .card.cf-arrived { animation: cardSettle 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
   .card.cf-arrived .cardimg { animation: cardImgHold 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s backwards; }
-  .card.cf-arrived::before { animation: cardFrameIn 1.5s ease 0.06s both; }
 
-  /* 飞牌落定后的完整态(.cf-settled):金框常驻;外阴影由无到满逐渐渗出 ——
-     飞行途中克隆牌的阴影被关掉(见 BaseLayout),落定后才让真卡阴影缓缓出现。 */
-  .card.cf-settled::before { opacity: 0.85; }
-  .card.cf-settled { animation: cardShadowIn 0.55s ease 0.02s both; }
+  /* 浮起态(.cf-lift):飞行途中克隆牌悬在桌面上方 —— 投影放大、外扩、变软。
+     抵达 hero 位后移除该类,box-shadow 经 .card 自带的 0.5s 过渡落回 --shadow-rest = 卡片落下。 */
+  .card.cf-lift { box-shadow: var(--shadow-lift); }
 
   @keyframes cardSettle {
     from { transform: rotate(-2deg) scale(0.9); box-shadow: var(--shadow-flat); }
@@ -318,14 +323,6 @@ const rankTxt = card.special ? "" : card.rank;
   @keyframes cardImgHold {           /* 1.1111 = 1/0.9,抵消卡身 0.9→1 的放大,svg 视觉不动 */
     from { transform: scale(1.1111); }
     to   { transform: scale(1); }
-  }
-  @keyframes cardFrameIn {
-    from { opacity: 0; }
-    to   { opacity: 0.85; }
-  }
-  @keyframes cardShadowIn {          /* 只渐显外投影,顶部内高光始终在 */
-    from { box-shadow: var(--shadow-flat); }
-    to   { box-shadow: var(--shadow-rest); }
   }
   /* hover 浮起 + 阴影加深 */
   .card:hover {

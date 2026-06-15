@@ -115,10 +115,12 @@ const { title, activeNav } = Astro.props;
       closeMobileNav();
     });
 
-    // ════════ 库 → 单卡页:卡片「简易移动」转场(无刷新) ════════
-    // 点击库中的牌 → 一张克隆的「完整态」真卡(金边已在)从原位平移放大飞到 hero 位 → 落定亮出真卡。
-    // 阴影飞行时关掉、落定后由真卡渐显;prefers-reduced-motion 时整段跳过,走普通 SPA 跳转。
-    const FLY = 650;                       // 飞行总时长(ms)
+    // ════════ 库 → 单卡页:卡片「飞入落桌」转场(无刷新) ════════
+    // 点击库中的牌 → 克隆一张真卡从原位平移放大飞到 hero 位,悬空时投影放大、过冲胀大,
+    // 抵达后缩回原位、投影收紧落定 → 亮出真卡;prefers-reduced-motion 时整段跳过,走普通 SPA 跳转。
+    const FLY = 650;                       // 飞入时长(ms):从库位平移放大、悬空,末了稍微过冲胀大
+    const DROP = 520;                      // 落下时长(ms):抵达后卡片由过冲缩回原位 + 投影由「浮起」收回「落定」
+    const OVERSHOOT = 1.06;                // 悬空时的过冲比例:先稍放大,落下时再缩回 scale 1
     const RATIO = 332.59947 / 238.11099;   // 正面 svg 长宽比(无 img 的 /cards/ 链接用它估起飞高度)
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
     type Rect = { x: number; y: number; w: number; h: number };
@@ -134,9 +136,11 @@ const { title, activeNav } = Astro.props;
       let url: URL;
       try { url = new URL(a.href, location.href); } catch { return; }
       if (url.origin !== location.origin) return;
-      const img = a.querySelector("img");
-      if (img) {
-        const r = img.getBoundingClientRect();
+      // 起飞框优先取库卡的「带边框卡面」.lcard(含线框 + 烫金内框),让飞牌从库卡边框对齐起飞、
+      // 落到单卡页时边框正好对应;无 .lcard 的 /cards/ 链接退回 img,再退回链接本身估算。
+      const cardBox = a.querySelector(".lcard") || a.querySelector("img");
+      if (cardBox) {
+        const r = cardBox.getBoundingClientRect();
         origin = { x: r.left, y: r.top, w: r.width, h: r.height };
       } else {
         const r = a.getBoundingClientRect();
@@ -159,10 +163,11 @@ const { title, activeNav } = Astro.props;
       else revealOnDirectEntry(card);
     });
 
-    // 直接进入单卡页(浏览器刷新除外):真卡边缘由内向外滑出一次
+    // 直接进入单卡页(浏览器刷新除外):卡身由内向外展开一次;刷新时不重放入场,直接静态呈现。
     function revealOnDirectEntry(card: HTMLElement | null) {
+      if (!card) return;
       const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      if (card && nav?.type !== "reload") card.classList.add("cf-arrived");
+      if (nav?.type !== "reload") card.classList.add("cf-arrived");
     }
 
     // 飞牌进入:克隆一张「完整态」真卡(金边已在),从 from 平移放大飞到 card,落定后亮出真卡
@@ -173,7 +178,7 @@ const { title, activeNav } = Astro.props;
         document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
         if (landed) return;
         landed = true;
-        if (card) { card.style.visibility = ""; card.classList.add("cf-settled"); }
+        if (card) card.style.visibility = "";
       };
       const img = card?.querySelector(".cardimg") as HTMLElement | null;
       if (!card || !img) { land(); return; }
@@ -191,8 +196,7 @@ const { title, activeNav } = Astro.props;
         const fly = card.cloneNode(true) as HTMLElement;
         fly.style.visibility = "";
         fly.classList.remove("cf-arrived");
-        fly.classList.add("cf-settled");                          // 金边等完整态
-        fly.style.setProperty("box-shadow", "none", "important"); // 飞行无阴影(落定后真卡渐显)
+        fly.classList.add("cf-lift");                             // 飞行:卡片浮起,投影放大变软
 
         const stage = document.createElement("div");
         stage.id = "cardflip-stage";
@@ -203,17 +207,29 @@ const { title, activeNav } = Astro.props;
         stage.append(fly);
         document.body.append(stage);
 
-        // 简易移动:从原位(缩小、不旋转——克隆自带 -2°,起飞 +2° 抵消)平移放大到 hero 位(-2°)
+        // 飞入(悬空):从原位(缩小、不旋转——克隆自带 -2°,起飞 +2° 抵消)平移放大到 hero 位,
+        // 末了过冲胀大到 OVERSHOOT —— 卡片像悬在空中、略微胀大。
         stage.animate(
           [
             { transform: `translate(${dx}px, ${dy}px) scale(${fromScale}) rotate(2deg)` },
-            { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+            { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
           ],
           { duration: FLY, easing: "cubic-bezier(0.33, 0.7, 0.25, 1)", fill: "forwards" }
-        ).addEventListener("finish", land, { once: true });
+        ).addEventListener("finish", () => {
+          // 落下:卸下浮起态 → 投影由 lift 经 .card 0.5s 过渡收回 rest;同时卡片由过冲的
+          // OVERSHOOT 缩回 scale 1 落到原位 —— 缩小与投影收紧一起完成「落下」。
+          fly.classList.remove("cf-lift");
+          stage.animate(
+            [
+              { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
+              { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+            ],
+            { duration: DROP, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" }
+          ).addEventListener("finish", land, { once: true });
+        }, { once: true });
       }));
 
-      window.setTimeout(land, FLY + 800); // 看门狗:rAF 未触发(如标签在后台)也能落定
+      window.setTimeout(land, FLY + DROP + 800); // 看门狗:rAF 未触发(如标签在后台)也能落定
     }
 
     // 离开页面前清掉叠加态 body class + 任何残留的飞行牌,避免带到下一页
