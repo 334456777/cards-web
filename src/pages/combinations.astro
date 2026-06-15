@@ -281,9 +281,9 @@ function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
   }
   .mcell {
     aspect-ratio: 1;
-    border: 1px solid #d8ccb6;
+    border: 1px solid #B8893A;
     border-radius: 9px;
-    background: #F4EDE0;
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,6 +302,7 @@ function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
   .mcell .ps.k { color: #2B2722; }
   .mcell.diag {
     background: repeating-linear-gradient(45deg, #EFE6D6, #EFE6D6 5px, #F4EDE0 5px, #F4EDE0 10px);
+    border-color: #d8ccb6;
     cursor: pointer;
     text-decoration: none;
   }
