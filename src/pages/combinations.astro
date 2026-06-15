@@ -14,15 +14,6 @@ const CN: Record<string, string> = { hearts: "红桃", spades: "黑桃", diamond
 
 function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
 
-// 构建配对查找表（二花色组合）
-const pairMap = new Map<string, { key: string } & ComboData>();
-for (const c of combos) {
-  if (c.suits.length === 2) {
-    const k = pairKey(c.suits[0], c.suits[1]);
-    pairMap.set(k, c);
-  }
-}
-
 // 组合数据通过 define:vars 传给客户端 JS（Astro 自动序列化）
 ---
 
@@ -49,7 +40,7 @@ for (const c of combos) {
       花色配对矩阵
       <span class="flex-1 h-px bg-line" />
     </h2>
-    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">行 × 列 = 两种花色相遇。点亮珊瑚点的格子已收录精选释义;斜线格是同色相叠(见四花色页);其余配对体系中存在,但本站尚未收录。</p>
+    <p class="font-sans text-sm text-ink-faint mb-[22px] max-w-[44em]">行 × 列 = 两种花色相遇,点开任意一格查看释义;斜线格是同色相叠(见四花色页)。部分配对体系中存在,但本站尚未收录。</p>
 
     <div class="matrixwrap">
       <div class="font-sans">
@@ -69,9 +60,8 @@ for (const c of combos) {
                   </a>;
                 }
                 const k = pairKey(r, c);
-                const curated = pairMap.has(k);
                 return <div
-                  class:list={["mcell", curated && "curated"]}
+                  class="mcell"
                   data-pair={k}
                   data-a={r}
                   data-b={c}
@@ -79,14 +69,12 @@ for (const c of combos) {
                 >
                   <span class:list={["ps", CLS[r]]}>{SYM[r]}</span>
                   <span class:list={["ps", CLS[c]]}>{SYM[c]}</span>
-                  {curated && <span class="dot-coral"></span>}
                 </div>;
               })}
             </>
           ))}
         </div>
         <div class="mlegend">
-          <span><span class="dot-coral inline"></span>已收录精选</span>
           <span><span class="sw"></span>可点击</span>
           <span><span class="sw diag-sw"></span>同色相叠</span>
         </div>
@@ -318,20 +306,6 @@ for (const c of combos) {
     text-decoration: none;
   }
   .mcell.diag .ps { opacity: 0.4; }
-  .mcell.curated {
-    background: #fff;
-    border-color: #B8893A;
-  }
-  .mcell.curated::after {
-    content: "";
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #D97757;
-  }
   .mcell:not(.diag):hover {
     border-color: #D97757;
     transform: translateY(-2px);
@@ -355,17 +329,6 @@ for (const c of combos) {
     display: flex;
     align-items: center;
     gap: 6px;
-  }
-  .dot-coral {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #D97757;
-    display: block;
-    flex-shrink: 0;
-  }
-  .dot-coral.inline {
-    display: inline-block;
   }
   .sw {
     width: 14px;
