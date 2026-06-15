@@ -116,17 +116,99 @@ const { title, activeNav } = Astro.props;
     });
 
     // ════════ 库 → 单卡页:卡片「飞入落桌」转场(无刷新) ════════
-    // 点击库中的牌 → 克隆一张真卡从原位平移放大飞到 hero 位,悬空时投影放大、过冲胀大,
-    // 抵达后缩回原位、投影收紧落定 → 亮出真卡;prefers-reduced-motion 时整段跳过,走普通 SPA 跳转。
-    const FLY = 650;                       // 飞入时长(ms):从库位平移放大、悬空,末了稍微过冲胀大
-    const DROP = 520;                      // 落下时长(ms):抵达后卡片由过冲缩回原位 + 投影由「浮起」收回「落定」
-    const OVERSHOOT = 1.06;                // 悬空时的过冲比例:先稍放大,落下时再缩回 scale 1
-    const RATIO = 332.59947 / 238.11099;   // 正面 svg 长宽比(无 img 的 /cards/ 链接用它估起飞高度)
+    // 点击库卡 → 克隆真卡从库位平移放大飞到 hero 位,飞行时浮起(投影放大)+ 末了过冲胀大,
+    // 抵达后缩回原位 + 投影收紧落定 → 亮出真卡。reduced-motion / 刷新 / 直接进入不触发,直接静态呈现。
+    const FLY = 650, DROP = 520, OVERSHOOT = 1.06;   // 飞入 / 落下时长(ms)与悬空过冲比例
+    const CARD_RATIO = 332.59947 / 238.11099;        // 正面 svg 长宽比(无图链接据此估起飞高度)
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
     type Rect = { x: number; y: number; w: number; h: number };
-    let origin: Rect | null = null;        // 本次点击牌的起飞矩形;null 表示非飞牌进入
+    type Flight = { w: number; h: number; cx: number; cy: number; fromScale: number; dx: number; dy: number };
+    let origin: Rect | null = null;                  // 本次点击的起飞矩形;null = 非飞牌进入
 
-    // 捕获阶段记下起飞矩形(早于 ClientRouter);导航本身交给 ClientRouter
+    const heroCard = () => document.querySelector("main .card") as HTMLElement | null;
+    const clearStages = () => document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
+
+    // 起飞矩形:库卡优先取「带边框卡面」.lcard(线框 + 烫金内框,让金框与单卡页对齐),
+    // 退回 img,再退回链接本身按 svg 比例估算。
+    function readOrigin(a: HTMLAnchorElement): Rect {
+      const cardBox = a.querySelector(".lcard") || a.querySelector("img");
+      if (cardBox) {
+        const r = cardBox.getBoundingClientRect();
+        return { x: r.left, y: r.top, w: r.width, h: r.height };
+      }
+      const r = a.getBoundingClientRect();
+      const w = Math.min(110, r.width || 110), h = w * CARD_RATIO;
+      return { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
+    }
+
+    // 落点几何:真卡实际尺寸(offsetWidth/Height,不含 -2° 包围盒虚胖)、起飞缩放、中心平移量
+    function computeFlight(from: Rect, card: HTMLElement): Flight {
+      const box = card.getBoundingClientRect();
+      const w = card.offsetWidth || box.width, h = card.offsetHeight || box.height;
+      const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      return { w, h, cx, cy, fromScale: from.w / w, dx: from.x + from.w / 2 - cx, dy: from.y + from.h / 2 - cy };
+    }
+
+    // 在 hero 位挂一张浮起态克隆牌(舞台 + 克隆)
+    function mountStage(card: HTMLElement, g: Flight): { stage: HTMLElement; fly: HTMLElement } {
+      const fly = card.cloneNode(true) as HTMLElement;
+      fly.style.visibility = "";
+      fly.classList.add("cf-lift");                  // 浮起:投影放大变软
+      const stage = document.createElement("div");
+      stage.id = "cardflip-stage";
+      stage.style.left = g.cx - g.w / 2 + "px";
+      stage.style.top = g.cy - g.h / 2 + "px";
+      stage.style.width = g.w + "px";
+      stage.style.height = g.h + "px";
+      stage.append(fly);
+      document.body.append(stage);
+      return { stage, fly };
+    }
+
+    // 飞入(悬空,末了过冲到 OVERSHOOT)→ 落下(缩回 scale 1 + 卸浮起态,投影经 .card 0.5s 过渡收回 rest);
+    // 两段都跑完调 onLand。(克隆自带 -2°,起飞 +2° 抵消,落定回 0°。)
+    function playFlight(stage: HTMLElement, fly: HTMLElement, g: Flight, onLand: () => void) {
+      stage.animate(
+        [
+          { transform: `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)` },
+          { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
+        ],
+        { duration: FLY, easing: "cubic-bezier(0.33, 0.7, 0.25, 1)", fill: "forwards" }
+      ).addEventListener("finish", () => {
+        fly.classList.remove("cf-lift");
+        stage.animate(
+          [
+            { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
+            { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+          ],
+          { duration: DROP, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" }
+        ).addEventListener("finish", onLand, { once: true });
+      }, { once: true });
+    }
+
+    // 编排:克隆真卡从 from 飞到 card,落定后亮出真卡(首次落定生效,看门狗兜底)
+    function flyToCard(from: Rect, card: HTMLElement | null) {
+      let landed = false;
+      const land = () => {
+        clearStages();                               // 清掉所有飞行牌(含孤儿克隆)
+        if (landed) return;
+        landed = true;
+        if (card) card.style.visibility = "";
+      };
+      const img = card?.querySelector(".cardimg") as HTMLElement | null;
+      if (!card || !img) { land(); return; }
+
+      const g = computeFlight(from, card);
+      // 下一帧(待根过渡快照撤掉)再放飞;看门狗已先落定则不补建,避免孤儿克隆
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (landed) return;
+        const { stage, fly } = mountStage(card, g);
+        playFlight(stage, fly, g, land);
+      }));
+      window.setTimeout(land, FLY + DROP + 800);     // 看门狗:rAF 未触发(标签后台)也能落定
+    }
+
+    // 捕获阶段(早于 ClientRouter)记下起飞矩形;导航本身交给 ClientRouter
     document.addEventListener("click", (e) => {
       origin = null;
       const me = e as MouseEvent;
@@ -136,106 +218,26 @@ const { title, activeNav } = Astro.props;
       let url: URL;
       try { url = new URL(a.href, location.href); } catch { return; }
       if (url.origin !== location.origin) return;
-      // 起飞框优先取库卡的「带边框卡面」.lcard(含线框 + 烫金内框),让飞牌从库卡边框对齐起飞、
-      // 落到单卡页时边框正好对应;无 .lcard 的 /cards/ 链接退回 img,再退回链接本身估算。
-      const cardBox = a.querySelector(".lcard") || a.querySelector("img");
-      if (cardBox) {
-        const r = cardBox.getBoundingClientRect();
-        origin = { x: r.left, y: r.top, w: r.width, h: r.height };
-      } else {
-        const r = a.getBoundingClientRect();
-        const w = Math.min(110, r.width || 110), h = w * RATIO;
-        origin = { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
-      }
+      origin = readOrigin(a);
     }, true);
 
-    // 换页瞬间:新页内容从纸色淡入;飞牌进入时先藏起目标 hero 卡(由克隆牌代为飞行)
+    // 换页瞬间:新页从纸色淡入;飞牌进入时先藏起目标 hero 卡(由克隆代飞)
     document.addEventListener("astro:after-swap", () => {
       document.querySelector(".page-wrap")?.classList.add("cf-pagein");
-      const card = document.querySelector("main .card") as HTMLElement | null;
+      const card = heroCard();
       if (origin && card) card.style.visibility = "hidden";
     });
 
-    // 换页完成:飞牌进入则放飞克隆牌,否则(直接进入)让真卡边缘滑出一次
+    // 换页完成:飞牌进入才放飞克隆牌;否则(直接进入 / 刷新)卡片与金框直接静态呈现
     document.addEventListener("astro:page-load", () => {
-      const card = document.querySelector("main .card") as HTMLElement | null;
-      if (origin) { flyToCard(origin, card); origin = null; }
-      else revealOnDirectEntry(card);
+      if (origin) flyToCard(origin, heroCard());
+      origin = null;
     });
 
-    // 直接进入单卡页(浏览器刷新除外):卡身由内向外展开一次;刷新时不重放入场,直接静态呈现。
-    function revealOnDirectEntry(card: HTMLElement | null) {
-      if (!card) return;
-      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      if (nav?.type !== "reload") card.classList.add("cf-arrived");
-    }
-
-    // 飞牌进入:克隆一张「完整态」真卡(金边已在),从 from 平移放大飞到 card,落定后亮出真卡
-    function flyToCard(from: Rect, card: HTMLElement | null) {
-      let landed = false;
-      // 落定:清掉所有飞行牌(含「看门狗先落定、rAF 才补建」的孤儿克隆),首次落定时亮出真卡
-      const land = () => {
-        document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
-        if (landed) return;
-        landed = true;
-        if (card) card.style.visibility = "";
-      };
-      const img = card?.querySelector(".cardimg") as HTMLElement | null;
-      if (!card || !img) { land(); return; }
-
-      // 落点:真卡「实际」尺寸(offsetWidth/Height,不含 -2° 旋转后包围盒的虚胖);中心取包围盒中心
-      const box = card.getBoundingClientRect();
-      const w = card.offsetWidth || box.width, h = card.offsetHeight || box.height;
-      const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-      const fromScale = from.w / w;
-      const dx = from.x + from.w / 2 - cx, dy = from.y + from.h / 2 - cy;
-
-      // 下一帧(待根过渡快照撤掉)再放飞;若看门狗已先落定则不补建,避免孤儿克隆
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        if (landed) return;
-        const fly = card.cloneNode(true) as HTMLElement;
-        fly.style.visibility = "";
-        fly.classList.remove("cf-arrived");
-        fly.classList.add("cf-lift");                             // 飞行:卡片浮起,投影放大变软
-
-        const stage = document.createElement("div");
-        stage.id = "cardflip-stage";
-        stage.style.left = cx - w / 2 + "px";
-        stage.style.top = cy - h / 2 + "px";
-        stage.style.width = w + "px";
-        stage.style.height = h + "px";
-        stage.append(fly);
-        document.body.append(stage);
-
-        // 飞入(悬空):从原位(缩小、不旋转——克隆自带 -2°,起飞 +2° 抵消)平移放大到 hero 位,
-        // 末了过冲胀大到 OVERSHOOT —— 卡片像悬在空中、略微胀大。
-        stage.animate(
-          [
-            { transform: `translate(${dx}px, ${dy}px) scale(${fromScale}) rotate(2deg)` },
-            { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
-          ],
-          { duration: FLY, easing: "cubic-bezier(0.33, 0.7, 0.25, 1)", fill: "forwards" }
-        ).addEventListener("finish", () => {
-          // 落下:卸下浮起态 → 投影由 lift 经 .card 0.5s 过渡收回 rest;同时卡片由过冲的
-          // OVERSHOOT 缩回 scale 1 落到原位 —— 缩小与投影收紧一起完成「落下」。
-          fly.classList.remove("cf-lift");
-          stage.animate(
-            [
-              { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
-              { transform: "translate(0, 0) scale(1) rotate(0deg)" },
-            ],
-            { duration: DROP, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" }
-          ).addEventListener("finish", land, { once: true });
-        }, { once: true });
-      }));
-
-      window.setTimeout(land, FLY + DROP + 800); // 看门狗:rAF 未触发(如标签在后台)也能落定
-    }
-
-    // 离开页面前清掉叠加态 body class + 任何残留的飞行牌,避免带到下一页
+    // 离开页面前:清掉叠加态 body class + 残留飞行牌,避免带到下一页
     document.addEventListener("astro:before-swap", () => {
       document.body.classList.remove("reverse", "shadow");
-      document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
+      clearStages();
     });
   </script>
 
