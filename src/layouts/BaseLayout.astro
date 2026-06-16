@@ -4,7 +4,7 @@ import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
-  activeNav?: "教程" | "牌库" | "四花色" | "组合浏览器";
+  activeNav?: "教程" | "占卜守则" | "牌库" | "四花色" | "组合浏览器";
 }
 
 const { title, activeNav } = Astro.props;
@@ -42,6 +42,7 @@ const { title, activeNav } = Astro.props;
         </a>
         <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
           <a href="/tutorial" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "教程" && "text-suit-red"]}>教程</a>
+          <a href="/divination" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "占卜守则" && "text-suit-red"]}>占卜守则</a>
           <a href="/library" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
           <a href="/suits" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
           <a href="/combinations" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
@@ -63,6 +64,7 @@ const { title, activeNav } = Astro.props;
       <!-- 移动端下拉菜单 -->
       <nav id="mobileNav" class="mobile-nav sm:hidden hidden absolute top-full inset-x-0 z-50 border-t border-line bg-paper font-medium text-[15.5px] shadow-[0_16px_30px_-12px_rgba(43,39,34,0.45)]">
         <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "教程" && "text-suit-red"]}>教程</a>
+        <a href="/divination" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "占卜守则" && "text-suit-red"]}>占卜守则</a>
         <a href="/library" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
         <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
         <a href="/combinations" class:list={["block px-7 py-[13px] text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
@@ -77,6 +79,7 @@ const { title, activeNav } = Astro.props;
         <span>落差扑克牌占卜 · 一套非线性、叠加态的解牌体系</span>
         <span class="flex flex-wrap gap-x-1 gap-y-1 items-center">
           <a href="/tutorial" class="inline-block py-1">教程</a> ·
+          <a href="/divination" class="inline-block py-1">占卜守则</a> ·
           <a href="/library" class="inline-block py-1">牌库索引</a> ·
           <a href="/suits" class="inline-block py-1">四花色</a> ·
           <a href="/combinations" class="inline-block py-1">组合浏览器</a>
@@ -167,13 +170,14 @@ const { title, activeNav } = Astro.props;
 
     // 飞入(悬空,末了过冲到 OVERSHOOT)→ 落下(缩回 scale 1 + 卸浮起态,投影经 .card 0.5s 过渡收回 rest);
     // 两段都跑完调 onLand。(克隆自带 -2°,起飞 +2° 抵消,落定回 0°。)
+    // 移动段缓动:先慢 → 中段加快 → 尾端减慢(easeInOutCubic),让卡片平移放大有「起步沉、途中冲、临到缓」的手感。
     function playFlight(stage: HTMLElement, fly: HTMLElement, g: Flight, onLand: () => void) {
       stage.animate(
         [
           { transform: `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)` },
           { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
         ],
-        { duration: FLY, easing: "cubic-bezier(0.33, 0.7, 0.25, 1)", fill: "forwards" }
+        { duration: FLY, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
       ).addEventListener("finish", () => {
         fly.classList.remove("cf-lift");
         stage.animate(

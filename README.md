@@ -22,6 +22,7 @@ Astro 按 `src/pages/` 的文件自动生成路由:
 |---|---|---|
 | `/` | `index.astro` | 首页门户:扇形真实牌面 + 叠加态理念带 + 五个入口 + 四花色一览 |
 | `/tutorial` | `tutorial.astro` | 教程读本(5 章):书式单栏 + 粘性目录 + 首字下沉 + 古籍批注 |
+| `/divination` | `divination.astro` | 占卜守则 · 起卦法(6 节):落差宇宙观 / 守则即算法 / 起卦流程 / 解牌百分比 / 守则速查 / A→K 发展叙事 |
 | `/library` | `library.astro` | 牌库索引:54 牌网格 + 花色/层级筛选 |
 | `/suits` | `suits.astro` | 四花色:四色可切换 + 阴阳四象限定位 + 13 牌横排 |
 | `/combinations` | `combinations.astro` | 组合浏览器:4×4 花色配对矩阵 + 精选画廊筛选 |
