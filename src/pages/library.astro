@@ -58,8 +58,8 @@ const JOKERS = [
 
   <Divider />
 
-  <!-- 筛选栏 -->
-  <div class="sticky top-[57px] z-30 bg-[rgba(250,246,239,0.92)] backdrop-blur-[8px] border-b border-line mt-[18px]">
+  <!-- 筛选栏:sticky top 对齐导航栏实测高度(67px),吸顶时紧贴其下、不被遮住(否则顶部留白被导航栏吃掉,按钮上窄下宽) -->
+  <div class="sticky top-[67px] z-30 bg-[rgba(250,246,239,0.92)] backdrop-blur-[8px] border-b border-line mt-[18px]">
     <div class="max-w-[1240px] mx-auto px-7 py-[13px] flex items-center gap-x-[22px] gap-y-[13px] flex-wrap font-sans">
       <div class="flex flex-wrap items-center gap-[9px]">
         <span class="text-xs text-ink-faint tracking-[0.1em] font-bold uppercase mr-[2px]">花色</span>
