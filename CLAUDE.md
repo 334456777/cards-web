@@ -15,15 +15,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run preview` —— 预览构建产物。**单卡页的叠加态开关是 `client:load` React 岛,`file://` 双击不会水合**,必须经 preview 或静态服务器访问。
 - ⚠️ **Windows 本机 `npm run build` 当前会失败**:Astro glob content-loader 把绝对路径盘符 `C:` 误判为 URL scheme(`fileURLToPath` 抛 "must be of scheme file");**Linux/CI 不受影响**,故以 CI 构建为准(见下)。
 
-## 部署到 pai-eth0(构建+部署都走 CI,本机兜底)
+## 部署到 pai-eth0(构建走 CI,同步在本机)
 
 静态站点根是 `pai-eth0` 上的 `/home/yusteven/cards-web/dist/`,由 PM2(`cards-web`)经 `serve` 监听 `127.0.0.1:5432`。`pai-eth0` 本机经 `~/.ssh/config` 别名连接(走 VPN,密钥 `~/.ssh/id_ed25519_pai`,公钥已授权,**部署全程免密**)。
 
-构建与部署都走 **GitHub Actions**(`.github/workflows/build.yml`,两段作业 `build` → `deploy`):push 到 `main` 且命中代码 `paths`(`src/` `public/` `astro.config.mjs` `package*.json` `tsconfig.json` 或工作流自身),或手动 `workflow_dispatch` 即触发。`build` 在 Linux + Node 22 跑 `npm ci && npm run build`、上传 `dist/` 工件 `dist`;`deploy`(仅 `main`、`needs: build`)用 `tailscale/github-action` 接入 tailnet(托管 runner 公网到不了内网 pai-eth0),再用 Secret 里的 SSH 私钥把工件 scp 到 pai-eth0、**原子替换 dist + `pm2 restart`**——**push 命中 paths 即自动上线**。
-
-deploy 依赖的仓库 Secrets:`TS_OAUTH_CLIENT_ID`/`TS_OAUTH_SECRET`(Tailscale OAuth client,授予 `auth_keys` 写权限并打 `tag:ci`;secret 形如 `tskey-client-*`)、`DEPLOY_SSH_KEY`(pai-eth0 部署私钥,其公钥须在 pai-eth0 的 `~/.ssh/authorized_keys`;建议专签最小权限钥而非复用 `id_ed25519_pai`)、`DEPLOY_HOST`(pai-eth0 的 tailnet MagicDNS 名 / 100.x 地址),可选 `DEPLOY_KNOWN_HOSTS`(配了则严格校验主机指纹)。另需:tailnet ACL 放行 `tag:ci` → `pai-eth0:22`,且 pai-eth0 `~/.ssh/authorized_keys` 收录该部署公钥。用户 `yusteven`、路径 `/home/yusteven/cards-web`、端口 22、pm2 应用 `cards-web` 写死在 workflow。
-
-需手动兜底时(临时本机部署 / CI 不可用):
+构建走 **GitHub Actions**(`.github/workflows/build.yml`):push 到 `main` 且命中代码 `paths`(`src/` `public/` `astro.config.mjs` `package*.json` `tsconfig.json` 或工作流自身),或手动 `workflow_dispatch`,即在 Linux + Node 22 跑 `npm ci && npm run build`,上传 `dist/` 工件 `dist`。`pai-eth0` 是内网/VPN 地址、托管 runner 不可达,故**部署 = 本机下载工件 + 同步 + 重启**:
 
 ```powershell
 # 1. 提交并推送 → 触发 CI 构建(Actions 页看绿勾)
@@ -36,7 +32,7 @@ gh run download "$(gh run list -w build.yml -b main -L1 --json databaseId -q '.[
 tar czf "$env:TEMP\cw.tgz" -C dist . && scp "$env:TEMP\cw.tgz" pai-eth0:/tmp/cw.tgz && ssh pai-eth0 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
 ```
 
-上面的本机流程现作为兜底:常态由 CI 的 `deploy` 作业自动上线(此前「CI 只构建不部署」的设计已随该作业落地而更新)。
+CI 只构建产工件、不含部署(已明确否决在 CI 里加 deploy job / 写 pai-eth0)。
 
 ## 改东西在哪改
 
