@@ -1,8 +1,10 @@
 name: build
 
-# 在 Linux 上构建静态产物 dist/,作为可下载工件上传。
-# 本工作流只构建、不部署:产出的工件可在 Actions 运行页下载(或用 gh run download),
-# 供本地预览 / 由本机同步上线。
+# 在 Linux 上构建静态产物 dist/(上传为可下载工件),再自动部署到 pai-eth0。
+# 托管 runner 公网到不了内网 pai-eth0,故 deploy 作业先用 tailscale/github-action 接入 tailnet,
+# 再用 Secret 里的 SSH 私钥把工件 scp 到目标机、原子替换 dist + pm2 restart。
+# 仓库需配 Secrets:TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET / DEPLOY_SSH_KEY / DEPLOY_HOST(可选 DEPLOY_KNOWN_HOSTS)。
+# 工件仍可在 Actions 运行页下载(或 gh run download)供本地预览 / 手动同步兜底。
 
 on:
   push:
@@ -53,3 +55,50 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 30
+
+  # 构建成功后自动部署:接入 tailnet → scp 工件到 pai-eth0 → 原子替换 dist + 重启 pm2。
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read # 同一次运行里 download-artifact 取工件
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      # 托管 runner 经 OAuth 加入 tailnet,成为带 tag:ci 的临时节点;tag:ci 与其访问 pai-eth0:22
+      # 的授权需在 tailnet ACL 里配好。
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      # 打包 dist → 经 tailnet scp 到目标机 → 建 dist.new 再瞬时 mv 顶替(避免半成品)+ pm2 restart。
+      # 私钥来自 Secret;DEPLOY_KNOWN_HOSTS 配了则严格校验主机指纹,否则首连即信任(tailnet 传输已加密)。
+      - name: Deploy to pai-eth0
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          if [ -n "${DEPLOY_KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            STRICT=yes
+          else
+            STRICT=accept-new
+          fi
+          SSHOPTS="-i $HOME/.ssh/id_deploy -o StrictHostKeyChecking=$STRICT -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          tar czf /tmp/cw.tgz -C dist .
+          scp $SSHOPTS /tmp/cw.tgz "yusteven@${DEPLOY_HOST}:/tmp/cw.tgz"
+          ssh $SSHOPTS "yusteven@${DEPLOY_HOST}" 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
