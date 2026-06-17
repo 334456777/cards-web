@@ -41,11 +41,11 @@ const { title, activeNav } = Astro.props;
           <span>落差扑克牌占卜</span>
         </a>
         <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
-          <a href="/tutorial" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "教程" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>教程</a>
-          <a href="/divination" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "占卜守则" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>占卜守则</a>
-          <a href="/library" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "牌库" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>牌库</a>
-          <a href="/suits" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "四花色" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>四花色</a>
-          <a href="/combinations" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "组合浏览器" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>组合浏览器</a>
+          <a href="/tutorial" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "教程" ? "text-coral" : "text-ink-soft hover:text-coral"]}>教程</a>
+          <a href="/divination" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "占卜守则" ? "text-coral" : "text-ink-soft hover:text-coral"]}>占卜守则</a>
+          <a href="/library" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "牌库" ? "text-coral" : "text-ink-soft hover:text-coral"]}>牌库</a>
+          <a href="/suits" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "四花色" ? "text-coral" : "text-ink-soft hover:text-coral"]}>四花色</a>
+          <a href="/combinations" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "组合浏览器" ? "text-coral" : "text-ink-soft hover:text-coral"]}>组合浏览器</a>
         </nav>
         <!-- 移动端汉堡按钮 -->
         <button
@@ -63,11 +63,11 @@ const { title, activeNav } = Astro.props;
       </div>
       <!-- 移动端下拉菜单 -->
       <nav id="mobileNav" class="mobile-nav sm:hidden hidden absolute top-full inset-x-0 z-50 border-t border-line bg-paper font-medium text-[15.5px] shadow-[0_16px_30px_-12px_rgba(43,39,34,0.45)]">
-        <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "教程" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>教程</a>
-        <a href="/divination" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "占卜守则" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>占卜守则</a>
-        <a href="/library" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "牌库" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>牌库</a>
-        <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "四花色" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>四花色</a>
-        <a href="/combinations" class:list={["block px-7 py-[13px] transition-colors", activeNav === "组合浏览器" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>组合浏览器</a>
+        <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "教程" ? "text-coral" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>教程</a>
+        <a href="/divination" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "占卜守则" ? "text-coral" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>占卜守则</a>
+        <a href="/library" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "牌库" ? "text-coral" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>牌库</a>
+        <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "四花色" ? "text-coral" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>四花色</a>
+        <a href="/combinations" class:list={["block px-7 py-[13px] transition-colors", activeNav === "组合浏览器" ? "text-coral" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>组合浏览器</a>
       </nav>
     </header>
 
@@ -127,6 +127,7 @@ const { title, activeNav } = Astro.props;
     type Rect = { x: number; y: number; w: number; h: number };
     type Flight = { w: number; h: number; cx: number; cy: number; fromScale: number; dx: number; dy: number };
     let origin: Rect | null = null;                  // 本次点击的起飞矩形;null = 非飞牌进入
+    let activeFlight: (() => void) | null = null;    // 当前在飞那一程的收尾函数;换页时强制收尾,杜绝上一程的定时器/动画回调误伤下一程
 
     const heroCard = () => document.querySelector("main .card") as HTMLElement | null;
     const clearStages = () => document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
@@ -134,10 +135,10 @@ const { title, activeNav } = Astro.props;
     // mountStage 的 inline 初始 transform 与 playFlight 的首关键帧共用此式,确保逐字符一致、无跳变帧。
     const liftFrom = (g: Flight) => `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)`;
 
-    // 起飞矩形:库卡优先取「带边框卡面」.lcard(线框 + 烫金内框,让金框与单卡页对齐),
-    // 退回 img,再退回链接本身按 svg 比例估算。
+    // 起飞矩形:库卡优先取牌面 <img>——让克隆牌面在 t=0 等于库牌面屏宽,起手牌面无放大跳变;
+    // 退回带边框卡面 .lcard,再退回链接本身按 svg 比例估算。
     function readOrigin(a: HTMLAnchorElement): Rect {
-      const cardBox = a.querySelector(".lcard") || a.querySelector("img");
+      const cardBox = a.querySelector("img") || a.querySelector(".lcard");
       if (cardBox) {
         const r = cardBox.getBoundingClientRect();
         return { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -147,19 +148,22 @@ const { title, activeNav } = Astro.props;
       return { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
     }
 
-    // 落点几何:真卡实际尺寸(offsetWidth/Height,不含 -2° 包围盒虚胖)、起飞缩放、中心平移量
-    function computeFlight(from: Rect, card: HTMLElement): Flight {
+    // 落点几何:真卡外框实际尺寸(offsetWidth/Height,不含 -2° 包围盒虚胖)、中心平移量,
+    // 与让克隆牌面在 t=0 等于库牌面屏宽的起飞缩放(以 hero 牌面布局宽为分母;
+    // 用 offsetWidth 而非 gBCR——.card 的 -2° 旋转会让子元素包围盒虚胖)。
+    function computeFlight(from: Rect, card: HTMLElement, img: HTMLElement): Flight {
       const box = card.getBoundingClientRect();
       const w = card.offsetWidth || box.width, h = card.offsetHeight || box.height;
       const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-      return { w, h, cx, cy, fromScale: from.w / w, dx: from.x + from.w / 2 - cx, dy: from.y + from.h / 2 - cy };
+      const imgW = img.offsetWidth || w * 0.8933;
+      return { w, h, cx, cy, fromScale: from.w / imgW, dx: from.x + from.w / 2 - cx, dy: from.y + from.h / 2 - cy };
     }
 
-    // 在 hero 位挂一张浮起态克隆牌(舞台 + 克隆)
+    // 在 hero 位挂一张克隆牌(舞台 + 克隆);克隆首帧呈 --shadow-rest,与库卡 hover 阴影一致,
+    // 浮起(cf-lift)延到 playFlight 提交首帧后再加,借 .card 的 box-shadow 0.5s 过渡渐渐离桌
     function mountStage(card: HTMLElement, g: Flight): { stage: HTMLElement; fly: HTMLElement } {
       const fly = card.cloneNode(true) as HTMLElement;
       fly.style.visibility = "";
-      fly.classList.add("cf-lift");                  // 浮起:投影放大变软
       const stage = document.createElement("div");
       stage.id = "cardflip-stage";
       stage.style.left = g.cx - g.w / 2 + "px";
@@ -176,7 +180,8 @@ const { title, activeNav } = Astro.props;
     // 两段都跑完调 onLand。(克隆自带 -2°,起飞 +2° 抵消,落定回 0°。)
     // 移动段缓动:先慢 → 中段加快 → 尾端减慢(easeInOutCubic),让卡片平移放大有「起步沉、途中冲、临到缓」的手感。
     function playFlight(stage: HTMLElement, fly: HTMLElement, g: Flight, onLand: () => void) {
-      void stage.getBoundingClientRect();            // 提交 mountStage 的初始 transform,让 WAAPI 从同一起点态无缝接管(防首帧闪)
+      void stage.getBoundingClientRect();            // 提交 mountStage 的初始 transform + rest 阴影首帧,让 WAAPI 与阴影过渡都从同一起点态无缝接管(防首帧闪)
+      fly.classList.add("cf-lift");                  // 起飞:box-shadow 经 .card 0.5s 过渡从 rest 渐放大到 lift = 卡片离桌浮起
       stage.animate(
         [
           { transform: liftFrom(g) },
@@ -195,26 +200,34 @@ const { title, activeNav } = Astro.props;
       }, { once: true });
     }
 
-    // 编排:克隆真卡从 from 飞到 card,落定后亮出真卡(首次落定生效,看门狗兜底)
+    // 编排:克隆真卡从 from 飞到 card,落定后亮出真卡(首次落定生效,看门狗兜底)。
+    // land 只收自己这一程(清自己的看门狗与舞台),不全局清场——避免上一程的 land 误删下一程的飞行牌。
     function flyToCard(from: Rect, card: HTMLElement | null) {
       let landed = false;
+      let timer = 0;
+      let stage: HTMLElement | null = null;
       const land = () => {
-        clearStages();                               // 清掉所有飞行牌(含孤儿克隆)
         if (landed) return;
         landed = true;
+        if (timer) { clearTimeout(timer); timer = 0; }
+        if (stage) { stage.remove(); stage = null; }
         if (card) card.style.visibility = "";
+        if (activeFlight === land) activeFlight = null;
       };
+      activeFlight = land;
+
       const img = card?.querySelector(".cardimg") as HTMLElement | null;
       if (!card || !img) { land(); return; }
 
-      const g = computeFlight(from, card);
+      const g = computeFlight(from, card, img);
       // 下一帧(布局稳定)放飞克隆牌(root 无 view-transition 快照,见 global.css,单 rAF 即足够);看门狗已落定则不补建,避免孤儿克隆
       requestAnimationFrame(() => {
         if (landed) return;
-        const { stage, fly } = mountStage(card, g);
-        playFlight(stage, fly, g, land);
+        const mounted = mountStage(card, g);
+        stage = mounted.stage;
+        playFlight(mounted.stage, mounted.fly, g, land);
       });
-      window.setTimeout(land, FLY + DROP + 800);     // 看门狗:rAF 未触发(标签后台)也能落定
+      timer = window.setTimeout(land, FLY + DROP + 800);   // 看门狗:rAF 未触发(标签后台)也能落定
     }
 
     // 捕获阶段(早于 ClientRouter)记下起飞矩形;导航本身交给 ClientRouter
@@ -243,9 +256,10 @@ const { title, activeNav } = Astro.props;
       origin = null;
     });
 
-    // 离开页面前:清掉叠加态 body class + 残留飞行牌,避免带到下一页
+    // 离开页面前:强制收尾在飞那一程(取消其看门狗、移除其舞台)+ 清掉叠加态 body class + 兜底清残留飞行牌
     document.addEventListener("astro:before-swap", () => {
       document.body.classList.remove("reverse", "shadow");
+      if (activeFlight) activeFlight();
       clearStages();
     });
   </script>
