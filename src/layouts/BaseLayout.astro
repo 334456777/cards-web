@@ -40,12 +40,12 @@ const { title, activeNav } = Astro.props;
           </span>
           <span>落差扑克牌占卜</span>
         </a>
-        <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
-          <a href="/tutorial" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "教程" ? "text-coral" : "text-ink-soft hover:text-coral"]}>教程</a>
-          <a href="/divination" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "占卜守则" ? "text-coral" : "text-ink-soft hover:text-coral"]}>占卜守则</a>
-          <a href="/library" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "牌库" ? "text-coral" : "text-ink-soft hover:text-coral"]}>牌库</a>
-          <a href="/suits" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "四花色" ? "text-coral" : "text-ink-soft hover:text-coral"]}>四花色</a>
-          <a href="/combinations" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "组合浏览器" ? "text-coral" : "text-ink-soft hover:text-coral"]}>组合浏览器</a>
+        <nav class="ml-auto hidden sm:flex gap-2 text-[14.5px] font-medium">
+          <a href="/tutorial" class:list={["px-2.5 py-1.5 transition-colors", activeNav === "教程" ? "text-coral" : "text-ink-soft hover:text-coral"]}>教程</a>
+          <a href="/divination" class:list={["px-2.5 py-1.5 transition-colors", activeNav === "占卜守则" ? "text-coral" : "text-ink-soft hover:text-coral"]}>占卜守则</a>
+          <a href="/library" class:list={["px-2.5 py-1.5 transition-colors", activeNav === "牌库" ? "text-coral" : "text-ink-soft hover:text-coral"]}>牌库</a>
+          <a href="/suits" class:list={["px-2.5 py-1.5 transition-colors", activeNav === "四花色" ? "text-coral" : "text-ink-soft hover:text-coral"]}>四花色</a>
+          <a href="/combinations" class:list={["px-2.5 py-1.5 transition-colors", activeNav === "组合浏览器" ? "text-coral" : "text-ink-soft hover:text-coral"]}>组合浏览器</a>
         </nav>
         <!-- 移动端汉堡按钮 -->
         <button
