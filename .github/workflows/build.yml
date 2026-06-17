@@ -1,0 +1,45 @@
+name: build
+
+# 在 Linux 上构建静态产物 dist/,作为可下载工件上传。
+# 本工作流只构建、不部署:产出的工件可在 Actions 运行页下载(或用 gh run download),
+# 供本地预览 / 由本机同步上线。
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同一分支的新 push 取消仍在跑的旧构建
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22" # 满足 package.json engines: node >=22.12.0
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build（含 Astro/TS 类型检查,本仓库唯一验证关卡）
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
