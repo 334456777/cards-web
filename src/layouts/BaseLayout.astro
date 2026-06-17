@@ -71,32 +71,24 @@ const { title, activeNav } = Astro.props;
       </nav>
     </header>
 
-    <!-- 飞行浮层:跨换页持久,克隆牌在此飞行,被导航栏 / 筛选栏遮挡(见 global.css #cf-portal) -->
-    <div id="cf-portal" transition:persist="cardflip" aria-hidden="true"></div>
+    <slot />
 
-    <!-- 内容层:换页时的退场 / 入场动画作用于此,导航栏在其外故不参与 -->
-    <div class="cf-content">
-      <slot />
-
-      <!-- 页脚 -->
-      <footer class="border-t border-line mt-[70px] font-sans text-[13px] text-ink-faint">
-        <div class="max-w-[1200px] mx-auto px-7 py-[30px] flex justify-between gap-5 flex-wrap">
-          <span>落差扑克牌占卜 · 一套非线性、叠加态的解牌体系</span>
-          <span class="flex flex-wrap gap-x-1 gap-y-1 items-center">
-            <a href="/tutorial" class="inline-block py-1">教程</a> ·
-            <a href="/divination" class="inline-block py-1">占卜守则</a> ·
-            <a href="/library" class="inline-block py-1">牌库索引</a> ·
-            <a href="/suits" class="inline-block py-1">四花色</a> ·
-            <a href="/combinations" class="inline-block py-1">组合浏览器</a>
-          </span>
-        </div>
-      </footer>
-    </div>
+    <!-- 页脚 -->
+    <footer class="border-t border-line mt-[70px] font-sans text-[13px] text-ink-faint">
+      <div class="max-w-[1200px] mx-auto px-7 py-[30px] flex justify-between gap-5 flex-wrap">
+        <span>落差扑克牌占卜 · 一套非线性、叠加态的解牌体系</span>
+        <span class="flex flex-wrap gap-x-1 gap-y-1 items-center">
+          <a href="/tutorial" class="inline-block py-1">教程</a> ·
+          <a href="/divination" class="inline-block py-1">占卜守则</a> ·
+          <a href="/library" class="inline-block py-1">牌库索引</a> ·
+          <a href="/suits" class="inline-block py-1">四花色</a> ·
+          <a href="/combinations" class="inline-block py-1">组合浏览器</a>
+        </span>
+      </div>
+    </footer>
   </div>
 
   <script>
-    import { navigate } from "astro:transitions/client";
-
     // ── 移动端导航(每次换页都重新绑定,因 header 会被换掉) ──
     function initNav() {
       const navToggle = document.getElementById("navToggle");
@@ -126,33 +118,24 @@ const { title, activeNav } = Astro.props;
       closeMobileNav();
     });
 
-    // ════════ 库 ↔ 单卡页转场:克隆牌全程压在两栏之下,背景两段式收 / 展 ════════
-    // 点 /cards/ 链接 → 在持久浮层挂克隆牌,自原位起飞(被导航栏 / 筛选栏遮挡)。前半:牌库内容收缩渐隐 +
-    // 筛选栏收起;到半程换页;后半:单卡页内容舒展渐显,克隆飞到真实 hero 落定 → 亮真卡。反向(返回牌库 /
-    // 导航 / 后退)按生命周期跑入场:内容舒展渐显 + 有筛选栏则从收起态展开。reduced-motion / 刷新 / 直接进入静态。
-    const HALF = 440;                                // 退场 / 入场各半;克隆飞行两段各 HALF(总 ~880ms)
-    const EASE_IN = "cubic-bezier(0.4, 0, 1, 1)";    // A 段:加速离位,末端峰速
-    const EASE_OUT = "cubic-bezier(0, 0, 0.2, 1)";   // B 段:从 A 的峰速减速落定,衔接无跳变
-    const CARD_RATIO = 332.59947 / 238.11099;        // 正面 svg 长宽比(无卡面的链接据此估起飞矩形)
+    // ════════ 库 → 单卡页:卡片「飞入落桌」转场(无刷新) ════════
+    // 点击库卡 → 克隆真卡从库位平移放大飞到 hero 位,飞行时浮起(投影放大)+ 末了过冲胀大,
+    // 抵达后缩回原位 + 投影收紧落定 → 亮出真卡。reduced-motion / 刷新 / 直接进入不触发,直接静态呈现。
+    const FLY = 650, DROP = 520, OVERSHOOT = 1.06;   // 飞入 / 落下时长(ms)与悬空过冲比例
+    const CARD_RATIO = 332.59947 / 238.11099;        // 正面 svg 长宽比(无图链接据此估起飞高度)
     const reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
-
     type Rect = { x: number; y: number; w: number; h: number };
-    type Flight = { stage: HTMLElement; o: Rect; transit: string };
-    let flight: Flight | null = null;                // 前向飞牌中(非 null);也用作「本次为飞牌进入」的判据
-    let busy = false;                                // 转场进行中,吞掉重复点击
-    let spaNav = false;                              // 本次换页为 SPA 导航(驱动入场;首屏 / 刷新为 false → 静态)
+    type Flight = { w: number; h: number; cx: number; cy: number; fromScale: number; dx: number; dy: number };
+    let origin: Rect | null = null;                  // 本次点击的起飞矩形;null = 非飞牌进入
 
     const heroCard = () => document.querySelector("main .card") as HTMLElement | null;
-    const portal = () => document.getElementById("cf-portal");
-    const cfContent = () => document.querySelector(".cf-content") as HTMLElement | null;
-    const clearPortal = () => portal()?.replaceChildren();
-    const cardKey = (href: string) => {
-      try { return new URL(href, location.href).pathname.replace(/^\/cards\//, "").replace(/\/$/, ""); }
-      catch { return ""; }
-    };
-    const identity = "translate(0px, 0px) scale(1) rotate(0deg)";
+    const clearStages = () => document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
+    // 飞行起点态(offset 0):平移回库位 + 缩小 + 抵消克隆自带的 -2°。
+    // mountStage 的 inline 初始 transform 与 playFlight 的首关键帧共用此式,确保逐字符一致、无跳变帧。
+    const liftFrom = (g: Flight) => `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)`;
 
-    // 起飞矩形:库卡优先取「带边框卡面」.lcard,退回 img,再退回链接本身按 svg 比例估出卡形矩形
+    // 起飞矩形:库卡优先取「带边框卡面」.lcard(线框 + 烫金内框,让金框与单卡页对齐),
+    // 退回 img,再退回链接本身按 svg 比例估算。
     function readOrigin(a: HTMLAnchorElement): Rect {
       const cardBox = a.querySelector(".lcard") || a.querySelector("img");
       if (cardBox) {
@@ -164,105 +147,79 @@ const { title, activeNav } = Astro.props;
       return { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
     }
 
-    // 在持久浮层挂一张克隆牌:stage 框 = 起飞矩形,恒等 transform = 停在原位
-    function mountClone(key: string, o: Rect): HTMLElement {
+    // 落点几何:真卡实际尺寸(offsetWidth/Height,不含 -2° 包围盒虚胖)、起飞缩放、中心平移量
+    function computeFlight(from: Rect, card: HTMLElement): Flight {
+      const box = card.getBoundingClientRect();
+      const w = card.offsetWidth || box.width, h = card.offsetHeight || box.height;
+      const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      return { w, h, cx, cy, fromScale: from.w / w, dx: from.x + from.w / 2 - cx, dy: from.y + from.h / 2 - cy };
+    }
+
+    // 在 hero 位挂一张浮起态克隆牌(舞台 + 克隆)
+    function mountStage(card: HTMLElement, g: Flight): { stage: HTMLElement; fly: HTMLElement } {
+      const fly = card.cloneNode(true) as HTMLElement;
+      fly.style.visibility = "";
+      fly.classList.add("cf-lift");                  // 浮起:投影放大变软
       const stage = document.createElement("div");
       stage.id = "cardflip-stage";
-      stage.style.left = o.x + "px";
-      stage.style.top = o.y + "px";
-      stage.style.width = o.w + "px";
-      stage.style.height = o.h + "px";
-      stage.style.transform = identity;
-      const card = document.createElement("div");
-      card.className = "cf-card cf-lift";
-      const img = document.createElement("img");
-      img.src = `/cards_svg/${key}.svg`;
-      img.alt = "";
-      const frame = document.createElement("div");
-      frame.className = "cf-frame";
-      card.append(img, frame);
-      stage.append(card);
-      portal()?.append(stage);
-      return stage;
+      stage.style.left = g.cx - g.w / 2 + "px";
+      stage.style.top = g.cy - g.h / 2 + "px";
+      stage.style.width = g.w + "px";
+      stage.style.height = g.h + "px";
+      stage.style.transform = liftFrom(g);           // append 前就摆成飞行起点,杜绝「base 态(hero 位/全尺寸/无旋)闪一帧」
+      stage.append(fly);
+      document.body.append(stage);
+      return { stage, fly };
     }
 
-    // 中转锚点(A 段终点):朝估算 hero 位插值约 55%,精确落点由 B 段按真实 hero 校正
-    function transitTransform(o: Rect): string {
-      const small = window.innerWidth <= 760;
-      const estScale = (small ? 240 : 300) / o.w;
-      const ocx = o.x + o.w / 2, ocy = o.y + o.h / 2;
-      const ecx = window.innerWidth / 2, ecy = 67 + (small ? 150 : 180);
-      const t = 0.55;
-      return `translate(${(ecx - ocx) * t}px, ${(ecy - ocy) * t}px) scale(${1 + (estScale - 1) * t}) rotate(${-2 * t}deg)`;
-    }
-
-    // 落点 transform:让 stage(锚于原位)渲染框对齐真实 hero,落定回 -2°(与单卡页 .card 静止角一致)
-    function heroTransform(o: Rect, hero: HTMLElement): string {
-      const r = hero.getBoundingClientRect();
-      const ocx = o.x + o.w / 2, ocy = o.y + o.h / 2;
-      const hcx = r.left + r.width / 2, hcy = r.top + r.height / 2;
-      return `translate(${hcx - ocx}px, ${hcy - ocy}px) scale(${r.width / o.w}) rotate(-2deg)`;
-    }
-
-    // 背景退场:.cf-content 收缩渐隐 +(有则)筛选栏收起
-    function runExit() {
-      cfContent()?.animate(
-        [{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.96)" }],
-        { duration: HALF, easing: EASE_IN, fill: "forwards" }
-      );
-      document.querySelector(".cf-filterbar")?.animate(
-        [{ opacity: 1, transform: "scaleY(1)" }, { opacity: 0, transform: "scaleY(0)" }],
-        { duration: HALF, easing: EASE_IN, fill: "forwards" }
-      );
-    }
-
-    // 背景入场:.cf-content 舒展渐显 +(有则)筛选栏从收起态展开;结束后清掉预隐藏的内联样式
-    function runEnter() {
-      const c = cfContent();
-      if (c) {
-        const a = c.animate(
-          [{ opacity: 0, transform: "scale(0.97)" }, { opacity: 1, transform: "scale(1)" }],
-          { duration: HALF, easing: EASE_OUT, fill: "both" }
-        );
-        a.addEventListener("finish", () => { c.style.opacity = ""; c.style.transform = ""; a.cancel(); }, { once: true });
-      }
-      document.querySelector(".cf-filterbar")?.animate(
-        [{ opacity: 0, transform: "scaleY(0)" }, { opacity: 1, transform: "scaleY(1)" }],
-        { duration: HALF, easing: EASE_OUT, fill: "both" }
-      );
-    }
-
-    // 点击发起前向飞牌:挂克隆 → A 段(原位 → 中转)+ 牌库退场 → 半程后换页
-    function startForward(href: string, o: Rect) {
-      const stage = mountClone(cardKey(href), o);
-      const transit = transitTransform(o);
-      void stage.getBoundingClientRect();            // 提交初始 transform,A 段从同一起点接管,防首帧闪
-      const a = stage.animate([{ transform: identity }, { transform: transit }], { duration: HALF, easing: EASE_IN, fill: "forwards" });
-      flight = { stage, o, transit };
-      (flight as any).a = a;
-      runExit();
-      window.setTimeout(() => navigate(href), HALF);
-    }
-
-    // 换页后落定:B 段(中转 → 真实 hero)+ 单卡页入场;落定卸浮起、亮真卡、清浮层
-    function forwardLanding() {
-      const f = flight; flight = null;
-      const hero = heroCard();
-      let done = false;
-      const finish = () => { if (done) return; done = true; if (hero) hero.style.visibility = ""; clearPortal(); busy = false; };
-      if (!f || !hero) { finish(); return; }
-      (f as any).a?.cancel();
-      const b = f.stage.animate([{ transform: f.transit }, { transform: heroTransform(f.o, hero) }], { duration: HALF, easing: EASE_OUT, fill: "forwards" });
-      b.addEventListener("finish", () => {
-        f.stage.querySelector(".cf-card")?.classList.remove("cf-lift");  // 投影经 0.5s 过渡收回 = 落下
-        window.setTimeout(finish, 260);                                   // 投影收一截再亮真卡 / 清场
+    // 飞入(悬空,末了过冲到 OVERSHOOT)→ 落下(缩回 scale 1 + 卸浮起态,投影经 .card 0.5s 过渡收回 rest);
+    // 两段都跑完调 onLand。(克隆自带 -2°,起飞 +2° 抵消,落定回 0°。)
+    // 移动段缓动:先慢 → 中段加快 → 尾端减慢(easeInOutCubic),让卡片平移放大有「起步沉、途中冲、临到缓」的手感。
+    function playFlight(stage: HTMLElement, fly: HTMLElement, g: Flight, onLand: () => void) {
+      void stage.getBoundingClientRect();            // 提交 mountStage 的初始 transform,让 WAAPI 从同一起点态无缝接管(防首帧闪)
+      stage.animate(
+        [
+          { transform: liftFrom(g) },
+          { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
+        ],
+        { duration: FLY, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
+      ).addEventListener("finish", () => {
+        fly.classList.remove("cf-lift");
+        stage.animate(
+          [
+            { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
+            { transform: "translate(0, 0) scale(1) rotate(0deg)" },
+          ],
+          { duration: DROP, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" }
+        ).addEventListener("finish", onLand, { once: true });
       }, { once: true });
-      runEnter();
-      window.setTimeout(finish, HALF + 900);                              // 看门狗:动画未触发也落定
     }
 
-    // 捕获阶段(早于 ClientRouter):拦截 /cards/ 主键点击,改由本编排控制时序
+    // 编排:克隆真卡从 from 飞到 card,落定后亮出真卡(首次落定生效,看门狗兜底)
+    function flyToCard(from: Rect, card: HTMLElement | null) {
+      let landed = false;
+      const land = () => {
+        clearStages();                               // 清掉所有飞行牌(含孤儿克隆)
+        if (landed) return;
+        landed = true;
+        if (card) card.style.visibility = "";
+      };
+      const img = card?.querySelector(".cardimg") as HTMLElement | null;
+      if (!card || !img) { land(); return; }
+
+      const g = computeFlight(from, card);
+      // 下一帧(布局稳定)放飞克隆牌(root 无 view-transition 快照,见 global.css,单 rAF 即足够);看门狗已落定则不补建,避免孤儿克隆
+      requestAnimationFrame(() => {
+        if (landed) return;
+        const { stage, fly } = mountStage(card, g);
+        playFlight(stage, fly, g, land);
+      });
+      window.setTimeout(land, FLY + DROP + 800);     // 看门狗:rAF 未触发(标签后台)也能落定
+    }
+
+    // 捕获阶段(早于 ClientRouter)记下起飞矩形;导航本身交给 ClientRouter
     document.addEventListener("click", (e) => {
+      origin = null;
       const me = e as MouseEvent;
       if (me.button !== 0 || me.metaKey || me.ctrlKey || me.shiftKey || me.altKey) return;
       const a = (e.target as Element | null)?.closest?.('a[href^="/cards/"]') as HTMLAnchorElement | null;
@@ -270,32 +227,26 @@ const { title, activeNav } = Astro.props;
       let url: URL;
       try { url = new URL(a.href, location.href); } catch { return; }
       if (url.origin !== location.origin) return;
-      e.preventDefault();
-      if (busy) return;
-      busy = true;
-      startForward(a.href, readOrigin(a));
+      origin = readOrigin(a);
     }, true);
 
-    // 离开页面前:清叠加态 body class;标记 SPA 导航;非前向才清浮层(前向克隆需跨换页存活)
+    // 换页瞬间:新页从纸色淡入;飞牌进入时先藏起目标 hero 卡(由克隆代飞)
+    document.addEventListener("astro:after-swap", () => {
+      document.querySelector(".page-wrap")?.classList.add("cf-pagein");
+      const card = heroCard();
+      if (origin && card) card.style.visibility = "hidden";
+    });
+
+    // 换页完成:飞牌进入才放飞克隆牌;否则(直接进入 / 刷新)卡片与金框直接静态呈现
+    document.addEventListener("astro:page-load", () => {
+      if (origin) flyToCard(origin, heroCard());
+      origin = null;
+    });
+
+    // 离开页面前:清掉叠加态 body class + 残留飞行牌,避免带到下一页
     document.addEventListener("astro:before-swap", () => {
       document.body.classList.remove("reverse", "shadow");
-      if (!reduceMQ.matches) spaNav = true;
-      if (!flight) clearPortal();
-    });
-
-    // 换页瞬间:预隐藏内容避免入场前闪;前向再藏起目标 hero(由克隆代飞)
-    document.addEventListener("astro:after-swap", () => {
-      if (reduceMQ.matches) return;
-      const c = cfContent();
-      if (c) c.style.opacity = "0";
-      if (flight) { const hero = heroCard(); if (hero) hero.style.visibility = "hidden"; }
-    });
-
-    // 换页完成:前向 → 落定;其余 SPA 进入 → 入场(返回牌库时筛选栏从收起态展开);直接进入 / 刷新静态
-    document.addEventListener("astro:page-load", () => {
-      if (flight) { forwardLanding(); spaNav = false; return; }
-      if (spaNav && !reduceMQ.matches) runEnter();
-      spaNav = false;
+      clearStages();
     });
   </script>
 

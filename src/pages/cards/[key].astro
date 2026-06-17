@@ -282,7 +282,14 @@ const rankTxt = card.special ? "" : card.rank;
       0 4px 10px rgba(43, 39, 34, 0.08),
       0 12px 26px -6px  rgba(43, 39, 34, 0.13),
       0 22px 44px -14px rgba(43, 39, 34, 0.17);
-    /* hover 态:介于 rest 与浮起之间,投影略加深 */
+    /* 「浮起」态:卡片悬在桌面上方,投影放大、外扩、变软(飞行途中用,见 .cf-lift) */
+    --shadow-lift:
+      0 1px 0     rgba(255, 255, 255, 0.7) inset,
+      0 0 50px    rgba(43, 39, 34, 0.04),
+      0 20px 34px rgba(43, 39, 34, 0.07),
+      0 40px 64px -12px  rgba(43, 39, 34, 0.20),
+      0 72px 104px -26px rgba(43, 39, 34, 0.26);
+    /* hover 态:介于 rest 与 lift 之间,投影略加深 */
     --shadow-hover:
       0 1px 0    rgba(255, 255, 255, 0.7) inset,
       0 0 26px   rgba(43, 39, 34, 0.06),
@@ -302,6 +309,10 @@ const rankTxt = card.special ? "" : card.rank;
     z-index: 2;
     pointer-events: none;
   }
+
+  /* 浮起态(.cf-lift):飞行途中克隆牌悬在桌面上方 —— 投影放大、外扩、变软。
+     抵达 hero 位后移除该类,box-shadow 经 .card 自带的 0.5s 过渡落回 --shadow-rest = 卡片落下。 */
+  .card.cf-lift { box-shadow: var(--shadow-lift); }
 
   /* hover 浮起 + 阴影加深 */
   .card:hover {

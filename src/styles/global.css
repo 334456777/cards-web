@@ -88,62 +88,20 @@ a:hover {
   height: 0;
 }
 
-/* ════════ 库 ↔ 单卡页转场:克隆牌全程压在两栏之下,背景两段式收 / 展 ════════ */
-/* 关掉根 view-transition 快照:换页瞬时,顶层无 root 位图;背景的退场 / 入场由 .cf-content 自己做。 */
+/* ════════ 库 → 单卡页「飞牌落桌」转场 ════════ */
+/* 关掉 ClientRouter 的根 view-transition 快照:换页瞬时,顶层不会有 root 位图盖住飞行中的克隆牌。
+   背景换页由 .page-wrap 的 cf-page-in 从纸色淡入,与飞牌同时进行、不遮挡飞牌。 */
 html { view-transition-name: none; }
-
-/* 持久化飞行浮层:transition:persist 让它(及其中的克隆牌)跨换页复用同一节点,WAAPI 飞行不中断。
-   置于 .page-wrap 层叠上下文内、z 夹在内容(0)< 浮层(20)< 筛选栏(30)< 导航栏(40)之间,
-   故克隆牌被两栏的磨砂背景遮挡(滑到栏背后)。注意:不能放进任何被 transform 的元素里。 */
-#cf-portal { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
-#cardflip-stage { position: fixed; transform-origin: center; will-change: transform; }
-
-/* 飞行克隆牌:全局样式(跨换页存活,不依赖任一页的作用域样式),外观对齐单卡页 .card。
-   填满 stage 框;stage 框起飞时 = 库卡原位,落定时缩放到真实 hero。 */
-.cf-card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(150deg, #FCF8F0, #F1E7D4);
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow:
-    0 1px 0    rgba(255, 255, 255, 0.7) inset,
-    0 0 18px   rgba(43, 39, 34, 0.05),
-    0 4px 10px rgba(43, 39, 34, 0.08),
-    0 12px 26px -6px  rgba(43, 39, 34, 0.13),
-    0 22px 44px -14px rgba(43, 39, 34, 0.17);
-  transition: box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-/* 飞行途中的「浮起」态:投影放大、外扩、变软;落定移除该类,投影经上面的 0.5s 过渡收回 = 落下。 */
-.cf-card.cf-lift {
-  box-shadow:
-    0 1px 0     rgba(255, 255, 255, 0.7) inset,
-    0 0 50px    rgba(43, 39, 34, 0.04),
-    0 20px 34px rgba(43, 39, 34, 0.07),
-    0 40px 64px -12px  rgba(43, 39, 34, 0.20),
-    0 72px 104px -26px rgba(43, 39, 34, 0.26);
-}
-.cf-card img {
-  width: 100%;
-  display: block;
-  border-radius: 6px;
-  aspect-ratio: 63 / 88;
-  object-fit: contain;
-}
-.cf-card .cf-frame {
-  position: absolute;
-  inset: 7px;
-  border-radius: 9px;
-  border: 1.5px solid #B8893A;
-  filter: url(#rough);
-  opacity: 0.85;
+@keyframes cf-page-in { from { opacity: 0; } to { opacity: 1; } }
+.page-wrap.cf-pagein { animation: cf-page-in 0.5s ease both; }
+/* 飞行舞台(运行时注入):内含一张克隆的真卡,从原位移动放大到 hero 位 */
+#cardflip-stage {
+  position: fixed;
+  z-index: 90;
   pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
 }
-
-/* 背景两段式动画的载体(导航栏在 .cf-content 之外,故全程不参与)。筛选栏收 / 展绕 top 卷动。 */
-.cf-content { transform-origin: center center; }
-.cf-filterbar { transform-origin: top; }
 
 /* ════════ 触摸屏:按压反馈(替代 hover) ════════ */
 /* 触摸设备没有 hover,点击只在「按住」时短暂触发 :active。给主要可点元素一个
