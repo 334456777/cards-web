@@ -41,11 +41,11 @@ const { title, activeNav } = Astro.props;
           <span>落差扑克牌占卜</span>
         </a>
         <nav class="ml-auto hidden sm:flex gap-[26px] text-[14.5px] font-medium">
-          <a href="/tutorial" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "教程" && "text-suit-red"]}>教程</a>
-          <a href="/divination" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "占卜守则" && "text-suit-red"]}>占卜守则</a>
-          <a href="/library" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
-          <a href="/suits" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
-          <a href="/combinations" class:list={["text-ink-soft hover:text-coral py-1.5", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
+          <a href="/tutorial" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "教程" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>教程</a>
+          <a href="/divination" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "占卜守则" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>占卜守则</a>
+          <a href="/library" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "牌库" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>牌库</a>
+          <a href="/suits" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "四花色" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>四花色</a>
+          <a href="/combinations" class:list={["px-3 py-1.5 rounded-full transition-colors", activeNav === "组合浏览器" ? "bg-coral text-white" : "text-ink-soft hover:text-coral"]}>组合浏览器</a>
         </nav>
         <!-- 移动端汉堡按钮 -->
         <button
@@ -63,11 +63,11 @@ const { title, activeNav } = Astro.props;
       </div>
       <!-- 移动端下拉菜单 -->
       <nav id="mobileNav" class="mobile-nav sm:hidden hidden absolute top-full inset-x-0 z-50 border-t border-line bg-paper font-medium text-[15.5px] shadow-[0_16px_30px_-12px_rgba(43,39,34,0.45)]">
-        <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "教程" && "text-suit-red"]}>教程</a>
-        <a href="/divination" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "占卜守则" && "text-suit-red"]}>占卜守则</a>
-        <a href="/library" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "牌库" && "text-suit-red"]}>牌库</a>
-        <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "四花色" && "text-suit-red"]}>四花色</a>
-        <a href="/combinations" class:list={["block px-7 py-[13px] text-ink-soft hover:text-coral hover:bg-paper-deep", activeNav === "组合浏览器" && "text-suit-red"]}>组合浏览器</a>
+        <a href="/tutorial" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "教程" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>教程</a>
+        <a href="/divination" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "占卜守则" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>占卜守则</a>
+        <a href="/library" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "牌库" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>牌库</a>
+        <a href="/suits" class:list={["block px-7 py-[13px] border-b border-line transition-colors", activeNav === "四花色" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>四花色</a>
+        <a href="/combinations" class:list={["block px-7 py-[13px] transition-colors", activeNav === "组合浏览器" ? "bg-coral text-white" : "text-ink-soft hover:text-coral hover:bg-paper-deep"]}>组合浏览器</a>
       </nav>
     </header>
 
