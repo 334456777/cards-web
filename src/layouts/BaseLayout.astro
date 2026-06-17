@@ -130,6 +130,9 @@ const { title, activeNav } = Astro.props;
 
     const heroCard = () => document.querySelector("main .card") as HTMLElement | null;
     const clearStages = () => document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
+    // 飞行起点态(offset 0):平移回库位 + 缩小 + 抵消克隆自带的 -2°。
+    // mountStage 的 inline 初始 transform 与 playFlight 的首关键帧共用此式,确保逐字符一致、无跳变帧。
+    const liftFrom = (g: Flight) => `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)`;
 
     // 起飞矩形:库卡优先取「带边框卡面」.lcard(线框 + 烫金内框,让金框与单卡页对齐),
     // 退回 img,再退回链接本身按 svg 比例估算。
@@ -163,6 +166,7 @@ const { title, activeNav } = Astro.props;
       stage.style.top = g.cy - g.h / 2 + "px";
       stage.style.width = g.w + "px";
       stage.style.height = g.h + "px";
+      stage.style.transform = liftFrom(g);           // append 前就摆成飞行起点,杜绝「base 态(hero 位/全尺寸/无旋)闪一帧」
       stage.append(fly);
       document.body.append(stage);
       return { stage, fly };
@@ -172,9 +176,10 @@ const { title, activeNav } = Astro.props;
     // 两段都跑完调 onLand。(克隆自带 -2°,起飞 +2° 抵消,落定回 0°。)
     // 移动段缓动:先慢 → 中段加快 → 尾端减慢(easeInOutCubic),让卡片平移放大有「起步沉、途中冲、临到缓」的手感。
     function playFlight(stage: HTMLElement, fly: HTMLElement, g: Flight, onLand: () => void) {
+      void stage.getBoundingClientRect();            // 提交 mountStage 的初始 transform,让 WAAPI 从同一起点态无缝接管(防首帧闪)
       stage.animate(
         [
-          { transform: `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)` },
+          { transform: liftFrom(g) },
           { transform: `translate(0, 0) scale(${OVERSHOOT}) rotate(0deg)` },
         ],
         { duration: FLY, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
@@ -203,12 +208,12 @@ const { title, activeNav } = Astro.props;
       if (!card || !img) { land(); return; }
 
       const g = computeFlight(from, card);
-      // 下一帧(待根过渡快照撤掉)再放飞;看门狗已先落定则不补建,避免孤儿克隆
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      // 下一帧(布局稳定)即放飞;root 已无快照(见 global.css),无需再等其拆除。看门狗已先落定则不补建,避免孤儿克隆
+      requestAnimationFrame(() => {
         if (landed) return;
         const { stage, fly } = mountStage(card, g);
         playFlight(stage, fly, g, land);
-      }));
+      });
       window.setTimeout(land, FLY + DROP + 800);     // 看门狗:rAF 未触发(标签后台)也能落定
     }
 

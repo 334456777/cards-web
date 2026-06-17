@@ -89,10 +89,10 @@ a:hover {
 }
 
 /* ════════ 库 → 单卡页:卡片「简易移动」转场 ════════ */
-/* 关掉 ClientRouter 默认根过渡:换页瞬时(否则其快照会盖住牌的飞行)。
-   背景的渐变过渡改为「新页内容从纸色淡入」——与牌的飞行同时进行,不会盖住飞行的牌。 */
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* 不让 ClientRouter 为根元素生成 view-transition 快照:换页瞬时,顶层(top layer)不再有
+   root 位图盖住飞行中的克隆牌(原先只关 animation,快照仍在,会盖住后插入的飞行舞台)。
+   背景换页改由 .page-wrap 的 cf-page-in 自行「从纸色淡入」——与牌的飞行同时进行,不会盖住飞行的牌。 */
+html { view-transition-name: none; }
 @keyframes cf-page-in { from { opacity: 0; } to { opacity: 1; } }
 .page-wrap.cf-pagein { animation: cf-page-in 0.5s ease both; }
 /* 飞行舞台(运行时注入):内含一张克隆的真卡,从原位简易移动到 hero 位 */
