@@ -21,7 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 构建与部署都走 **GitHub Actions**(`.github/workflows/build.yml`,两段作业 `build` → `deploy`):push 到 `main` 且命中代码 `paths`(`src/` `public/` `astro.config.mjs` `package*.json` `tsconfig.json` 或工作流自身),或手动 `workflow_dispatch` 即触发。`build` 在 Linux + Node 22 跑 `npm ci && npm run build`、上传 `dist/` 工件 `dist`;`deploy`(仅 `main`、`needs: build`)用 `tailscale/github-action` 接入 tailnet(托管 runner 公网到不了内网 pai-eth0),再用 Secret 里的 SSH 私钥把工件 scp 到 pai-eth0、**原子替换 dist + `pm2 restart`**——**push 命中 paths 即自动上线**。
 
-deploy 依赖的仓库 Secrets:`TS_AUTHKEY`(Tailscale auth key,建为 reusable + ephemeral 且打 `tag:ci`;auth key 会过期,到期需换发)、`DEPLOY_SSH_KEY`(pai-eth0 部署私钥,建议专签最小权限钥而非复用 `id_ed25519_pai`)、`DEPLOY_HOST`(pai-eth0 的 tailnet MagicDNS 名 / 100.x 地址),可选 `DEPLOY_KNOWN_HOSTS`(配了则严格校验主机指纹)。另需:tailnet ACL 放行 `tag:ci` → `pai-eth0:22`,且 pai-eth0 `~/.ssh/authorized_keys` 收录该部署公钥。用户 `yusteven`、路径 `/home/yusteven/cards-web`、端口 22、pm2 应用 `cards-web` 写死在 workflow。
+deploy 依赖的仓库 Secrets:`TS_OAUTH_CLIENT_ID`/`TS_OAUTH_SECRET`(Tailscale OAuth client,授予 `auth_keys` 写权限并打 `tag:ci`;secret 形如 `tskey-client-*`)、`DEPLOY_SSH_KEY`(pai-eth0 部署私钥,其公钥须在 pai-eth0 的 `~/.ssh/authorized_keys`;建议专签最小权限钥而非复用 `id_ed25519_pai`)、`DEPLOY_HOST`(pai-eth0 的 tailnet MagicDNS 名 / 100.x 地址),可选 `DEPLOY_KNOWN_HOSTS`(配了则严格校验主机指纹)。另需:tailnet ACL 放行 `tag:ci` → `pai-eth0:22`,且 pai-eth0 `~/.ssh/authorized_keys` 收录该部署公钥。用户 `yusteven`、路径 `/home/yusteven/cards-web`、端口 22、pm2 应用 `cards-web` 写死在 workflow。
 
 需手动兜底时(临时本机部署 / CI 不可用):
 

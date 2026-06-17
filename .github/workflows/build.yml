@@ -3,7 +3,7 @@ name: build
 # 在 Linux 上构建静态产物 dist/(上传为可下载工件),再自动部署到 pai-eth0。
 # 托管 runner 公网到不了内网 pai-eth0,故 deploy 作业先用 tailscale/github-action 接入 tailnet,
 # 再用 Secret 里的 SSH 私钥把工件 scp 到目标机、原子替换 dist + pm2 restart。
-# 仓库需配 Secrets:TS_AUTHKEY(tagged reusable+ephemeral auth key)/ DEPLOY_SSH_KEY / DEPLOY_HOST(可选 DEPLOY_KNOWN_HOSTS)。
+# 仓库需配 Secrets:TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET / DEPLOY_SSH_KEY / DEPLOY_HOST(可选 DEPLOY_KNOWN_HOSTS)。
 # 工件仍可在 Actions 运行页下载(或 gh run download)供本地预览 / 手动同步兜底。
 
 on:
@@ -71,12 +71,14 @@ jobs:
           name: dist
           path: dist
 
-      # 托管 runner 用 tagged 临时 auth key 加入 tailnet;auth key 须建为 reusable + ephemeral、
-      # 打 tag:ci(tag:ci 需在 tailnet ACL 的 tagOwners 里,且 ACL 放行 tag:ci → pai-eth0:22)。
+      # 托管 runner 经 OAuth 加入 tailnet,成为带 tag:ci 的临时节点;OAuth client 需授予 auth_keys
+      # 写权限并打 tag:ci,tag:ci 需在 tailnet ACL 的 tagOwners 里,且 ACL 放行 tag:ci → pai-eth0:22。
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
-          authkey: ${{ secrets.TS_AUTHKEY }}
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
       # 打包 dist → 经 tailnet scp 到目标机 → 建 dist.new 再瞬时 mv 顶替(避免半成品)+ pm2 restart。
       # 私钥来自 Secret;DEPLOY_KNOWN_HOSTS 配了则严格校验主机指纹,否则首连即信任(tailnet 传输已加密)。
