@@ -629,7 +629,7 @@ const JOKERS: Record<string, {
 };
 
 /* ── 工具函数 ── */
-function padNo(suit: string, rank: string): string {
+function padNo(rank: string): string {
   const n = RANK_ORDER.indexOf(rank as any) + 1;
   return (n < 10 ? "0" : "") + n;
 }
@@ -670,7 +670,7 @@ export async function buildDeck(): Promise<CardData[]> {
         key, suit: suitKey, rank: rankKey, name,
         sym: s.sym, cls: s.cls, accent: s.accent, suitCN: s.cn,
         latin: `${r.latin} of ${s.latin}`,
-        kicker: `单卡 · No.${padNo(suitKey, rankKey)} / ${s.cn}`,
+        kicker: `单卡 · No.${padNo(rankKey)} / ${s.cn}`,
         tags: [s.yy, s.group, r.label],
         lede: o.lede || `${name}。花色是「${s.cn} · ${s.yy} · ${s.group}」,定其${s.short};数字是「${r.label}」,定其所在的层级。两者相乘,才是这张牌。`,
         suitSub: `${s.cn} · ${s.yy} · ${s.group}`,

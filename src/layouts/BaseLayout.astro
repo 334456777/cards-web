@@ -208,7 +208,7 @@ const { title, activeNav } = Astro.props;
       if (!card || !img) { land(); return; }
 
       const g = computeFlight(from, card);
-      // 下一帧(布局稳定)即放飞;root 已无快照(见 global.css),无需再等其拆除。看门狗已先落定则不补建,避免孤儿克隆
+      // 下一帧(布局稳定)放飞克隆牌(root 无 view-transition 快照,见 global.css,单 rAF 即足够);看门狗已落定则不补建,避免孤儿克隆
       requestAnimationFrame(() => {
         if (landed) return;
         const { stage, fly } = mountStage(card, g);

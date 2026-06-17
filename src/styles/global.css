@@ -88,14 +88,13 @@ a:hover {
   height: 0;
 }
 
-/* ════════ 库 → 单卡页:卡片「简易移动」转场 ════════ */
-/* 不让 ClientRouter 为根元素生成 view-transition 快照:换页瞬时,顶层(top layer)不再有
-   root 位图盖住飞行中的克隆牌(原先只关 animation,快照仍在,会盖住后插入的飞行舞台)。
-   背景换页改由 .page-wrap 的 cf-page-in 自行「从纸色淡入」——与牌的飞行同时进行,不会盖住飞行的牌。 */
+/* ════════ 库 → 单卡页「飞牌落桌」转场 ════════ */
+/* 关掉 ClientRouter 的根 view-transition 快照:换页瞬时,顶层不会有 root 位图盖住飞行中的克隆牌。
+   背景换页由 .page-wrap 的 cf-page-in 从纸色淡入,与飞牌同时进行、不遮挡飞牌。 */
 html { view-transition-name: none; }
 @keyframes cf-page-in { from { opacity: 0; } to { opacity: 1; } }
 .page-wrap.cf-pagein { animation: cf-page-in 0.5s ease both; }
-/* 飞行舞台(运行时注入):内含一张克隆的真卡,从原位简易移动到 hero 位 */
+/* 飞行舞台(运行时注入):内含一张克隆的真卡,从原位移动放大到 hero 位 */
 #cardflip-stage {
   position: fixed;
   z-index: 90;
@@ -107,8 +106,8 @@ html { view-transition-name: none; }
 /* ════════ 触摸屏:按压反馈(替代 hover) ════════ */
 /* 触摸设备没有 hover,点击只在「按住」时短暂触发 :active。给主要可点元素一个
    轻微下压/缩放,让点击有即时的触感反馈 —— hover 态(浮起/描边)仍保留给鼠标。
-   动画与过渡在触摸屏上「照常播放」:iPad / iPhone 性能足以流畅呈现飞牌落桌、
-   开关滑动、叠加态明暗等效果,这正是本站的核心观感,不再一刀切关掉。 */
+   动画与过渡在触摸屏上照常播放(iPad / iPhone 性能足够):飞牌落桌、开关滑动、
+   叠加态明暗是本站核心观感,勿在触摸屏上关闭。 */
 @media (hover: none) {
   .ccell:active,
   .gcard:active,
