@@ -317,10 +317,11 @@ import Divider from "../components/Divider.astro";
 </script>
 
 <style>
-  /* 目录 active 状态 */
-  [data-d].on {
-    color: #A3372B !important;
-    border-left-color: #D97757 !important;
+  /* 桌面侧栏目录 active 状态。作用域收窄到 .toc-list:data-d 为桌面/移动端目录共用,
+     此处只染桌面侧栏,移动端 .mtoc 的激活态(珊瑚底白字)另在下方定义,互不干扰。 */
+  .toc-list a.on {
+    color: #A3372B;
+    border-left-color: #D97757;
     font-weight: 500;
   }
 
@@ -343,7 +344,7 @@ import Divider from "../components/Divider.astro";
     .mtoc {
       display: block;
       position: sticky;
-      top: 53px;
+      top: 67px;
       z-index: 30;
       background: rgba(250, 246, 239, 0.94);
       backdrop-filter: blur(8px);
