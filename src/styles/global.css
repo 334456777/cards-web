@@ -72,13 +72,17 @@ body::before {
   z-index: 1;
 }
 
-/* 链接 */
-a {
-  color: var(--color-gold);
-  text-decoration: none;
-}
-a:hover {
-  color: var(--color-coral);
+/* 链接 —— 必须放进 @layer base:Tailwind v4 中无层规则会盖过所有工具类,
+   裸写 a{}/a:hover{} 会让 text-* / hover:text-* 失效(链接全被染成 gold、hover 全成 coral)。
+   置于 base 层后,工具类(utilities 层在后)正常覆盖,各链接按自身 class 显色。 */
+@layer base {
+  a {
+    color: var(--color-gold);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-coral);
+  }
 }
 
 /* SVG 纹理滤镜（全局共用） */
