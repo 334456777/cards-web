@@ -8,14 +8,14 @@ import Divider from "../components/Divider.astro";
   <div id="progress" class="fixed top-0 left-0 h-[3px] bg-coral z-50 transition-[width] duration-100" style="width:0"></div>
 
   <!-- 面包屑 -->
-  <nav class="max-w-[1200px] mx-auto px-7 pt-[22px] font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
+  <nav class="max-w-[1280px] mx-auto px-8 pt-[22px] font-sans text-[13.5px] text-ink-faint flex gap-[9px] items-center">
     <a href="/" class="text-ink-faint hover:text-coral">首页</a>
     <span class="text-line">›</span>
     <span class="text-suit-red font-medium">教程</span>
   </nav>
 
   <!-- 标题区 -->
-  <div class="max-w-[1200px] mx-auto px-7 pt-5 pb-[6px]">
+  <div class="max-w-[1280px] mx-auto px-8 pt-5 pb-[6px]">
     <div class="font-sans text-[13px] tracking-[0.24em] uppercase text-gold font-bold mb-3">入门读本 · 五章</div>
     <h1 class="font-serif font-black text-[clamp(2.4rem,11vw,60px)] leading-[1.05] mb-[14px] tracking-[0.01em]">读懂落差体系</h1>
     <p class="text-xl text-ink-soft max-w-[30em] leading-[1.7]">一套非线性的解牌方法:每张牌都由花色与数字两重含义叠合而成,而每一重含义,都同时藏着它的反面。从核心理念读起,到亲手解一张牌。</p>
@@ -24,7 +24,7 @@ import Divider from "../components/Divider.astro";
   <Divider />
 
   <!-- 主布局 -->
-  <div class="max-w-[1200px] mx-auto px-7 pb-[110px] grid grid-cols-1 lg:grid-cols-[222px_minmax(0,1fr)] gap-[54px] items-start">
+  <div class="max-w-[1280px] mx-auto px-8 pb-[110px] grid grid-cols-1 lg:grid-cols-[222px_minmax(0,1fr)] gap-[54px] items-start">
     <!-- 目录 -->
     <aside class="hidden lg:block sticky top-[92px] font-sans">
       <div class="text-[11.5px] tracking-[0.18em] uppercase text-ink-faint font-bold mb-[14px] pb-3 border-b border-line">目录</div>
@@ -372,14 +372,14 @@ import Divider from "../components/Divider.astro";
       background: rgba(250, 246, 239, 0.94);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid #d8ccb6;
-      margin: 0 -28px 24px;
+      margin: 0 -32px 24px;
       padding: 11px 0;
     }
     .mtoc-inner {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding: 0 28px;
+      padding: 0 32px;
       font-family: "Noto Sans SC", sans-serif;
       -webkit-overflow-scrolling: touch;
     }
