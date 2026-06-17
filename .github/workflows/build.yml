@@ -33,7 +33,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Build（含 Astro/TS 类型检查,本仓库唯一验证关卡）
+      - name: Build
         run: npm run build
 
       - name: Upload dist artifact
