@@ -14,24 +14,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 部署到 pai-eth0(构建走 CI,同步在本机)
 
-SSH 主机 `pai-eth0` (10.0.1.5) 上的 `/home/yusteven/cards-web/dist/` 是静态站点根目录,由 PM2 (`cards-web`) 通过 `serve` 在端口 5432 提供。
+SSH 主机 `pai-eth0`(本机经 `~/.ssh/config` 别名连接,走 VPN;原内网 `10.0.1.5` 已弃用)上的 `/home/yusteven/cards-web/dist/` 是静态站点根目录,由 PM2 (`cards-web`) 通过 `serve` 监听 `127.0.0.1:5432` 提供。
 
 构建已切到 **GitHub Actions**(Linux,工作流 `.github/workflows/build.yml`):push 到 `main`(或任意分支手动 `workflow_dispatch`)即在云端 `npm ci && npm run build`,把 `dist/` 作为可下载工件 **`dist`** 上传(保留 30 天)。`pai-eth0` 是内网地址,GitHub 托管 runner 无法直连,故**部署 = 下载工件 + 本机同步 + 重启**:
 
-```bash
+```powershell
 # 1. 提交并推送 → 触发 CI 构建(在 Actions 页看绿勾)
 git add -A && git commit -m "..." && git push origin main
 
 # 2. 等 CI 跑完,下载该次运行的 dist 工件、解到 ./dist/(二选一):
 #    · 浏览器:仓库 Actions → 选中该次 build 运行 → Artifacts 下载 dist.zip,解压到 ./dist/
-#    · 命令行(需先装 gh CLI 并登录):
+#    · 命令行(gh 已装并登录):
 gh run download "$(gh run list -w build.yml -b main -L1 --json databaseId -q '.[0].databaseId')" -n dist -D dist
 
-# 3. 同步到 pai-eth0 + 重启 serve
-rsync -avz --delete dist/ pai-eth0:/home/yusteven/cards-web/dist/ && ssh pai-eth0 "pm2 restart cards-web"
+# 3. 打包 → 上传 → 服务器端原子替换 dist + 重启(全程免密,走 pai-eth0 密钥;
+#    先建 dist.new 再瞬时 mv 顶替,避免替换过程站点出现半成品)
+tar czf "$env:TEMP\cw.tgz" -C dist . && scp "$env:TEMP\cw.tgz" pai-eth0:/tmp/cw.tgz && ssh pai-eth0 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
 ```
 
-CI 只构建产出工件、不含部署,同步上线由本机执行。**以 CI 工件为部署基准**(干净 Linux 环境复现,排除本机差异);注:Windows 本机 `npm run build` 当前会因 Astro glob-loader 的盘符路径 bug 失败,Linux/CI 不受影响。SSH 配置: `~/.ssh/config` 中 `Host pai-eth0`,密钥 `~/.ssh/id_ed25519_pai`。
+CI 只构建产出工件、不含部署,同步上线由本机执行。**以 CI 工件为部署基准**(干净 Linux 环境复现,排除本机差异);注:Windows 本机 `npm run build` 当前会因 Astro glob-loader 的盘符路径 bug 失败(`fileURLToPath` 报 "must be of scheme file"),不影响 Linux/CI。本机 `~/.ssh/config` 已配 `Host pai-eth0`(VPN 地址)+ 密钥 `~/.ssh/id_ed25519_pai`,公钥已授权到服务器,**部署全程免密**。
 
 ## 改东西在哪改
 
