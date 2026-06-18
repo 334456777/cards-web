@@ -104,7 +104,7 @@ const JOKERS = [
                 data-types={[...types, ...(isSpecial ? ["special"] : [])].join(" ")}
                 data-search={`${name} ${RANK_INFO[rk]} ${s.cn} ${s.yy} ${s.desc}`}
               >
-                <div class="lcard bg-paper-deep border border-line rounded-[11px] p-[11px]">
+                <div class="lcard border border-line rounded-[7px] p-2">
                   <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333]" />
                 </div>
                 <div class="pt-[11px] px-1 pb-[2px]">
@@ -225,31 +225,44 @@ const JOKERS = [
     .chip { min-height: 44px; }
   }
 
-  /* 库卡:平时单层柔和阴影;hover 时换成单卡页 .card 那种阴影 + 烫金内框(金边),
-     去掉了内层 img 自带的第二层阴影,只剩这一层。 */
+  /* 库卡 = 单卡页 .card 的「50% 等比副本」—— 飞牌克隆的就是那张 .card,起飞首帧整张被 scale(~0.5)
+     缩到牌面与库卡同宽,所以金边 inset/线宽、阴影模糊半径也都被缩了一半。库卡 hover 态须按同一比例
+     呈现,起飞换帧才「无切换感」:衬底用 .card 的渐变、外描边隐去(.card 无可见描边)、金边与阴影取
+     .card 对应值的一半(p-2/rounded-[7px] 也是 .card 的 16/14 之半)。改这里务必同步 [key].astro 的
+     .card / .cardframe / --shadow-rest。
+     rest 与 hover 共享同一渐变底,且 rest 阴影已是 hover 那套五层的「更浅版」(≈半深)——故 hover 不再
+     有「实色→渐变」「单层→五层分层」的突变,只剩阴影加深 + 上浮 + 金边渐显,落差更小、过渡更连贯。 */
   .lcard {
     position: relative;
-    box-shadow: 0 8px 20px -14px rgba(43, 39, 34, 0.4);
-    transition: box-shadow 0.28s ease, border-color 0.28s ease;
+    background: linear-gradient(150deg, #FCF8F0, #F1E7D4);
+    box-shadow:
+      0 1px 0   rgba(255, 255, 255, 0.6) inset,
+      0 0 7px   rgba(43, 39, 34, 0.03),
+      0 1px 3px rgba(43, 39, 34, 0.05),
+      0 4px 9px -3px  rgba(43, 39, 34, 0.08),
+      0 8px 16px -8px rgba(43, 39, 34, 0.10);
+    /* 与 .ccell 上浮过渡逐项对齐:同 150ms、同 Tailwind 默认缓动 cubic-bezier(0.4,0,0.2,1),否则卡片先浮、阴影后追会「慢一丝」 */
+    transition: box-shadow 0.15s cubic-bezier(0.4,0,0.2,1), border-color 0.15s cubic-bezier(0.4,0,0.2,1);
   }
   .lcard::before {
     content: "";
     position: absolute;
-    inset: 6px;
-    border-radius: 7px;
-    border: 1.5px solid #B8893A;
+    inset: 3.5px;
+    border-radius: 4.5px;
+    border: 1px solid #B8893A;
     filter: url(#rough);
     opacity: 0;
-    transition: opacity 0.28s ease;
+    transition: opacity 0.15s cubic-bezier(0.4,0,0.2,1);
     pointer-events: none;
   }
   .ccell:hover .lcard {
+    border-color: transparent;
     box-shadow:
-      0 1px 0    rgba(255, 255, 255, 0.7) inset,
-      0 0 18px   rgba(43, 39, 34, 0.05),
-      0 4px 10px rgba(43, 39, 34, 0.08),
-      0 12px 26px -6px  rgba(43, 39, 34, 0.13),
-      0 22px 44px -14px rgba(43, 39, 34, 0.17);
+      0 1px 0   rgba(255, 255, 255, 0.7) inset,
+      0 0 9px   rgba(43, 39, 34, 0.05),
+      0 2px 5px rgba(43, 39, 34, 0.08),
+      0 6px 13px -3px rgba(43, 39, 34, 0.13),
+      0 11px 22px -7px rgba(43, 39, 34, 0.17);
   }
   .ccell:hover .lcard::before { opacity: 0.85; }
 </style>
