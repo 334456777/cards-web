@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cards.yusteven.com/sitemap-index.xml

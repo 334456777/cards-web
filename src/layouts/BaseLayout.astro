@@ -4,18 +4,34 @@ import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
+  description?: string;
   activeNav?: "教程" | "占卜守则" | "牌库" | "四花色" | "组合浏览器";
 }
 
-const { title, activeNav } = Astro.props;
+const { title, activeNav, description } = Astro.props;
+const fullTitle = `${title} · 落差扑克牌占卜`;
+const desc = description ?? "落差扑克牌占卜——一套非线性、叠加态的解牌体系:54 张牌由花色面 × 数字面动态合成,逐张解读显义与隐义、正逆叠加。";
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} · 落差扑克牌占卜</title>
+  <title>{fullTitle}</title>
+  <meta name="description" content={desc}>
+  <link rel="canonical" href={canonical}>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- Open Graph / Twitter Card:分享链接时的标题与描述预览 -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content={fullTitle}>
+  <meta property="og:description" content={desc}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:site_name" content="落差扑克牌占卜">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content={fullTitle}>
+  <meta name="twitter:description" content={desc}>
   <!-- 客户端路由:换页不刷新,卡片转场在其生命周期里完成 -->
   <ClientRouter />
   <!-- 预加载首屏关键字重(本地子集字体,各 ~230-300KB):正文/UI 黑体 400、正文宋体 400、hero 标题宋体 900 -->

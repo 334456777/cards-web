@@ -22,7 +22,7 @@ const { prev, next } = getNeighbors(deck, card.key);
 const rankTxt = card.special ? "" : card.rank;
 ---
 
-<BaseLayout title={`${card.name} ${card.sym}${rankTxt}`}>
+<BaseLayout title={`${card.name} ${card.sym}${rankTxt}`} description={`${card.name}(${card.sym}${rankTxt})的牌意:${card.tags.slice(0, 3).join("、")} —— 落差扑克牌体系中花色面 × 数字面的显义与隐义。`}>
   <!-- 面包屑 -->
   <nav class="max-w-[1180px] mx-auto px-7 pt-[18px] font-sans text-[13.5px] text-ink-faint flex items-center gap-[9px] flex-wrap">
     <a href="/library" class="text-ink-faint hover:text-coral">牌库</a>
