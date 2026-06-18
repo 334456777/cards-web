@@ -135,13 +135,6 @@ const { title, activeNav } = Astro.props;
 
     const heroCard = () => document.querySelector("main .card") as HTMLElement | null;
     const clearStages = () => document.querySelectorAll("#cardflip-stage").forEach((s) => s.remove());
-    // 飞行期禁 header 的 backdrop-blur:它是 Safari 合成层,飞牌越过顶部时持续重采样下方内容、推高单帧合成成本
-    const headerBackdrop = (off: boolean) => {
-      const h = document.querySelector("header") as HTMLElement | null;
-      if (!h) return;
-      h.style.backdropFilter = off ? "none" : "";
-      (h.style as any).webkitBackdropFilter = off ? "none" : "";
-    };
     // 飞行起点态(offset 0):平移回库位 + 缩小 + 抵消克隆自带的 -2°。
     // mountStage 的 inline 初始 transform 与 playFlight 的首关键帧共用此式,确保逐字符一致、无跳变帧。
     const liftFrom = (g: Flight) => `translate(${g.dx}px, ${g.dy}px) scale(${g.fromScale}) rotate(2deg)`;
@@ -223,11 +216,9 @@ const { title, activeNav } = Astro.props;
         if (timer) { clearTimeout(timer); timer = 0; }
         if (stage) { stage.remove(); stage = null; }
         if (card) card.style.visibility = "";
-        headerBackdrop(false);
         if (activeFlight === land) activeFlight = null;
       };
       activeFlight = land;
-      headerBackdrop(true);
 
       const img = card?.querySelector(".cardimg") as HTMLElement | null;
       if (!card || !img) { land(); return; }
