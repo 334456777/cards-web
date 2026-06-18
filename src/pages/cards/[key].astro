@@ -46,7 +46,7 @@ const rankTxt = card.special ? "" : card.rank;
         <h1 class="font-serif font-black text-[clamp(2.5rem,11.5vw,64px)] leading-[1.02] mb-[6px] tracking-[0.01em]">
           {card.name}<span class="ml-1" style={`color: ${card.accent}`}> {card.sym}</span>{rankTxt}
         </h1>
-        <div class="font-sans text-[15px] text-ink-faint tracking-[0.04em] mb-5">{card.latin}{card.special ? "" : ` — ${card.tags[0]} · ${card.tags[1]}`}</div>
+        <div class="font-sans text-[15px] text-ink-faint tracking-[0.04em] mb-5">{card.tags[0]} · {card.tags[1]}</div>
         <div class="flex flex-wrap gap-[9px] mb-[22px]">
           <span class="font-sans text-[13px] font-medium px-[13px] py-[5px] rounded-[30px] border border-[#d9a59c] text-[#A3372B] bg-[#f8ece9]">{card.sym} {card.suitCN}</span>
           {card.tags.map((t) => (
@@ -68,16 +68,7 @@ const rankTxt = card.special ? "" : card.rank;
     <Divider />
 
     <!-- MEANING PANELS -->
-    <div class="max-w-[1080px] mx-auto relative xl:pr-[300px]">
-      <aside class="hidden xl:block xl:float-right xl:clear-right xl:w-[248px] xl:mr-[-292px] xl:mb-[26px] font-sans">
-        <div class="text-[11px] tracking-[0.18em] uppercase text-coral font-bold mb-[7px] flex items-center gap-[7px]">
-          <span class="font-serif text-[15px]">❧</span> 古籍批注
-        </div>
-        <div class="text-[14px] leading-[1.66] text-ink-soft border-l-2 border-gold pl-[15px] italic">
-          读此页时,留意花色与数字<em class="text-suit-red italic font-medium">互不统属</em>:花色是"心往何处",数字是"在第几层"。两者相乘,才是这张牌。
-        </div>
-      </aside>
-
+    <div class="max-w-[1080px] mx-auto relative">
       <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-4 flex items-center gap-[11px]">
         含义 · 花色面 × 数字面
         <span class="flex-1 h-px bg-line" />
@@ -146,7 +137,7 @@ const rankTxt = card.special ? "" : card.rank;
               优势 / 劣势 · 同一份特质的两面
               <span class="flex-1 h-px bg-line" />
             </h2>
-            <p class="font-sans text-[13.5px] text-ink-faint mb-[18px] max-w-[44em] leading-[1.7]">同一份特质,既是优势也是劣势——随语境翻转。拨动上方的「正义 / 反义」开关,这两栏会随之一明一暗。</p>
+            <p class="font-sans text-[13.5px] text-ink-faint mb-[18px] leading-[1.7]">同一份特质,既是优势也是劣势——随语境翻转。拨动上方的「正义 / 反义」开关,这两栏会随之一明一暗。</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="mf-pos bg-paper-deep border border-line rounded-xl p-[24px_26px] relative">
                 <div class="absolute inset-[6px] rounded-lg pointer-events-none border border-gold opacity-16 [filter:url(#rough)]"></div>
@@ -182,7 +173,6 @@ const rankTxt = card.special ? "" : card.rank;
 
     <!-- COMBOS + NAV -->
     <div class="max-w-[1080px] mx-auto">
-      <aside class="aside"><div class="pin">叠加态提醒</div><div class="body">组合只给<em>大致含义</em>,不针对具体问题。体系里组合无穷,牌库只收精选——其余,按语境自行解读。</div></aside>
       <h2 class="font-sans text-[13px] font-bold tracking-[0.18em] uppercase text-gold mb-4 flex items-center gap-[11px]">
         {card.combos.length ? `精选组合 · ${card.name}出现过` : `关于${card.name}`}
         <span class="flex-1 h-px bg-line" />
