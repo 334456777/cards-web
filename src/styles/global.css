@@ -1,14 +1,13 @@
 @import "tailwindcss";
 
-/* ── 思源宋体 SC (400, 700, 900) ── */
-@import "@fontsource/noto-serif-sc/chinese-simplified-400.css";
-@import "@fontsource/noto-serif-sc/chinese-simplified-700.css";
-@import "@fontsource/noto-serif-sc/chinese-simplified-900.css";
-
-/* ── 思源黑体 SC (400, 500, 700) ── */
-@import "@fontsource/noto-sans-sc/chinese-simplified-400.css";
-@import "@fontsource/noto-sans-sc/chinese-simplified-500.css";
-@import "@fontsource/noto-sans-sc/chinese-simplified-700.css";
+/* 本地子集化的 Noto SC(scripts/subset-fonts.mjs 按实际用字裁剪,每字重 1MB+ → ~230-300KB;见 CLAUDE.md)。
+   font-display:optional —— 配合 BaseLayout 首屏 preload:加载窗口内到就用、没到就整次用后备且绝不中途切,杜绝字体跳变。 */
+@font-face { font-family: "Noto Serif SC"; font-weight: 400; font-style: normal; font-display: optional; src: url("/fonts/noto-serif-sc-400.woff2") format("woff2"); }
+@font-face { font-family: "Noto Serif SC"; font-weight: 700; font-style: normal; font-display: optional; src: url("/fonts/noto-serif-sc-700.woff2") format("woff2"); }
+@font-face { font-family: "Noto Serif SC"; font-weight: 900; font-style: normal; font-display: optional; src: url("/fonts/noto-serif-sc-900.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans SC"; font-weight: 400; font-style: normal; font-display: optional; src: url("/fonts/noto-sans-sc-400.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans SC"; font-weight: 500; font-style: normal; font-display: optional; src: url("/fonts/noto-sans-sc-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans SC"; font-weight: 700; font-style: normal; font-display: optional; src: url("/fonts/noto-sans-sc-700.woff2") format("woff2"); }
 
 @theme {
   /* ── 配色 ── */

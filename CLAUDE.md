@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run dev` —— 开发服务器 http://localhost:4321
 - `npm run build` —— 产物到 `./dist/`。**本仓库无测试、无 lint,`build`(含 Astro/TS 类型检查)是唯一验证关卡——改完务必跑一次。**
 - `npm run preview` —— 预览构建产物。**单卡页的叠加态开关是 `client:load` React 岛,`file://` 双击不会水合**,必须经 preview 或静态服务器访问。
+- `npm run fonts` —— 字体子集化(`scripts/subset-fonts.mjs`):扫 `dist/` 渲染产物的实际用字,从 `@fontsource` 源裁出只含这些字的 woff2 到 `public/fonts/`(每字重 1MB+ → ~230-300KB,消中文大字体 FOUT 跳变)。**流程:先 `npm run build` 出 dist → `npm run fonts` → 再 `npm run build` 让子集进产物;改文案/加卡引入新字后必须重跑**,否则新字无字形。需本机 `python3 + fonttools + brotli`;子集 woff2 已 commit,故 CI 的 `npm run build` 无需 python(只是把 `public/fonts/` 拷进 dist)。字体声明在 `global.css` 的 6 个 `@font-face`(`font-display:optional`)+ `BaseLayout` 首屏 preload 三个关键字重。
 - ⚠️ **Windows 本机 `npm run build` 当前会失败**:Astro glob content-loader 把绝对路径盘符 `C:` 误判为 URL scheme(`fileURLToPath` 抛 "must be of scheme file");**Linux/CI 不受影响**,故以 CI 构建为准(见下)。
 
 ## 部署到 pai-eth0(构建走 CI,同步在本机)

@@ -18,6 +18,10 @@ const { title, activeNav } = Astro.props;
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <!-- 客户端路由:换页不刷新,卡片转场在其生命周期里完成 -->
   <ClientRouter />
+  <!-- 预加载首屏关键字重(本地子集字体,各 ~230-300KB):正文/UI 黑体 400、正文宋体 400、hero 标题宋体 900 -->
+  <link rel="preload" href="/fonts/noto-sans-sc-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/noto-serif-sc-900.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
   <!-- SVG 纹理滤镜（全局共用） -->
