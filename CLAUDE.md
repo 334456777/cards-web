@@ -29,10 +29,14 @@ git add -A && git commit -m "..." && git push origin main
 gh run download "$(gh run list -w build.yml -b main -L1 --json databaseId -q '.[0].databaseId')" -n dist -D dist
 
 # 3. 打包 → 上传 → 服务器端原子替换 dist + 重启(免密;建 dist.new 再瞬时 mv 顶替,避免半成品)
-tar czf "$env:TEMP\cw.tgz" -C dist . && scp "$env:TEMP\cw.tgz" pai-eth0:/tmp/cw.tgz && ssh pai-eth0 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
+tar czf "$env:TEMP\cw.tgz" -C dist . && scp "$env:TEMP\cw.tgz" pai-eth0:/tmp/cw.tgz && ssh pai-eth0 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new 2>/dev/null; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
 ```
 
-⚠️ **从 macOS 本机部署**:上面是 Windows PowerShell 写法,zsh 下临时包走 `/tmp/cw.tgz`,且打包必须用 `COPYFILE_DISABLE=1 tar --no-xattrs czf ...`——两个开关各管一件事:`COPYFILE_DISABLE=1` 防 macOS `tar` 把每个文件的资源派生打成 `._*`(AppleDouble)成员、被服务器 GNU tar 还原进 `dist/` 污染线上目录;`--no-xattrs` 防把扩展属性(`com.apple.provenance`)写成 `LIBARCHIVE.xattr.*` PAX 头,否则服务器 GNU tar 解包时会刷一串「忽略未知的扩展头关键字」警告(无害,但刷屏)。另注:macOS `rm` 可能被别名为 `trash`,脚本里删本地文件用 `find … -delete` 更稳。
+⚠️ **从 macOS 本机部署**:上面是 Windows PowerShell 写法。zsh 下临时包走 `/tmp/cw.tgz`,打包用普通写法即可:`COPYFILE_DISABLE=1 tar -czf /tmp/cw.tgz -C dist .`。要点两条:
+- `COPYFILE_DISABLE=1` 防把资源派生打成 `._*`(AppleDouble)成员被服务器 GNU tar 还原进 `dist/` 污染线上;模式标志须写成 `-czf`(带 `-`、放最前),否则系统自带的 **bsdtar** 会因 `--no-xattrs czf` 这类「长选项在前、`czf` 不带 `-`」的老式写法报 `Must specify one of -c…`。
+- **不要再加 `--no-xattrs`(无效)**:新版 macOS 内核会给所有文件自动打 `com.apple.provenance` 扩展属性,`xattr -cr` / `cp -X` / `ditto --noextattr` / `tar --no-xattrs` 一律清不掉(连新建副本都会被立即重新打上),它必然被写进包。服务器 GNU tar 解包时只是刷一串「忽略未知的扩展头关键字」警告——**无害,文件照常正确解出**;直接在解包侧 `2>/dev/null` 吞掉即可(step 3 的 `tar xzf … 2>/dev/null` 已加;`set -e` 下真错误仍会因非零退出中止,只吞警告文字)。
+
+另注:macOS `rm` 常被别名为 `trash`,删本机文件用 `find … -delete` 更稳。
 
 CI 只构建产工件、不含部署(已明确否决在 CI 里加 deploy job / 写 pai-eth0)。
 
