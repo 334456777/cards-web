@@ -32,6 +32,8 @@ gh run download "$(gh run list -w build.yml -b main -L1 --json databaseId -q '.[
 tar czf "$env:TEMP\cw.tgz" -C dist . && scp "$env:TEMP\cw.tgz" pai-eth0:/tmp/cw.tgz && ssh pai-eth0 'set -e; D=/home/yusteven/cards-web; rm -rf $D/dist.new; mkdir -p $D/dist.new; tar xzf /tmp/cw.tgz -C $D/dist.new; rm -rf $D/dist; mv $D/dist.new $D/dist; rm -f /tmp/cw.tgz; pm2 restart cards-web'
 ```
 
+⚠️ **从 macOS 本机部署**:上面是 Windows PowerShell 写法,zsh 下临时包走 `/tmp/cw.tgz`,且打包必须用 `COPYFILE_DISABLE=1 tar czf ...`——否则 macOS 的 `tar` 会把每个文件的扩展属性(`com.apple.provenance`)打成 `._*`(AppleDouble)成员,服务器 GNU tar 解包时会把这些 `._` 垃圾还原进 `dist/`(`serve` 不受影响,但线上目录被污染)。另注:macOS `rm` 可能被别名为 `trash`,脚本里删本地文件用 `find … -delete` 更稳。
+
 CI 只构建产工件、不含部署(已明确否决在 CI 里加 deploy job / 写 pai-eth0)。
 
 ## 改东西在哪改
