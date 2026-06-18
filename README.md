@@ -40,7 +40,7 @@ Astro 按 `src/pages/` 的文件自动生成路由:
   - `ranks/*.json` —— 十三层落差(数字面,只与点数有关)
   - `combinations/*.json` —— 精选花色组合(供组合浏览器与单卡页引用)
 - **`src/lib/cards.ts`** —— 合成引擎。`buildDeck()` 把 `花色面 × 数字面` 相乘成 52 张普通牌,再并入大小王;**每张牌的导语 / 合成 / 正反义例子写在 `OVERRIDES` 里一牌一调**,缺省则由花色 + 数字自动拼出。
-- **`src/components/SuperpositionToggle.tsx`** —— 单卡页的叠加态开关(React 岛,`client:load`)。拨动后同一份特质在显义与隐义之间翻面,状态用 `localStorage` 记住。
+- **`src/components/SuperpositionToggle.tsx`** —— 单卡页的叠加态开关(React 岛,`client:load`)。拨动后同一份特质在显义与隐义之间翻面;不持久化——每次进入单卡页都从默认「正义 · 显义」开始,反义仅在本次访问内有效。
 - **`src/layouts/BaseLayout.astro`** —— 全站外壳:导航(含移动端汉堡菜单)、页脚、`#rough` 手绘滤镜。
 
 ### 改东西在哪改

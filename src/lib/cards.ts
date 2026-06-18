@@ -630,12 +630,14 @@ const JOKERS: Record<string, {
 
 /* ── 工具函数 ── */
 function padNo(rank: string): string {
-  const n = RANK_ORDER.indexOf(rank as any) + 1;
+  const n = (RANK_ORDER as readonly string[]).indexOf(rank) + 1;
   return (n < 10 ? "0" : "") + n;
 }
 
-/** 构建完整牌库（52 普通牌 + 2 王） */
+/** 构建完整牌库（52 普通牌 + 2 王）。结果在单次构建内 memo,避免按页重复合成。 */
+let deckCache: CardData[] | null = null;
 export async function buildDeck(): Promise<CardData[]> {
+  if (deckCache) return deckCache;
   const suitsMap = new Map<string, SuitData>();
   for (const [path, mod] of Object.entries(suitModules)) {
     const id = path.split("/").pop()!.replace(".json", "");
@@ -704,6 +706,7 @@ export async function buildDeck(): Promise<CardData[]> {
     });
   }
 
+  deckCache = deck;
   return deck;
 }
 

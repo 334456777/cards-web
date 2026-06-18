@@ -2,16 +2,14 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Divider from "../../components/Divider.astro";
 import SuperpositionToggle from "../../components/SuperpositionToggle.tsx";
-import { buildDeck, getNeighbors, SUIT_CLS, SUIT_SYM } from "../../lib/cards";
+import { buildDeck, getNeighbors, SUIT_ORDER, RANK_ORDER, SUIT_CLS, SUIT_SYM } from "../../lib/cards";
 
 const deck = await buildDeck();
 
 export function getStaticPaths() {
   return [
-    ...["hearts","spades","diamonds","clubs"].flatMap((s) =>
-      ["A","2","3","4","5","6","7","8","9","10","J","Q","K"].map((r) => ({
-        params: { key: `${s}_${r}` },
-      }))
+    ...SUIT_ORDER.flatMap((s) =>
+      RANK_ORDER.map((r) => ({ params: { key: `${s}_${r}` } }))
     ),
     { params: { key: "joker_red" } },
     { params: { key: "joker_black" } },
@@ -120,9 +118,7 @@ const rankTxt = card.special ? "" : card.rank;
     </div>
 
     <!-- SUPERPOSITION (React Island) -->
-    <div data-superposition={JSON.stringify({ sym: card.sym, sup: card.sup })}>
-      <SuperpositionToggle client:load sup={card.sup} />
-    </div>
+    <SuperpositionToggle client:visible sup={card.sup} />
 
     {(card.traits.length > 0 || card.merits.length > 0 || card.flaws.length > 0 || !!card.note) && (
       <div class="max-w-[1080px] mx-auto mt-[44px]">

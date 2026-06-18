@@ -293,11 +293,11 @@ import Divider from "../components/Divider.astro";
           <!-- 看牌阵 · 先整体再细部 -->
           <h3 class="font-serif font-bold text-[22px] mt-[42px] mb-[6px]">看牌阵 · 先整体,再细部</h3>
           <p class="mb-[18px]">抽出多张牌时,别急着逐张解——先看整体,再拆细部。</p>
-          <ol class="list-none m-0 p-0 border-t border-line" style="counter-reset:spread">
-            <li class="spread-step grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">①</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">整体</b>——先看花色构成、数字排序,是否构成顺子或主要牌组。如「红桃 A · 红桃十 · 红桃 K」是一条全红桃顺子,要作整体式看待,而非三张孤牌。</span></li>
-            <li class="spread-step grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">②</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">主次位</b>——分清牌阵里的主牌与次牌、先后位置。</span></li>
-            <li class="spread-step grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">③</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">牌组</b>——再看两两、三三牌组与对照牌组(如 黑桃 Q + 红桃 2 + 梅花 Q;黑桃 3 + 方块 5 + 黑桃 J;红桃 3 + 方块 7 + 红桃 6),每一处都可成为解牌切入点。</span></li>
-            <li class="spread-step grid grid-cols-[34px_1fr] gap-[12px] py-[12px] items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">④</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">叠加态</b>——最后对每张牌问一句「此刻偏显义还是隐义」。</span></li>
+          <ol class="list-none m-0 p-0 border-t border-line">
+            <li class="grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">①</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">整体</b>——先看花色构成、数字排序,是否构成顺子或主要牌组。如「红桃 A · 红桃十 · 红桃 K」是一条全红桃顺子,要作整体式看待,而非三张孤牌。</span></li>
+            <li class="grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">②</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">主次位</b>——分清牌阵里的主牌与次牌、先后位置。</span></li>
+            <li class="grid grid-cols-[34px_1fr] gap-[12px] py-[12px] border-b border-line items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">③</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">牌组</b>——再看两两、三三牌组与对照牌组(如 黑桃 Q + 红桃 2 + 梅花 Q;黑桃 3 + 方块 5 + 黑桃 J;红桃 3 + 方块 7 + 红桃 6),每一处都可成为解牌切入点。</span></li>
+            <li class="grid grid-cols-[34px_1fr] gap-[12px] py-[12px] items-baseline"><span class="font-serif font-black text-[20px] text-gold leading-none">④</span><span class="text-[16px] leading-[1.62]"><b class="text-ink font-bold">叠加态</b>——最后对每张牌问一句「此刻偏显义还是隐义」。</span></li>
           </ol>
         </div>
       </section>
@@ -325,7 +325,11 @@ import Divider from "../components/Divider.astro";
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          links.forEach(a => a.classList.toggle('on', a.getAttribute('data-t') === e.target.id));
+          links.forEach(a => {
+            const match = a.getAttribute('data-t') === e.target.id;
+            a.classList.toggle('on', match);
+            if (match) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+          });
         }
       });
     }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
@@ -457,14 +461,5 @@ import Divider from "../components/Divider.astro";
       padding: 15px 17px;
     }
     .aside .body { border-left-width: 3px; }
-  }
-
-  /* prose .uline 珊瑚下划线 */
-  .prose .uline {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='10'%3E%3Cpath d='M2 6 Q 30 2 60 5 T 118 4' stroke='%23D97757' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    background-size: 100% 9px;
-    padding-bottom: 3px;
   }
 </style>

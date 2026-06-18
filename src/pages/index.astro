@@ -9,7 +9,7 @@ import Divider from "../components/Divider.astro";
     <div>
       <div class="font-sans text-[13px] tracking-[0.26em] uppercase text-gold font-bold mb-5 flex items-center gap-3">
         非线性解牌体系
-        <span class="tracking-[3px] text-[15px]">
+        <span class="tracking-[3px] text-[15px]" aria-hidden="true">
           <span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span>
         </span>
       </div>
@@ -79,7 +79,7 @@ import Divider from "../components/Divider.astro";
         <div class="shrink-0 w-16 h-16 rounded-[13px] bg-paper border border-line flex items-center justify-center text-[30px] text-suit-red">♥</div>
         <div>
           <h3 class="font-serif font-bold text-[22px] text-ink mb-[6px] flex items-center gap-[9px]">牌库索引 <span class="font-sans text-xs font-bold text-gold border border-gold rounded-[20px] px-[9px] py-px tracking-[0.05em]">54 张</span></h3>
-          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">四花色 × 十三层落差,外加大小王。按花色与层级筛选,或搜索牌名与要义。</p>
+          <p class="text-[15.5px] text-ink-soft leading-[1.62] mb-3">四花色 × 十三层落差,外加大小王。按花色与层级筛选。</p>
           <span class="font-sans text-[13.5px] font-bold text-coral">翻阅牌库 →</span>
         </div>
       </a>
@@ -174,20 +174,5 @@ import Divider from "../components/Divider.astro";
   /* 手机:窄屏整行也放不下完整展开的牌扇,缩到不溢出(否则横向滚动) */
   @media (max-width: 600px) {
     .fan { height: 270px; transform: scale(0.58); }
-  }
-
-  /* scrollcue 弹跳动画 */
-  .scrollcue .arr {
-    animation: cuebob 1.8s ease-in-out infinite;
-  }
-  .scrollcue:hover .arr {
-    color: #D97757;
-  }
-  @keyframes cuebob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(4px); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .scrollcue .arr { animation: none; }
   }
 </style>

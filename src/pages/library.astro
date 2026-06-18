@@ -1,10 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Divider from "../components/Divider.astro";
-import { buildDeck, SUIT_ORDER, RANK_ORDER, SUIT_SYM, SUIT_CLS } from "../lib/cards";
-import type { CardData } from "../lib/cards";
-
-const deck = await buildDeck();
+import { RANK_ORDER } from "../lib/cards";
 
 const SUIT_INFO = [
   { key: "hearts", cn: "红桃", sym: "♥", cls: "r", yy: "阳 · 心之动", desc: "积极、爱心、勇敢、生命力——心之所向的动。" },
@@ -46,11 +43,11 @@ const JOKERS = [
     <div class="flex items-end justify-between gap-[30px] flex-wrap">
       <div>
         <h1 class="font-serif font-black text-[clamp(2.2rem,9vw,52px)] tracking-[0.01em] flex items-baseline gap-4">
-          牌库 <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
+          牌库 <span class="text-[34px] tracking-[2px]" aria-hidden="true"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
         </h1>
         <p class="text-lg text-ink-soft max-w-[34em] mt-[14px] leading-[1.7]">五十四张牌,四花色 × 十三层落差,外加混沌与有序的大小王。每张都能代表自身的反面——点开任意一张,读它的显义与隐义。</p>
       </div>
-      <div class="font-sans text-[13px] text-ink-faint tracking-[0.04em] text-right shrink-0">
+      <div class="font-sans text-[13px] text-ink-faint tracking-[0.04em] text-right shrink-0" aria-live="polite">
         <b id="resultN" class="block font-serif text-[40px] font-black text-gold leading-none">54</b>张 · 当前显示
       </div>
     </div>
@@ -102,7 +99,6 @@ const JOKERS = [
                 class:list={["ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]", isSpecial && "special-card"]}
                 data-suit={s.key}
                 data-types={[...types, ...(isSpecial ? ["special"] : [])].join(" ")}
-                data-search={`${name} ${RANK_INFO[rk]} ${s.cn} ${s.yy} ${s.desc}`}
               >
                 <div class="lcard border border-line rounded-[7px] p-2">
                   <img loading="lazy" src={`/cards_svg/${s.key}_${rk}.svg`} alt={name} class="w-full block rounded-[5px] aspect-[238/333]" />
@@ -133,7 +129,7 @@ const JOKERS = [
       </div>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-5">
         {JOKERS.map((j) => (
-          <a href={`/cards/${j.file}`} class="ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special" data-search={`${j.cn} ${j.ess} 大小王 混沌 有序 王`}>
+          <a href={`/cards/${j.file}`} class="ccell group flex flex-col cursor-pointer text-center transition-transform hover:-translate-y-[5px]" data-suit="joker" data-types="special">
             <div class="lcard bg-paper-deep border border-line rounded-[11px] p-[11px]">
               <img loading="lazy" src={`/cards_svg/${j.file}.svg`} alt={j.cn} class="w-full block rounded-[5px] aspect-[238/333]" />
             </div>
@@ -152,7 +148,7 @@ const JOKERS = [
     <div class="empty hidden text-center py-20 px-5 text-ink-faint font-sans" id="empty">
       <div class="text-[46px] text-line mb-[14px]">❦</div>
       <div class="font-serif text-[22px] text-ink-soft mb-[6px]">这一格暂时是空的</div>
-      <div>没有匹配的牌。换个关键词,或重置筛选试试。</div>
+      <div>没有匹配的牌。重置筛选试试。</div>
     </div>
   </main>
 </BaseLayout>

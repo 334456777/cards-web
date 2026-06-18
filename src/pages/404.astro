@@ -15,7 +15,7 @@ const links = [
     <div class="font-sans text-[13px] tracking-[0.24em] uppercase text-gold font-bold mb-6">
       404 · 此牌不在牌库
     </div>
-    <div class="flex items-center justify-center gap-[14px] text-[58px] leading-none mb-7 [filter:url(#rough)]">
+    <div class="flex items-center justify-center gap-[14px] text-[58px] leading-none mb-7 [filter:url(#rough)]" aria-hidden="true">
       <span class="text-suit-red">♥</span>
       <span class="text-ink">♠</span>
       <span class="text-gold text-[44px]">❦</span>
@@ -32,7 +32,7 @@ const links = [
       从下面任意一个入口,重新翻起。
     </p>
     <Divider />
-    <div class="flex flex-wrap justify-center gap-3 font-sans text-[14.5px] font-semibold mt-[40px]">
+    <div class="flex flex-wrap justify-center gap-3 font-sans text-[14.5px] font-bold mt-[40px]">
       {links.map((l) => (
         <a
           href={l.href}

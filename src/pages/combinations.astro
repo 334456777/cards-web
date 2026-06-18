@@ -2,15 +2,16 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Divider from "../components/Divider.astro";
 import { getCollection } from "astro:content";
+import { SUIT_ORDER, SUIT_SYM, SUIT_CLS, SUIT_CN } from "../lib/cards";
 import type { ComboData } from "../lib/cards";
 
 const comboEntries = await getCollection("combinations");
 const combos = comboEntries.map(e => ({ key: e.id, ...e.data })) as ({ key: string } & ComboData)[];
 
-const SUITS = ["hearts", "spades", "diamonds", "clubs"];
-const SYM: Record<string, string> = { hearts: "♥", spades: "♠", diamonds: "♦", clubs: "♣" };
-const CLS: Record<string, string> = { hearts: "r", spades: "k", diamonds: "r", clubs: "k" };
-const CN: Record<string, string> = { hearts: "红桃", spades: "黑桃", diamonds: "方块", clubs: "梅花" };
+const SUITS = SUIT_ORDER;
+const SYM = SUIT_SYM;
+const CLS = SUIT_CLS;
+const CN = SUIT_CN;
 
 function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
 
@@ -28,7 +29,7 @@ function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
     <div class="font-sans text-[13px] tracking-[0.22em] uppercase text-gold font-bold mb-3">花色相遇 · 嵌套 / 依存 / 转化</div>
     <h1 class="font-serif font-black text-[clamp(2.3rem,11vw,56px)] leading-[1.04] mb-3 flex items-baseline gap-4 flex-wrap">
       组合浏览器
-      <span class="text-[34px] tracking-[2px]"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
+      <span class="text-[34px] tracking-[2px]" aria-hidden="true"><span class="text-suit-red">♥</span><span class="text-ink">♠</span><span class="text-suit-red">♦</span><span class="text-ink">♣</span></span>
     </h1>
     <p class="text-[19px] text-ink-soft max-w-[32em] leading-[1.7]">花色从不孤立。两色、三色同现,会嵌套、依存、转化出新的状态。体系里组合无穷,这里只收精选——点开配对矩阵任意一格,或在下方画廊里翻阅。</p>
   </div>
@@ -211,12 +212,16 @@ function pairKey(a: string, b: string) { return [a, b].sort().join("|"); }
 
   // 绑定矩阵格子点击
   document.querySelectorAll('.mcell:not(.diag)').forEach(cell => {
-    cell.addEventListener('click', () => {
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('tabindex', '0');
+    const act = () => {
       const k = cell.getAttribute('data-pair');
       const a = cell.getAttribute('data-a');
       const b = cell.getAttribute('data-b');
       if (k && a && b) selectPair(k, a, b);
-    });
+    };
+    cell.addEventListener('click', act);
+    cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
   });
 
   // 默认选中红桃+梅花

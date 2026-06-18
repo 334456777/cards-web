@@ -43,6 +43,14 @@ a, button, [role="button"], summary, label, .chip, .suit-tab, .toggle-btn {
   touch-action: manipulation;
 }
 
+/* 键盘可见焦点环:仅 :focus-visible(键盘 / 辅助技术)触发,鼠标点击不显示。
+   站内交互元素本无任何焦点样式,键盘用户无从定位当前焦点,这里统一补上。 */
+:focus-visible {
+  outline: 2px solid var(--color-coral);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 body {
   margin: 0;
   background-color: var(--color-paper);
@@ -83,6 +91,15 @@ body::before {
   a:hover {
     color: var(--color-coral);
   }
+}
+
+/* 「珊瑚波浪下划线」高亮:单卡页 synth 经 set:html 注入,作用域 <style> 不可达,故置于全局。 */
+.uline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='10'%3E%3Cpath d='M2 6 Q 30 2 60 5 T 118 4' stroke='%23D97757' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 9px;
+  padding-bottom: 3px;
 }
 
 /* SVG 纹理滤镜（全局共用） */
