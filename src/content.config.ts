@@ -1,13 +1,9 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /* ── 花色集合 ── */
 const suits = defineCollection({
-  loader: glob({ pattern: "*.json", base: path.join(__dirname, "content/suits") }),
+  loader: glob({ pattern: "*.json", base: new URL("./content/suits/", import.meta.url) }),
   schema: z.object({
     cn: z.string(),
     sym: z.string(),
@@ -30,7 +26,7 @@ const suits = defineCollection({
 
 /* ── 数字层级集合 ── */
 const ranks = defineCollection({
-  loader: glob({ pattern: "*.json", base: path.join(__dirname, "content/ranks") }),
+  loader: glob({ pattern: "*.json", base: new URL("./content/ranks/", import.meta.url) }),
   schema: z.object({
     cn: z.string(),
     latin: z.string(),
@@ -43,7 +39,7 @@ const ranks = defineCollection({
 
 /* ── 精选组合集合 ── */
 const combinations = defineCollection({
-  loader: glob({ pattern: "*.json", base: path.join(__dirname, "content/combinations") }),
+  loader: glob({ pattern: "*.json", base: new URL("./content/combinations/", import.meta.url) }),
   schema: z.object({
     suits: z.array(z.string()),
     name: z.string(),
