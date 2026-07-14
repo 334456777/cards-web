@@ -9,7 +9,7 @@
 | 用途 | 选型 |
 |---|---|
 | 站点框架 | [Astro](https://astro.build) 6 —— 全静态输出(`output: static`),零客户端 JS 默认 |
-| 交互岛 | React 19(`@astrojs/react`)—— 仅单卡页的「正义 / 反义」叠加态开关用到 |
+| 交互 | 原生 `<script>` + 作用域 `<style>` —— 无前端框架运行时;单卡页「正义 / 反义」叠加态开关也是纯原生 |
 | 样式 | Tailwind CSS v4(`@tailwindcss/vite`)+ 各页作用域 `<style>` |
 | 字体 | `@fontsource/noto-serif-sc` / `noto-sans-sc`(自托管,无需 CDN) |
 | 牌面 | Vector Cards 3.2,54 张 SVG 置于 `public/cards_svg/` |
@@ -40,7 +40,7 @@ Astro 按 `src/pages/` 的文件自动生成路由:
   - `ranks/*.json` —— 十三层落差(数字面,只与点数有关)
   - `combinations/*.json` —— 精选花色组合(供组合浏览器与单卡页引用)
 - **`src/lib/cards.ts`** —— 合成引擎。`buildDeck()` 把 `花色面 × 数字面` 相乘成 52 张普通牌,再并入大小王;**每张牌的导语 / 合成 / 正反义例子写在 `OVERRIDES` 里一牌一调**,缺省则由花色 + 数字自动拼出。
-- **`src/components/SuperpositionToggle.tsx`** —— 单卡页的叠加态开关(React 岛,`client:load`)。拨动后同一份特质在显义与隐义之间翻面;不持久化——每次进入单卡页都从默认「正义 · 显义」开始,反义仅在本次访问内有效。
+- **单卡页叠加态开关** —— 在 `src/pages/cards/[key].astro` 内以原生 `<script>`(切 `body.reverse` class)+ 作用域 `<style>`(承接标签 / 滑块 / 显义隐义文案的翻面)实现,无前端框架。拨动后同一份特质在显义与隐义之间翻面;不持久化——每次进入单卡页都从默认「正义 · 显义」开始,反义仅在本次访问内有效。
 - **`src/layouts/BaseLayout.astro`** —— 全站外壳:导航(含移动端汉堡菜单)、页脚、`#rough` 手绘滤镜。
 
 ### 改东西在哪改
@@ -75,7 +75,7 @@ npm run build    # 产物输出到 ./dist/
 npm run preview  # 本地预览构建产物(单卡页等需经服务器才能正确水合)
 ```
 
-> 注意:单卡页的开关是 `client:load` React 岛,直接用 `file://` 双击打开 `dist` 里的 HTML 不会水合,请用 `npm run preview` 或任意静态服务器访问。
+> 注意:单卡页的开关是打包后的原生 module `<script>`,直接用 `file://` 双击打开 `dist` 里的 HTML 不会执行(module 脚本受 CORS 限制),请用 `npm run preview` 或任意静态服务器访问。
 
 ## 部署
 

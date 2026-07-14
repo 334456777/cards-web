@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Divider from "../../components/Divider.astro";
-import SuperpositionToggle from "../../components/SuperpositionToggle.tsx";
 import { buildDeck, getNeighbors, SUIT_ORDER, RANK_ORDER, SUIT_CLS, SUIT_SYM } from "../../lib/cards";
 
 const deck = await buildDeck();
@@ -20,6 +19,10 @@ const { key } = Astro.params;
 const card = deck.find((c) => c.key === key) || deck.find((c) => c.key === "hearts_3")!;
 const { prev, next } = getNeighbors(deck, card.key);
 const rankTxt = card.special ? "" : card.rank;
+
+// 叠加态两面的正文:剥掉数据里的引导前缀,前缀改由下方带样式的 <span> 呈现(与 CSS 翻面配合)。
+const supPosBody = card.sup.pos.replace(/^在某个语境里[::]\s*/, "");
+const supNegBody = card.sup.neg.replace(/^换个语境[::]\s*/, "");
 ---
 
 <BaseLayout title={`${card.name} ${card.sym}${rankTxt}`} description={`${card.name}(${card.sym}${rankTxt})的牌意:${card.tags.slice(0, 3).join("、")} —— 落差扑克牌体系中花色面 × 数字面的显义与隐义。`}>
@@ -108,8 +111,39 @@ const rankTxt = card.special ? "" : card.rank;
       <p class="font-serif text-[21px] leading-[1.7] text-ink text-center mt-[34px] px-3" set:html={card.synth} />
     </div>
 
-    <!-- SUPERPOSITION (React Island) -->
-    <SuperpositionToggle client:visible sup={card.sup} />
+    <!-- SUPERPOSITION · 叠加态开关(原生:JS 只切 body.reverse,标签 / 滑块 / 文案的翻面全由 CSS 承接) -->
+    <section class="sp max-w-[1080px] mx-auto mt-[54px] bg-[radial-gradient(140%_100%_at_50%_0%,#F7EFE0_0%,#F4EDE0_60%)] border border-[#d8ccb6] rounded-[18px] px-10 pt-[38px] pb-[42px] relative overflow-hidden">
+      <div class="font-sans text-[12.5px] tracking-[0.2em] uppercase text-[#B8893A] font-bold text-center mb-2">核心交互 · 叠加态</div>
+      <p class="font-serif text-2xl text-center text-[#2B2722] mx-auto max-w-[24em] mb-[26px]">
+        同一张牌,优势即劣势。拨动开关,在显义与隐义之间翻转——文字不变,只是语境翻面。
+      </p>
+
+      <div class="flex items-center justify-center gap-5 mb-[30px]">
+        <span class="sp-lbl-pos font-serif text-[21px] font-bold tracking-[0.04em] transition-all duration-400 whitespace-nowrap">正义 · 显义</span>
+        <button type="button" class="sp-switch w-[86px] h-[42px] rounded-[30px] border-[1.5px] border-[#B8893A] bg-[#FAF6EF] cursor-pointer relative shrink-0 transition-colors duration-400 p-0" aria-label="切换正义 / 反义" aria-pressed="false">
+          <span class="sp-knob absolute top-[3px] left-[3px] w-[34px] h-[34px] rounded-full shadow-[0_2px_6px_rgba(43,39,34,0.3)] transition-all duration-420"></span>
+        </button>
+        <span class="sp-lbl-neg font-serif text-[21px] font-bold tracking-[0.04em] transition-all duration-400 whitespace-nowrap">反义 · 隐义</span>
+      </div>
+
+      <div class="text-center font-serif">
+        <p class="sp-face sp-face-pos text-[27px] leading-[1.5] mb-1">
+          <span class="sp-pre font-bold transition-colors duration-400">优势</span><span class="text-[#2B2722]">{card.sup.same}</span>
+        </p>
+        <p class="sp-face sp-face-neg text-[27px] leading-[1.5] mb-1">
+          <span class="sp-pre font-bold transition-colors duration-400">劣势</span><span class="text-[#2B2722]">{card.sup.same}</span>
+        </p>
+        <p class="font-sans text-[14.5px] text-[#8b8173] mt-4 tracking-[0.02em]">
+          同样的词,<b class="text-[#5b5246] font-bold">是同一个存在</b>——优势即劣势,随语境翻转。这正是落差体系的精神。
+        </p>
+        <p class="sp-ctx sp-ctx-pos mt-[22px] text-[17px] text-[#5b5246] leading-[1.74] max-w-[34em] mx-auto min-h-[3.4em]">
+          <span class="text-[#2B2722] font-medium">在某个语境里:</span>{supPosBody}
+        </p>
+        <p class="sp-ctx sp-ctx-neg mt-[22px] text-[17px] text-[#5b5246] leading-[1.74] max-w-[34em] mx-auto min-h-[3.4em]">
+          <span class="text-[#2B2722] font-medium">换个语境:</span>{supNegBody}
+        </p>
+      </div>
+    </section>
 
     {(card.traits.length > 0 || card.merits.length > 0 || card.flaws.length > 0 || !!card.note) && (
       <div class="max-w-[1080px] mx-auto mt-[44px]">
@@ -378,4 +412,35 @@ const rankTxt = card.special ? "" : card.rank;
     .aside { float: none; width: auto; margin: 18px 0 26px; background: #fbf2e6; border: 1px solid #d8ccb6; border-radius: 10px; padding: 16px 18px; }
     .aside .body { border-left-width: 3px; }
   }
+
+  /* ── 叠加态开关:视觉随 body.reverse 翻面(JS 仅负责切换该 class) ── */
+  .sp-lbl-pos { color: #D97757; }
+  .sp-lbl-neg { color: #8b8173; opacity: 0.6; }
+  body.reverse .sp-lbl-pos { color: #8b8173; opacity: 0.6; }
+  body.reverse .sp-lbl-neg { color: #A3372B; opacity: 1; }
+
+  .sp-knob { transform: translateX(0); background: #D97757; }
+  body.reverse .sp-knob { transform: translateX(44px); background: #A3372B; }
+
+  .sp-face-neg, .sp-ctx-neg { display: none; }
+  body.reverse .sp-face-pos, body.reverse .sp-ctx-pos { display: none; }
+  body.reverse .sp-face-neg, body.reverse .sp-ctx-neg { display: block; }
+
+  .sp-face-pos .sp-pre { color: #D97757; }
+  .sp-face-neg .sp-pre { color: #A3372B; }
 </style>
+
+<script>
+  // 叠加态开关:点击切换 body.reverse(标签 / 滑块 / 文案的翻面全由页面 CSS 承接)。
+  // 换页时的 body.reverse 复位已在 BaseLayout 的 astro:before-swap 里统一处理,故此处只需(重新)绑定按钮。
+  document.addEventListener("astro:page-load", () => {
+    const btn = document.querySelector(".sp-switch");
+    if (!btn) return;
+    const sync = () => btn.setAttribute("aria-pressed", document.body.classList.contains("reverse") ? "true" : "false");
+    btn.addEventListener("click", () => {
+      document.body.classList.toggle("reverse");
+      sync();
+    });
+    sync();
+  });
+</script>

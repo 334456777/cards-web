@@ -13,16 +13,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.7",
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource/noto-sans-sc": "^5.2.9",
     "@fontsource/noto-serif-sc": "^5.2.9",
     "@tailwindcss/vite": "^4.3.1",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
     "astro": "^6.4.8",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
     "tailwindcss": "^4.3.1"
   }
 }
